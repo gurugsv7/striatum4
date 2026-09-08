@@ -1,16 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-
-  "//": [
-    "Only /admin is rewritten to the SPA shell. A catch-all rewrite would make",
-    "EVERY path return HTTP 200 with the app, including retired URLs from the",
-    "previous site (e.g. /photography, /cultural-fest). Google treats those as",
-    "live pages and never drops them from the index — which is exactly the stale",
-    "sitelink problem this site needs to clear. Unknown paths must 404."
-  ],
-
   "rewrites": [{ "source": "/admin", "destination": "/index.html" }],
-
   "headers": [
     {
       "source": "/admin",
