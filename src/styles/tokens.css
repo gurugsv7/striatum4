@@ -1,0 +1,81 @@
+/* STRIATUM 4.0 Design Tokens derived directly from provided mockups */
+:root {
+  /* Color Palette: Deep Oceanic Abyss & Electric Cyan */
+  --bg-abyss-deep: #010409;
+  --bg-abyss-900: #020914;
+  --bg-abyss-800: #041224;
+  --bg-abyss-700: #061e38;
+  --bg-card-glass: rgba(2, 14, 26, 0.72);
+  --bg-card-glass-hover: rgba(4, 22, 40, 0.82);
+  --bg-input-glass: rgba(1, 11, 21, 0.65);
+  
+  /* Electric Bioluminescent Cyan Accents */
+  --cyan-50: #f0fdff;
+  --cyan-100: #dcfaff;
+  --cyan-200: #b8f2fc;
+  --cyan-300: #78e5f8;
+  --cyan-400: #30d7f2;
+  --cyan-500: #00f0ff;
+  --cyan-glow: #2af1fa;
+  --cyan-deep: #0e5b72;
+  --cyan-border: rgba(42, 241, 250, 0.28);
+  --cyan-border-subtle: rgba(42, 241, 250, 0.14);
+  --cyan-border-strong: rgba(42, 241, 250, 0.65);
+
+  /* Typography Colors */
+  --text-pure-white: #ffffff;
+  --text-silver: #e1ebf4;
+  --text-muted: #8ca3b8;
+  --text-dim: #546e84;
+  --text-cyan-bright: #2af1fa;
+  --text-cyan-link: #3be2f5;
+
+  /* Typography Fonts */
+  --font-serif-display: 'Playfair Display', 'Cormorant Garamond', Georgia, serif;
+  --font-serif-title: 'Playfair Display', Georgia, serif;
+  --font-cinzel: 'Cinzel', serif;
+  --font-sans-ui: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono-meta: 'JetBrains Mono', monospace;
+
+  /* Shadows & Glows */
+  --glow-cyan-point: 0 0 8px #2af1fa, 0 0 16px rgba(42, 241, 250, 0.65);
+  --glow-cyan-box: 0 0 18px rgba(42, 241, 250, 0.35), inset 0 0 14px rgba(42, 241, 250, 0.15);
+  --glow-button: 0 4px 20px rgba(42, 241, 250, 0.4), 0 0 30px rgba(0, 240, 255, 0.25);
+  --shadow-card: 0 12px 36px -8px rgba(0, 0, 0, 0.8), 0 0 1px rgba(42, 241, 250, 0.3);
+
+  /* Borders & Radii */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-pill: 9999px;
+
+  /* Geometry Shapes */
+  --chamfer-cut: polygon(
+    8px 0,
+    calc(100% - 8px) 0,
+    100% 8px,
+    100% calc(100% - 8px),
+    calc(100% - 8px) 100%,
+    8px 100%,
+    0 calc(100% - 8px),
+    0 8px
+  );
+  --chamfer-cut-large: polygon(
+    14px 0,
+    calc(100% - 14px) 0,
+    100% 14px,
+    100% calc(100% - 14px),
+    calc(100% - 14px) 100%,
+    14px 100%,
+    0 calc(100% - 14px),
+    0 14px
+  );
+
+  /* Dimensions & Spacing */
+  --mobile-width: 412px;
+  --mobile-height: 890px;
+  --nav-height: 72px;
+  --safe-bottom: 24px;
+}

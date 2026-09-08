@@ -1,0 +1,942 @@
+/* Components Stylesheet: Buttons, Cards, Rails, HUD, Accordions, Bottom Nav */
+
+/* 1. Bottom Navigation Bar (Docked Fixed at Bottom of Phone Canvas) */
+.bottom-nav-container {
+  flex-shrink: 0;
+  width: 100%;
+  height: 72px;
+  background: rgba(1, 10, 20, 0.96);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-top: 1px solid rgba(42, 241, 250, 0.2);
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  position: relative;
+}
+
+.ios-bottom-bar-container {
+  flex-shrink: 0;
+  width: 100%;
+  height: 28px;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 8px;
+  z-index: 50;
+}
+
+.bottom-nav-track {
+  width: 100%;
+  height: 2px;
+  background: rgba(42, 241, 250, 0.08);
+  position: relative;
+}
+
+.bottom-nav-indicator {
+  position: absolute;
+  top: -1px;
+  width: 25%;
+  height: 2px;
+  transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.indicator-glow-line {
+  width: 48px;
+  height: 2px;
+  background: #2af1fa;
+  box-shadow: 0 0 10px #2af1fa, 0 0 20px rgba(42, 241, 250, 0.8);
+  border-radius: 2px;
+}
+
+.indicator-glow-dot {
+  position: absolute;
+  top: -3px;
+  width: 8px;
+  height: 8px;
+  background: #2af1fa;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #2af1fa, 0 0 16px #2af1fa;
+}
+
+.bottom-nav-items {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  height: 52px;
+  padding: 4px 10px 0;
+}
+
+.nav-tab-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text-dim);
+  transition: all 0.25s ease;
+  padding: 4px 0;
+}
+
+.nav-tab-btn:hover {
+  color: var(--text-silver);
+}
+
+.nav-tab-btn.active {
+  color: var(--cyan-glow);
+}
+
+.nav-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+}
+
+.nav-tab-btn.active .nav-icon-wrap {
+  transform: translateY(-1px);
+  filter: drop-shadow(0 0 6px rgba(42, 241, 250, 0.7));
+}
+
+.nav-label {
+  font-family: var(--font-sans-ui);
+  font-size: 10px;
+  letter-spacing: 1.2px;
+  font-weight: 600;
+}
+
+.ios-home-indicator {
+  width: 135px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.35);
+  border-radius: 4px;
+  margin: 6px auto 0;
+  pointer-events: none;
+}
+
+/* 2. Vertical Timeline Rail Motif */
+.timeline-section-wrap {
+  position: relative;
+  padding-left: 28px;
+  margin-bottom: 28px;
+}
+
+.timeline-rail-line {
+  position: absolute;
+  top: 6px;
+  left: 3px;
+  bottom: -28px;
+  width: 1px;
+  background: linear-gradient(180deg, rgba(42, 241, 250, 0.4) 0%, rgba(42, 241, 250, 0.15) 100%);
+}
+
+.timeline-section-wrap:last-child .timeline-rail-line {
+  display: none;
+}
+
+.timeline-node-bead {
+  position: absolute;
+  top: 5px;
+  left: 0px;
+  width: 7px;
+  height: 7px;
+  background: #2af1fa;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #2af1fa, 0 0 16px rgba(42, 241, 250, 0.9);
+  z-index: 2;
+}
+
+/* Section Index Header: 01 / DELEGATE ACCESS */
+.section-index-label {
+  font-family: var(--font-mono-meta);
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--cyan-glow);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.section-index-label .cyan-num {
+  font-weight: 600;
+}
+
+.section-index-label .slash {
+  color: var(--text-dim);
+}
+
+.section-index-label .section-name {
+  color: var(--text-muted);
+  letter-spacing: 2px;
+}
+
+/* Section Title with Serif Font and Cyan Dot */
+.section-heading-serif {
+  font-family: var(--font-serif-display);
+  font-size: 26px;
+  line-height: 1.15;
+  color: #ffffff;
+  font-weight: 500;
+  margin-bottom: 8px;
+  letter-spacing: -0.3px;
+}
+
+.section-heading-serif .cyan-period {
+  color: var(--cyan-glow);
+  text-shadow: 0 0 8px var(--cyan-glow);
+}
+
+.section-desc-text {
+  font-family: var(--font-sans-ui);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+}
+
+/* Action Link Arrow */
+.action-link-cyan {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono-meta);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  color: var(--cyan-glow);
+  text-decoration: none;
+  border-bottom: 1px solid var(--cyan-glow);
+  padding-bottom: 3px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: fit-content;
+  background: transparent;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+}
+
+.action-link-cyan:hover {
+  text-shadow: 0 0 10px var(--cyan-glow);
+  padding-bottom: 4px;
+}
+
+/* Right-aligned Vertical Micro-Annotations */
+.side-annotation-col {
+  position: absolute;
+  right: 0;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  pointer-events: none;
+}
+
+.side-annotation-text {
+  font-family: var(--font-mono-meta);
+  font-size: 8.5px;
+  line-height: 1.4;
+  letter-spacing: 1.8px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  border-left: 1px solid rgba(42, 241, 250, 0.2);
+  padding-left: 8px;
+}
+
+.side-annotation-text .bottom-dash {
+  display: block;
+  width: 14px;
+  height: 1px;
+  background: var(--text-dim);
+  margin-top: 5px;
+}
+
+/* 3. HUD Delegate ID Card */
+.hud-delegate-card {
+  position: relative;
+  background: rgba(1, 14, 25, 0.7);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(42, 241, 250, 0.16);
+  border-radius: 4px;
+  padding: 16px;
+  margin: 14px 0 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.hud-delegate-card:hover {
+  border-color: rgba(42, 241, 250, 0.35);
+  box-shadow: 0 0 20px rgba(42, 241, 250, 0.15);
+}
+
+.hud-corner-tl {
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  width: 12px;
+  height: 12px;
+  border-top: 2px solid var(--cyan-glow);
+  border-left: 2px solid var(--cyan-glow);
+  border-top-left-radius: 2px;
+}
+
+.hud-corner-br {
+  position: absolute;
+  bottom: -1px;
+  right: -1px;
+  width: 12px;
+  height: 12px;
+  border-bottom: 2px solid var(--cyan-glow);
+  border-right: 2px solid var(--cyan-glow);
+  border-bottom-right-radius: 2px;
+}
+
+.hud-label-top {
+  font-family: var(--font-mono-meta);
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.hud-id-value-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.hud-id-prefix {
+  font-family: var(--font-serif-display);
+  font-size: 22px;
+  color: #ffffff;
+}
+
+.hud-id-track {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+}
+
+.track-node-line {
+  height: 1px;
+  background: rgba(42, 241, 250, 0.4);
+  flex: 1;
+}
+
+.track-node-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--cyan-glow);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--cyan-glow);
+}
+
+.track-dash {
+  width: 14px;
+  height: 1px;
+  background: rgba(42, 241, 250, 0.3);
+}
+
+.hud-status-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-mono-meta);
+  font-size: 9px;
+  letter-spacing: 1.5px;
+}
+
+.hud-status-label {
+  color: var(--text-dim);
+}
+
+.hud-status-val {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.hud-status-val.registered {
+  color: var(--cyan-glow);
+  text-shadow: 0 0 8px var(--cyan-glow);
+}
+
+/* 4. Schedule Stepper Widget */
+.schedule-stepper-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 14px 0 10px;
+}
+
+.stepper-nodes-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  padding: 0 4px;
+}
+
+.stepper-connecting-line {
+  position: absolute;
+  top: 5px;
+  left: 10px;
+  right: 10px;
+  height: 1px;
+  background: rgba(42, 241, 250, 0.25);
+  z-index: 1;
+}
+
+.stepper-node-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  z-index: 2;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.stepper-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(42, 241, 250, 0.3);
+  transition: all 0.25s ease;
+}
+
+.stepper-node-item.active .stepper-dot {
+  background: var(--cyan-glow);
+  box-shadow: 0 0 10px var(--cyan-glow), 0 0 18px var(--cyan-glow);
+  transform: scale(1.3);
+}
+
+.stepper-num {
+  font-family: var(--font-mono-meta);
+  font-size: 11px;
+  color: var(--text-dim);
+  transition: color 0.25s ease;
+}
+
+.stepper-node-item.active .stepper-num {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* 5. Filter Chips / Pills */
+.filter-chips-carousel {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 12px;
+  margin-bottom: 14px;
+  scrollbar-width: none;
+}
+
+.filter-chips-carousel::-webkit-scrollbar {
+  display: none;
+}
+
+.filter-chip-btn {
+  background: rgba(1, 10, 18, 0.7);
+  border: 1px solid rgba(42, 241, 250, 0.16);
+  color: var(--text-muted);
+  font-family: var(--font-sans-ui);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  padding: 8px 16px;
+  border-radius: 9999px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  transition: all 0.25s ease;
+}
+
+.filter-chip-btn:hover {
+  color: #ffffff;
+  border-color: rgba(42, 241, 250, 0.35);
+}
+
+.filter-chip-btn.active {
+  background: rgba(1, 18, 28, 0.85);
+  border-color: var(--cyan-glow);
+  color: #ffffff;
+  box-shadow: 0 0 14px rgba(42, 241, 250, 0.3);
+}
+
+.chip-glow-dot {
+  width: 5px;
+  height: 5px;
+  background: var(--cyan-glow);
+  border-radius: 50%;
+  box-shadow: 0 0 6px var(--cyan-glow);
+}
+
+/* 6. Event Card in Explore Screen */
+.event-card {
+  position: relative;
+  background: rgba(0, 12, 20, 0.78);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(42, 241, 250, 0.18);
+  border-radius: 14px;
+  padding: 18px;
+  margin-bottom: 18px;
+  overflow: hidden;
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  cursor: pointer;
+}
+
+.event-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(42, 241, 250, 0.45);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.5), 0 0 16px rgba(42, 241, 250, 0.18);
+}
+
+/* Subtle clean dark gradient on right half of card (Zero Text) */
+.event-card-reef-bg {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 50%;
+  height: 100%;
+  background: radial-gradient(ellipse at 100% 50%, rgba(14, 91, 114, 0.2) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.event-card-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  position: relative;
+  z-index: 2;
+}
+
+.event-card-code {
+  font-family: var(--font-mono-meta);
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 1.5px;
+}
+
+.event-badge-pill {
+  background: rgba(0, 18, 30, 0.7);
+  border: 1px solid rgba(42, 241, 250, 0.35);
+  color: var(--cyan-glow);
+  font-family: var(--font-mono-meta);
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  text-transform: uppercase;
+}
+
+.event-card-title {
+  font-family: var(--font-serif-display);
+  font-size: 21px;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: 1.25;
+  margin-bottom: 6px;
+  position: relative;
+  z-index: 2;
+}
+
+.event-card-subtitle {
+  font-family: var(--font-sans-ui);
+  font-size: 12.5px;
+  color: var(--text-muted);
+  margin-bottom: 18px;
+  position: relative;
+  z-index: 2;
+}
+
+.event-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+}
+
+.event-date-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono-meta);
+  font-size: 11.5px;
+  color: var(--text-silver);
+  letter-spacing: 1.2px;
+}
+
+.btn-view-event {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--cyan-glow);
+  font-family: var(--font-mono-meta);
+  font-size: 10.5px;
+  letter-spacing: 1.5px;
+  font-weight: 600;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: gap 0.2s ease;
+}
+
+.btn-view-event:hover {
+  gap: 12px;
+}
+
+.circle-arrow-icon {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1px solid var(--cyan-glow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 8px rgba(42, 241, 250, 0.3);
+}
+
+/* 7. Buttons: Chamfered Geometry */
+.btn-chamfer-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  height: 52px;
+  background: linear-gradient(90deg, #b7effb 0%, #cef0f7 100%);
+  color: #03202e;
+  font-family: var(--font-sans-ui);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  border: none;
+  cursor: pointer;
+  clip-path: var(--chamfer-cut);
+  position: relative;
+  box-shadow: 0 0 20px rgba(183, 239, 251, 0.4);
+  transition: all 0.25s ease;
+}
+
+.btn-chamfer-primary:hover {
+  filter: brightness(1.06);
+  box-shadow: 0 0 26px rgba(183, 239, 251, 0.6);
+}
+
+.btn-chamfer-dark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  height: 50px;
+  background: rgba(1, 8, 16, 0.85);
+  border: 1px solid rgba(42, 241, 250, 0.2);
+  color: #ffffff;
+  font-family: var(--font-sans-ui);
+  font-size: 13.5px;
+  font-weight: 500;
+  cursor: pointer;
+  clip-path: var(--chamfer-cut);
+  transition: all 0.25s ease;
+}
+
+.btn-chamfer-dark:hover {
+  border-color: var(--cyan-glow);
+  background: rgba(2, 16, 30, 0.95);
+}
+
+/* Event Details Register Chamfered Frame Button */
+.btn-register-event-slot {
+  position: relative;
+  width: 100%;
+  height: 54px;
+  background: rgba(1, 12, 22, 0.9);
+  border: 1.5px solid var(--cyan-glow);
+  clip-path: var(--chamfer-cut);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px 0 20px;
+  cursor: pointer;
+  box-shadow: 0 0 16px rgba(42, 241, 250, 0.35), inset 0 0 12px rgba(42, 241, 250, 0.15);
+  transition: all 0.25s ease;
+  margin: 16px 0 10px;
+}
+
+.btn-register-event-slot:hover {
+  box-shadow: 0 0 24px rgba(42, 241, 250, 0.6), inset 0 0 16px rgba(42, 241, 250, 0.25);
+  border-color: #ffffff;
+}
+
+.btn-register-label {
+  font-family: var(--font-mono-meta);
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  color: var(--cyan-glow);
+  text-transform: uppercase;
+}
+
+/* 8. 4-Column Metric Grid */
+.metrics-grid-4col {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-top: 1px solid rgba(42, 241, 250, 0.15);
+  border-bottom: 1px solid rgba(42, 241, 250, 0.15);
+  padding: 16px 0;
+  margin: 18px 0;
+}
+
+.metric-col-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0 8px;
+  border-right: 1px solid rgba(42, 241, 250, 0.12);
+}
+
+.metric-col-item:last-child {
+  border-right: none;
+}
+
+.metric-icon {
+  color: var(--cyan-glow);
+  margin-bottom: 6px;
+}
+
+.metric-title {
+  font-family: var(--font-mono-meta);
+  font-size: 8.5px;
+  letter-spacing: 1.5px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.metric-value {
+  font-family: var(--font-sans-ui);
+  font-size: 12px;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
+/* 9. Accordion Sections */
+.accordion-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.accordion-item {
+  border-top: 1px solid rgba(42, 241, 250, 0.12);
+  border-bottom: 1px solid rgba(42, 241, 250, 0.12);
+}
+
+.accordion-trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: transparent;
+  border: none;
+  padding: 14px 0;
+  color: var(--text-silver);
+  font-family: var(--font-mono-meta);
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  text-align: left;
+  transition: color 0.2s ease;
+}
+
+.accordion-trigger:hover {
+  color: var(--cyan-glow);
+}
+
+.accordion-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.accordion-ring-icon {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1.5px solid var(--cyan-glow);
+  box-shadow: 0 0 6px rgba(42, 241, 250, 0.4);
+}
+
+.accordion-chevron {
+  color: var(--cyan-glow);
+  transition: transform 0.3s ease;
+}
+
+.accordion-item.open .accordion-chevron {
+  transform: rotate(180deg);
+}
+
+.accordion-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: var(--font-sans-ui);
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--text-muted);
+  white-space: pre-line;
+}
+
+.accordion-item.open .accordion-content {
+  max-height: 250px;
+  padding-bottom: 14px;
+  padding-left: 24px;
+}
+
+/* 10. Orbit HUD Graphic in Event Details */
+.orbit-hud-container {
+  position: absolute;
+  top: 50px;
+  right: 12px;
+  width: 140px;
+  height: 160px;
+  pointer-events: none;
+}
+
+.orbit-hud-arc {
+  position: absolute;
+  top: 10px;
+  right: 60px;
+  width: 80px;
+  height: 80px;
+  border-left: 1px solid rgba(42, 241, 250, 0.35);
+  border-radius: 50%;
+}
+
+.orbit-hud-line {
+  position: absolute;
+  top: 10px;
+  right: 60px;
+  width: 1px;
+  height: 80px;
+  background: linear-gradient(180deg, var(--cyan-glow) 0%, rgba(42, 241, 250, 0.1) 100%);
+}
+
+.orbit-hud-node {
+  position: absolute;
+  top: 8px;
+  right: 58px;
+  width: 5px;
+  height: 5px;
+  background: var(--cyan-glow);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--cyan-glow);
+}
+
+.orbit-hud-labels {
+  position: absolute;
+  top: 20px;
+  right: 0;
+  font-family: var(--font-mono-meta);
+  font-size: 8px;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  line-height: 1.7;
+  text-transform: uppercase;
+  border-left: 1px solid rgba(42, 241, 250, 0.25);
+  padding-left: 8px;
+}
+
+/* 11. Modal Dialog for Delegate Registration */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(10px);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.modal-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-card {
+  width: 100%;
+  max-width: 360px;
+  background: #020e1c;
+  border: 1px solid rgba(42, 241, 250, 0.35);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8), 0 0 30px rgba(42, 241, 250, 0.2);
+  border-radius: 12px;
+  padding: 24px;
+  position: relative;
+  transform: translateY(20px);
+  transition: transform 0.25s ease;
+}
+
+.modal-overlay.open .modal-card {
+  transform: translateY(0);
+}
+
+/* Toast Notification */
+.toast-notice {
+  position: fixed;
+  bottom: 90px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: rgba(1, 16, 28, 0.95);
+  border: 1px solid var(--cyan-glow);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.8), 0 0 16px rgba(42, 241, 250, 0.4);
+  color: #ffffff;
+  font-family: var(--font-sans-ui);
+  font-size: 12.5px;
+  padding: 10px 20px;
+  border-radius: 9999px;
+  z-index: 999;
+  pointer-events: none;
+  opacity: 0;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.toast-notice.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}

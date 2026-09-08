@@ -1,0 +1,538 @@
+/* Commerce Stylesheet — Cart & Payment (STRIATUM 4.0)
+   Registration/payment idiom only. New rules only; everything reusable lives in
+   components.css / explore.css / details.css / onboarding.css already. */
+
+/* ------------------------------------------------------------- Cart lines -- */
+
+.cart-lines-timeline {
+  margin-top: 6px;
+  margin-bottom: 20px;
+}
+
+.cart-line-entry {
+  margin-bottom: 16px;
+}
+
+.cart-line-card {
+  position: relative;
+  background: rgba(0, 12, 20, 0.78);
+  border: 1px solid rgba(42, 241, 250, 0.16);
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.cart-line-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.cart-line-name-btn {
+  background: transparent;
+  border: none;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+  font-family: var(--font-serif-display);
+  font-size: 19px;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
+.cart-line-name-btn:hover {
+  color: var(--cyan-glow);
+}
+
+.cart-line-remove {
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  font-family: var(--font-mono-meta);
+  font-size: 9.5px;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  padding: 4px 0;
+  transition: color 0.2s ease;
+}
+
+.cart-line-remove:hover {
+  color: #ff6b6b;
+}
+
+.cart-line-context {
+  font-family: var(--font-sans-ui);
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.cart-line-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono-meta);
+  font-size: 10px;
+  letter-spacing: 1.2px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.cart-meta-dot {
+  color: var(--text-dim);
+}
+
+.cart-line-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.cart-line-price {
+  font-family: var(--font-mono-meta);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--cyan-glow);
+}
+
+.cart-line-price-basis {
+  font-family: var(--font-sans-ui);
+  font-size: 10.5px;
+  color: var(--text-dim);
+}
+
+.cart-line-issue {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(42, 241, 250, 0.1);
+  font-family: var(--font-sans-ui);
+  font-size: 11.5px;
+  line-height: 1.4;
+}
+
+.cart-line-issue.blocking {
+  color: #ff8a8a;
+}
+
+.cart-line-issue.warning {
+  color: var(--cyan-glow);
+}
+
+/* ------------------------------------------------------- Conflict warning -- */
+
+.cart-conflict-block {
+  border: 1px solid rgba(255, 138, 138, 0.35);
+  background: rgba(40, 6, 6, 0.35);
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 20px;
+}
+
+.cart-conflict-title {
+  font-family: var(--font-mono-meta);
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: #ff8a8a;
+  margin-bottom: 8px;
+}
+
+.cart-conflict-line {
+  font-family: var(--font-sans-ui);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-silver);
+}
+
+.cart-conflict-line + .cart-conflict-line {
+  margin-top: 4px;
+}
+
+/* ----------------------------------------------------------- Ledger block -- */
+
+.cart-summary-ledger,
+.payment-order-summary {
+  border-top: 1px solid rgba(42, 241, 250, 0.15);
+  border-bottom: 1px solid rgba(42, 241, 250, 0.15);
+  padding: 16px 0;
+  margin-bottom: 18px;
+  font-family: var(--font-mono-meta);
+}
+
+.ledger-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+  padding: 5px 0;
+}
+
+.ledger-label {
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.ledger-value {
+  color: var(--text-silver);
+  font-variant-numeric: tabular-nums;
+}
+
+.ledger-discount .ledger-label,
+.ledger-discount .ledger-value {
+  color: var(--cyan-glow);
+}
+
+.ledger-hairline {
+  height: 1px;
+  background: rgba(42, 241, 250, 0.3);
+  margin: 10px 0;
+}
+
+.ledger-total .ledger-label,
+.ledger-total .ledger-value {
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.ledger-total .ledger-value {
+  color: var(--cyan-glow);
+  text-shadow: 0 0 8px rgba(42, 241, 250, 0.5);
+}
+
+.cart-block-reason {
+  font-family: var(--font-sans-ui);
+  font-size: 12px;
+  color: #ff8a8a;
+  text-align: center;
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+
+#btn-proceed-to-payment:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  box-shadow: none;
+  filter: grayscale(0.4);
+}
+
+/* Extra bottom breathing room so the CTA is never clipped on short viewports. */
+.screen-content.no-bottom-nav {
+  padding-bottom: 48px;
+}
+
+/* ---------------------------------------------------------- Pay amount hero -- */
+
+.pay-amount-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-top: 4px;
+}
+
+.pay-amount-label {
+  font-family: var(--font-mono-meta);
+  font-size: 12px;
+  letter-spacing: 3px;
+  color: var(--text-dim);
+}
+
+.pay-amount-value {
+  font-family: var(--font-serif-display);
+  font-size: 34px;
+  font-weight: 600;
+  color: var(--cyan-glow);
+  text-shadow: 0 0 14px rgba(42, 241, 250, 0.55);
+}
+
+/* ------------------------------------------------------- Ordered event list -- */
+
+.payment-lines-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 22px;
+}
+
+.payment-line-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(42, 241, 250, 0.08);
+}
+
+.payment-line-name {
+  font-family: var(--font-sans-ui);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-silver);
+}
+
+.payment-line-context {
+  font-family: var(--font-mono-meta);
+  font-size: 9.5px;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+
+/* -------------------------------------------------------------- QR panel -- */
+
+.payment-action-block {
+  margin-bottom: 24px;
+}
+
+.qr-panel {
+  position: relative;
+  width: 100%;
+  max-width: 240px;
+  aspect-ratio: 1 / 1;
+  margin: 8px auto 0;
+  background: rgba(1, 10, 18, 0.7);
+  border: 1px solid rgba(42, 241, 250, 0.25);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 20px;
+  text-align: center;
+}
+
+.qr-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.qr-corner-tl {
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  width: 16px;
+  height: 16px;
+  border-top: 2px solid var(--cyan-glow);
+  border-left: 2px solid var(--cyan-glow);
+}
+
+.qr-corner-br {
+  position: absolute;
+  bottom: -1px;
+  right: -1px;
+  width: 16px;
+  height: 16px;
+  border-bottom: 2px solid var(--cyan-glow);
+  border-right: 2px solid var(--cyan-glow);
+}
+
+.qr-placeholder-label {
+  font-family: var(--font-mono-meta);
+  font-size: 11px;
+  letter-spacing: 2.5px;
+  color: var(--cyan-glow);
+}
+
+.qr-placeholder-note {
+  font-family: var(--font-sans-ui);
+  font-size: 10.5px;
+  color: var(--text-dim);
+}
+
+.qr-scan-caption {
+  text-align: center;
+  font-family: var(--font-mono-meta);
+  font-size: 10px;
+  letter-spacing: 2.5px;
+  color: var(--text-dim);
+  margin-top: 12px;
+}
+
+.pay-exact-line {
+  text-align: center;
+  font-family: var(--font-sans-ui);
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 10px;
+}
+
+.pay-exact-amount {
+  font-family: var(--font-mono-meta);
+  font-weight: 700;
+  color: var(--cyan-glow);
+  font-size: 15px;
+}
+
+/* ----------------------------------------------------------- Upload panel -- */
+
+.upload-section-wrap {
+  margin-top: 22px;
+}
+
+.upload-drop-panel {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-align: center;
+  padding: 28px 20px;
+  background: rgba(1, 10, 18, 0.5);
+  border: 1px dashed rgba(42, 241, 250, 0.4);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.upload-drop-panel:hover {
+  border-color: var(--cyan-glow);
+  background: rgba(1, 14, 24, 0.7);
+}
+
+.upload-drop-title {
+  font-family: var(--font-mono-meta);
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--text-silver);
+}
+
+.upload-drop-formats {
+  font-family: var(--font-mono-meta);
+  font-size: 9.5px;
+  letter-spacing: 1.5px;
+  color: var(--text-dim);
+}
+
+.upload-drop-hint {
+  font-family: var(--font-sans-ui);
+  font-size: 11px;
+  color: var(--text-dim);
+  max-width: 260px;
+  line-height: 1.4;
+}
+
+.upload-choose-label {
+  margin-top: 8px;
+}
+
+.upload-preview-panel {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  background: rgba(1, 10, 18, 0.6);
+  border: 1px solid rgba(42, 241, 250, 0.2);
+  border-radius: 8px;
+  margin-bottom: 14px;
+}
+
+.upload-preview-thumb {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid rgba(42, 241, 250, 0.25);
+  flex-shrink: 0;
+}
+
+.upload-preview-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.upload-preview-filename {
+  font-family: var(--font-sans-ui);
+  font-size: 12px;
+  color: var(--text-silver);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.upload-replace-btn {
+  font-size: 9.5px;
+}
+
+.proof-privacy-note {
+  font-family: var(--font-sans-ui);
+  font-size: 10.5px;
+  line-height: 1.4;
+  color: var(--text-dim);
+  margin-top: 12px;
+  text-align: center;
+}
+
+/* ----------------------------------------------------------- Status blocks -- */
+
+.payment-status-block {
+  border: 1px solid rgba(42, 241, 250, 0.16);
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 20px;
+  background: rgba(0, 12, 20, 0.5);
+}
+
+.status-heading {
+  font-family: var(--font-serif-display);
+  font-size: 22px;
+  color: #ffffff;
+  margin-bottom: 10px;
+}
+
+.status-body {
+  font-family: var(--font-sans-ui);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+}
+
+.status-proof-strip {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  background: rgba(1, 10, 18, 0.5);
+  border: 1px solid rgba(42, 241, 250, 0.15);
+  border-radius: 8px;
+  margin-bottom: 14px;
+}
+
+.status-proof-thumb {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.status-proof-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-family: var(--font-mono-meta);
+  font-size: 10px;
+  color: var(--text-silver);
+  min-width: 0;
+}
+
+.status-proof-time {
+  color: var(--text-dim);
+}
+
+.payment-rejected-block {
+  border-color: rgba(255, 138, 138, 0.3);
+}
+
+.status-rejection-reason {
+  color: #ff8a8a;
+}

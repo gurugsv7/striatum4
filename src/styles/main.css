@@ -1,0 +1,568 @@
+/* Global Styles & Split Workbench Layout: Left Sidebar + Right Phone Frame */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  background-color: #01040a;
+  color: var(--text-silver);
+  font-family: var(--font-sans-ui);
+  overflow: hidden;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(1, 8, 16, 0.6);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(42, 241, 250, 0.25);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(42, 241, 250, 0.5);
+}
+
+/* ======================================================= */
+/* WORKBENCH ROOT: Two-Column Flex Layout                  */
+/* ======================================================= */
+.desktop-workbench-root {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  background: #010307;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Background Atmosphere */
+.desktop-workbench-root::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    radial-gradient(ellipse at 70% 30%, rgba(14, 91, 114, 0.18) 0%, transparent 60%),
+    radial-gradient(ellipse at 30% 90%, rgba(42, 241, 250, 0.08) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ======================================================= */
+/* LEFT SIDEBAR: Brand, Screen Switcher, Controls          */
+/* ======================================================= */
+.workbench-left-sidebar {
+  width: 310px;
+  min-width: 310px;
+  height: 100vh;
+  background: rgba(2, 9, 18, 0.95);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-right: 1px solid rgba(42, 241, 250, 0.16);
+  display: flex;
+  flex-direction: column;
+  padding: 20px 18px;
+  overflow-y: auto;
+  z-index: 20;
+  box-shadow: 10px 0 30px rgba(0, 0, 0, 0.6);
+}
+
+/* Brand Block */
+.sidebar-brand-block {
+  padding-bottom: 18px;
+  border-bottom: 1px solid rgba(42, 241, 250, 0.12);
+  margin-bottom: 18px;
+}
+
+.sidebar-brand-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.brand-pulse-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--cyan-glow);
+  border-radius: 50%;
+  box-shadow: 0 0 10px var(--cyan-glow);
+  animation: pulse-glow 2.5s infinite ease-in-out;
+}
+
+.sidebar-brand-title {
+  font-family: var(--font-cinzel);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #ffffff;
+}
+
+.sidebar-institution-text {
+  font-family: var(--font-mono-meta);
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: var(--cyan-glow);
+  line-height: 1.4;
+  margin-bottom: 2px;
+}
+
+.sidebar-motto-tag {
+  font-family: var(--font-mono-meta);
+  font-size: 8.5px;
+  letter-spacing: 1.2px;
+  color: var(--text-dim);
+}
+
+/* Section Header */
+.sidebar-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-mono-meta);
+  font-size: 9.5px;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.section-count {
+  background: rgba(42, 241, 250, 0.12);
+  color: var(--cyan-glow);
+  font-size: 9px;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+/* Screens Navigation List */
+.sidebar-nav-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+}
+
+.sidebar-screen-items {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sidebar-screen-nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 12px;
+  background: rgba(1, 12, 22, 0.5);
+  border: 1px solid rgba(42, 241, 250, 0.08);
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.22s ease;
+}
+
+.sidebar-screen-nav-btn:hover {
+  background: rgba(4, 20, 36, 0.8);
+  border-color: rgba(42, 241, 250, 0.25);
+  transform: translateX(2px);
+}
+
+.sidebar-screen-nav-btn.active {
+  background: rgba(3, 24, 44, 0.95);
+  border-color: var(--cyan-glow);
+  box-shadow: 0 0 16px rgba(42, 241, 250, 0.2), inset 2px 0 0 var(--cyan-glow);
+}
+
+.screen-item-num {
+  font-family: var(--font-mono-meta);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-dim);
+  transition: color 0.2s ease;
+}
+
+.sidebar-screen-nav-btn.active .screen-item-num {
+  color: var(--cyan-glow);
+}
+
+.screen-item-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.screen-item-title {
+  font-family: var(--font-sans-ui);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-silver);
+  line-height: 1.2;
+}
+
+.sidebar-screen-nav-btn.active .screen-item-title {
+  color: #ffffff;
+}
+
+.screen-item-desc {
+  font-family: var(--font-mono-meta);
+  font-size: 9.5px;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+.screen-item-indicator {
+  color: var(--text-dim);
+  opacity: 0.5;
+  transition: all 0.2s ease;
+}
+
+.sidebar-screen-nav-btn.active .screen-item-indicator {
+  color: var(--cyan-glow);
+  opacity: 1;
+  transform: translateX(2px);
+}
+
+/* Device Mockup Box */
+.sidebar-device-box {
+  background: rgba(1, 10, 20, 0.65);
+  border: 1px solid rgba(42, 241, 250, 0.14);
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 14px;
+}
+
+.device-identity-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.device-phone-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(42, 241, 250, 0.08);
+  border: 1px solid rgba(42, 241, 250, 0.2);
+  color: var(--cyan-glow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.device-meta-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.device-name {
+  font-family: var(--font-sans-ui);
+  font-size: 12px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.device-dims {
+  font-family: var(--font-mono-meta);
+  font-size: 9.5px;
+  color: var(--cyan-glow);
+}
+
+.scale-switcher-row {
+  display: flex;
+  gap: 6px;
+}
+
+.scale-btn {
+  flex: 1;
+  background: rgba(2, 14, 26, 0.7);
+  border: 1px solid rgba(42, 241, 250, 0.15);
+  color: var(--text-muted);
+  font-family: var(--font-mono-meta);
+  font-size: 10px;
+  padding: 6px 0;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.scale-btn:hover {
+  color: #ffffff;
+  border-color: rgba(42, 241, 250, 0.35);
+}
+
+.scale-btn.active {
+  background: rgba(42, 241, 250, 0.18);
+  border-color: var(--cyan-glow);
+  color: var(--cyan-glow);
+  font-weight: 600;
+}
+
+/* Delegate Status Card */
+.sidebar-delegate-card {
+  background: rgba(1, 10, 20, 0.7);
+  border: 1px solid rgba(42, 241, 250, 0.18);
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.delegate-card-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.delegate-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.delegate-title {
+  font-family: var(--font-mono-meta);
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: var(--text-dim);
+}
+
+.delegate-id-code {
+  font-family: var(--font-mono-meta);
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 1px;
+}
+
+/* ======================================================= */
+/* RIGHT STAGE: Exact Mobile Device Viewport Canvas       */
+/* ======================================================= */
+.workbench-right-stage {
+  flex: 1;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  padding: 16px;
+}
+
+/* Phone Scaler Container */
+.phone-viewport-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform-origin: center center;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+/* Exact iPhone 15 Pro Physical Resolution: 393px × 852px */
+.mobile-canvas-frame {
+  width: 393px;
+  min-width: 393px;
+  max-width: 393px;
+  height: 852px;
+  min-height: 852px;
+  max-height: 852px;
+  background: #01060f;
+  border-radius: 50px;
+  position: relative;
+  box-shadow: 
+    0 0 0 11px #09121d,
+    0 0 0 13px rgba(42, 241, 250, 0.28),
+    0 25px 80px rgba(0, 0, 0, 0.95),
+    0 0 50px rgba(42, 241, 250, 0.12);
+  overflow: hidden;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Phone Island Notch */
+.phone-island-bar {
+  position: absolute;
+  top: 11px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 122px;
+  height: 29px;
+  background: #000000;
+  border-radius: 20px;
+  z-index: 60;
+  pointer-events: none;
+}
+
+/* Fixed Top Phone Status Bar */
+.phone-status-bar {
+  flex-shrink: 0;
+  width: 100%;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px 0;
+  font-family: var(--font-sans-ui);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #ffffff;
+  z-index: 55;
+  background: linear-gradient(180deg, rgba(1, 6, 15, 0.95) 0%, transparent 100%);
+  pointer-events: none;
+}
+
+.status-right-icons {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Scrollable Viewport Wrapper */
+.app-viewport-wrapper {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Pure Clean CSS Background Layers */
+.screen-bg-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.screen-bg-base {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    radial-gradient(ellipse at 50% -5%, rgba(42, 241, 250, 0.22) 0%, rgba(14, 91, 114, 0.15) 35%, transparent 65%),
+    radial-gradient(circle at 85% 15%, rgba(42, 241, 250, 0.1) 0%, transparent 40%),
+    linear-gradient(180deg, #031424 0%, #010813 25%, #00040a 70%, #020c16 100%);
+  opacity: 1;
+}
+
+.screen-bg-veil {
+  position: absolute;
+  top: 60px;
+  right: -20px;
+  width: 65%;
+  height: 55%;
+  background: radial-gradient(ellipse at 70% 40%, rgba(42, 241, 250, 0.08) 0%, rgba(14, 91, 114, 0.04) 50%, transparent 75%);
+  pointer-events: none;
+}
+
+/* Custom Onboarding Abyss Background Artwork */
+.screen-bg-onboarding-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('/onboarding_bg.png');
+  background-size: cover;
+  background-position: 70% top;
+  background-repeat: no-repeat;
+  z-index: 1;
+}
+
+.screen-bg-onboarding-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    180deg, 
+    transparent 0%, 
+    rgba(1, 6, 15, 0.08) 16%, 
+    rgba(1, 6, 15, 0.42) 45%, 
+    rgba(1, 6, 15, 0.76) 72%, 
+    rgba(1, 6, 15, 0.48) 100%
+  );
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Content Container inside Screen Viewport */
+.screen-content {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  padding: 24px 18px 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+.screen-content.no-bottom-nav {
+  padding-bottom: 24px;
+}
+
+/* Keyframe Animations */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 8px #2af1fa, 0 0 16px rgba(42, 241, 250, 0.4);
+    opacity: 1;
+  }
+  50% {
+    box-shadow: 0 0 14px #2af1fa, 0 0 28px rgba(42, 241, 250, 0.8);
+    opacity: 0.85;
+  }
+}
+
+/* Mobile Screen Breakpoint: Fold sidebar on phones */
+@media (max-width: 768px) {
+  .desktop-workbench-root {
+    flex-direction: column;
+  }
+  .workbench-left-sidebar {
+    display: none;
+  }
+  .workbench-right-stage {
+    padding: 0;
+  }
+  .phone-viewport-container {
+    transform: none !important;
+    width: 100%;
+    height: 100%;
+  }
+  .mobile-canvas-frame {
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    height: 100vh !important;
+    min-height: 100vh !important;
+    max-height: 100vh !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+}

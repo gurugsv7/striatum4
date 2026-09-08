@@ -1,0 +1,3 @@
+# SPA fallback so a direct visit or refresh on /admin serves the app
+# rather than a 404. Used by Netlify and Cloudflare Pages.
+/*    /index.html   200

@@ -1,0 +1,67 @@
+-- GENERATED FILE — do not edit by hand.
+-- Produced by scripts/generate-seed.mjs from src/data/events.ts
+-- 26 events. Every value originates in the STRIATUM 4.0 brochure
+-- master data; nothing here is invented. Fields the brochure does not state are
+-- null, which the app renders as "hidden" rather than "TBA".
+
+insert into public.events (
+  id, code, name, category, format, specialties,
+  event_date, start_time, end_time, venue,
+  slots, participation, team_min, team_max,
+  price_early_bird, price_late_bird, price_entry, price_spot,
+  price_individual, price_team, price_flat, price_unit, price_unspecified,
+  delegate_pass_requirement, status, registerable
+) values
+  ('s4-01', 'S4 / 01', 'THE SONO EDGE', 'workshop', 'Workshop', array['Anaesthesiology', 'Critical Care', 'POCUS'], '2026-10-15', '8:30 AM', '4:00 PM', null, 40, 'individual', null, null, 1200, 1400, null, null, null, null, null, 'per_person', false, 'required', 'open', true),
+  ('s4-02', 'S4 / 02', 'SUTUREX', 'workshop', 'Workshop', array['Surgery'], '2026-10-17', '8:30 AM', '12:30 PM', null, 50, 'individual', null, null, 1200, 1400, null, null, null, null, null, 'per_person', false, 'required', 'open', true),
+  ('s4-03', 'S4 / 03', 'PAEDOPRAXIS', 'workshop', 'Workshop', array['Paediatrics'], '2026-10-16', '2:00 PM', '4:00 PM', null, 30, 'individual', null, null, 800, 1000, null, null, null, null, null, 'per_person', false, 'required', 'open', true),
+  ('s4-04', 'S4 / 04', 'PENUMBRA', 'workshop', 'Workshop', array['Radiology'], '2026-10-15', '9:00 AM', '1:00 PM', null, 40, 'individual', null, null, 600, 800, null, null, null, null, null, 'per_person', false, 'required', 'open', true),
+  ('s4-05', 'S4 / 05', 'GENESIS', 'workshop', 'Workshop', array['Obstetrics'], '2026-10-15', '8:00 AM', '4:00 PM', null, 30, 'individual', null, null, 800, 1000, null, null, null, null, null, 'per_person', false, 'required', 'open', true),
+  ('s4-06', 'S4 / 06', 'GLOW CODE', 'workshop', 'Workshop', array['Medical Research', 'AI in Medicine'], '2026-10-17', '8:30 AM', '4:00 PM', null, 50, 'individual', null, null, 600, 800, null, null, null, null, null, 'per_person', false, 'required', 'open', true),
+  ('s4-07', 'S4 / 07', 'BONEFIRE', 'workshop', 'Workshop', array['Orthopaedics'], '2026-10-15', '8:30 AM', '4:00 PM', null, 50, 'individual', null, null, 1300, 1500, null, null, null, null, null, 'per_person', false, 'required', 'open', true),
+  ('s4-08', 'S4 / 08', 'VITALIS', 'workshop', 'Workshop', array['Emergency Medicine'], '2026-10-17', '8:30 AM', '4:30 PM', null, 30, 'individual', null, null, 1800, 2000, null, null, null, null, null, 'per_person', false, 'required', 'open', true),
+  ('s4-09', 'S4 / 09', 'PLEURALIS', 'workshop', 'Workshop', array['Respiratory Medicine'], '2026-10-15', '8:00 AM', '12:30 PM', null, 40, 'individual', null, null, 600, 800, null, null, null, null, null, 'per_person', false, 'required', 'open', true),
+  ('s4-10', 'S4 / 10', 'RYTHMICA', 'workshop', 'Workshop', array['General Medicine', 'Cardiology'], '2026-10-16', '2:00 PM', '4:00 PM', null, 40, 'individual', null, null, 600, 800, null, null, null, null, null, 'per_person', false, 'required', 'open', true),
+  ('s4-11', 'S4 / 11', 'OCEANIC ODYSSEY', 'quiz', 'Junior Quiz', array['Anatomy', 'Pharmacology'], null, null, null, null, null, 'team', 3, 3, null, null, 600, 750, null, null, null, 'per_team', false, 'unspecified', 'open', true),
+  ('s4-12', 'S4 / 12', 'AQUAQUEST', 'quiz', 'Senior Quiz', array['Nephrology'], null, null, null, null, null, 'team', 3, 3, null, null, 700, 850, null, null, null, 'per_team', false, 'unspecified', 'open', true),
+  ('s4-13', 'S4 / 13', 'GLANDSWARS', 'quiz', 'Quiz', array['Endocrinology'], null, null, null, null, null, 'team', 2, 2, null, null, 300, null, null, null, null, 'per_team', false, 'unspecified', 'open', true),
+  ('s4-14', 'S4 / 14', 'LUMINARA', 'presentation', 'Symposium', array['General Medicine', 'Obstetrics & Gynaecology', 'Ophthalmology', 'Biochemistry', 'Physiology', 'Pathology'], null, null, null, null, null, 'team', 2, 6, null, null, null, null, null, 400, null, 'per_team', false, 'unspecified', 'open', true),
+  ('s4-15', 'S4 / 15', 'THE DIAGNOSTIC ABYSS', 'presentation', 'Case Presentation', array['Medicine', 'Obstetrics & Gynaecology', 'Paediatrics', 'Surgery'], null, null, null, null, null, 'either', 1, 2, null, null, null, null, 300, 400, null, null, false, 'not_required_for_submission', 'open', true),
+  ('s4-16', 'S4 / 16', 'CORAL CANVAS', 'presentation', 'Poster Presentation', array['Medical Research'], null, null, null, null, null, 'either', 1, 2, null, null, null, null, 300, 400, null, null, false, 'not_required_for_submission', 'open', true),
+  ('s4-17', 'S4 / 17', 'CHIRONEX', 'presentation', 'Paper Presentation', array['Medical Research'], null, null, null, null, null, 'either', 1, 2, null, null, null, null, 300, 400, null, null, false, 'unspecified', 'open', true),
+  ('s4-18', 'S4 / 18', 'NEURONOVA', 'innovation', 'Ideathon', array['Healthcare Innovation'], '2026-10-18', '9:00 AM', null, null, null, 'either', 1, 3, null, null, null, null, null, 500, null, 'per_team', false, 'unspecified', 'open', true),
+  ('s4-19', 'S4 / 19', 'THE UNCHARTED', 'research', 'Research Idea Pitch', array['Medical Research'], null, null, null, null, null, 'individual', null, null, null, null, null, null, null, null, 300, 'per_person', false, 'unspecified', 'open', true),
+  ('s4-20', 'S4 / 20', 'LIFE REIMAGINED', 'creative', 'Medical Art', array['Fine Arts'], null, null, null, null, null, 'either', 1, 2, null, null, null, null, null, null, 150, null, false, 'unspecified', 'open', true),
+  ('s4-21', 'S4 / 21', 'BEYOND THE BLUE', 'creative', 'Short Film', array['Film & Media'], null, null, null, null, null, 'team', null, null, null, null, null, null, null, 500, null, 'per_team', false, 'unspecified', 'open', true),
+  ('s4-22', 'S4 / 22', 'BIOVERSE', 'exhibition', 'Exhibition', array['Medical Education'], null, null, null, null, null, 'individual', null, null, null, null, null, null, null, null, null, null, true, 'unspecified', 'not_registerable', false),
+  ('s4-23', 'S4 / 23', 'TIDAL CUTS', 'creative', 'Reel Creation', array['Film & Media'], null, null, null, null, null, 'team', null, null, null, null, null, null, null, 100, null, 'per_team', false, 'unspecified', 'open', true),
+  ('s4-24', 'S4 / 24', 'MEMEVERSE', 'creative', 'Meme Creation', array['Ophthalmology'], null, null, null, null, null, 'team', null, null, null, null, null, null, null, 50, null, 'per_team', false, 'unspecified', 'open', true),
+  ('s4-25', 'S4 / 25', 'THE MEDICAL VAULT', 'game', 'Mystery Room', array['Clinical Reasoning'], null, null, null, null, null, 'team', 3, 3, null, null, null, null, null, 200, null, 'per_team', false, 'not_required', 'open', true),
+  ('s4-26', 'S4 / 26', 'MEDMAZE', 'game', 'Treasure Hunt', array['Clinical Reasoning'], null, null, null, null, null, 'team', 3, 3, null, null, null, null, null, 200, null, 'per_team', false, 'not_required', 'open', true)
+on conflict (id) do update set
+  code = excluded.code,
+  name = excluded.name,
+  category = excluded.category,
+  format = excluded.format,
+  specialties = excluded.specialties,
+  event_date = excluded.event_date,
+  start_time = excluded.start_time,
+  end_time = excluded.end_time,
+  venue = excluded.venue,
+  slots = excluded.slots,
+  participation = excluded.participation,
+  team_min = excluded.team_min,
+  team_max = excluded.team_max,
+  price_early_bird = excluded.price_early_bird,
+  price_late_bird = excluded.price_late_bird,
+  price_entry = excluded.price_entry,
+  price_spot = excluded.price_spot,
+  price_individual = excluded.price_individual,
+  price_team = excluded.price_team,
+  price_flat = excluded.price_flat,
+  price_unit = excluded.price_unit,
+  price_unspecified = excluded.price_unspecified,
+  delegate_pass_requirement = excluded.delegate_pass_requirement,
+  status = excluded.status,
+  registerable = excluded.registerable,
+  updated_at = now();
