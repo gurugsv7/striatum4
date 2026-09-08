@@ -1,3 +1,4 @@
-# SPA fallback so a direct visit or refresh on /admin serves the app
-# rather than a 404. Used by Netlify and Cloudflare Pages.
-/*    /index.html   200
+# Only /admin needs the SPA shell. A catch-all (/* -> /index.html 200) would make
+# retired URLs from the previous site return 200 and stay indexed by Google —
+# unknown paths must 404. Used by Netlify / Cloudflare Pages; Vercel uses vercel.json.
+/admin    /index.html   200
