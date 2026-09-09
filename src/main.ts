@@ -13,6 +13,7 @@ import './styles/legal.css';
 
 import { appStore, AppState, ScreenType } from './state/appStore.ts';
 import { initAuth, onAuthChange } from './services/authService.ts';
+import { hydrate as hydrateRegistrations } from './services/registrationService.ts';
 import { renderDesktopSurround, attachDesktopSurroundEvents } from './components/DesktopSurround.ts';
 import { renderOnboardingView, attachOnboardingEvents } from './views/OnboardingView.ts';
 import { renderHomepageView, attachHomepageEvents } from './views/HomepageView.ts';
@@ -144,6 +145,8 @@ appStore.subscribe(renderApp);
 onAuthChange(user => {
   if (user) {
     if (!appStore.getState().isAuthenticated) appStore.login(user.email, user.fullName);
+    // Pull this delegate's real orders, registrations and pass status down.
+    void hydrateRegistrations();
   } else if (appStore.getState().isAuthenticated) {
     appStore.signOut();
   }

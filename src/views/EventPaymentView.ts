@@ -477,7 +477,7 @@ export function attachEventPaymentEvents(): void {
 
   if (!order) return;
 
-  btnSubmit?.addEventListener('click', () => {
+  btnSubmit?.addEventListener('click', async () => {
     if (btnSubmit.disabled) return;
 
     const staged = appStore.getState().eventPayment;
@@ -489,7 +489,7 @@ export function attachEventPaymentEvents(): void {
     btnSubmit.disabled = true;
     btnSubmit.classList.add('is-submitting');
 
-    const res = registration.submitPaymentProof(order.id, {
+    const res = await registration.submitPaymentProof(order.id, {
       fileName: staged.screenshotName ?? 'payment.jpg',
       mimeType: staged.screenshotUrl.startsWith('data:image/png') ? 'image/png' : 'image/jpeg',
       size: staged.screenshotUrl.length,

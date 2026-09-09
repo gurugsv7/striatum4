@@ -217,9 +217,9 @@ export function attachCartEvents(): void {
 
   const btnProceed = document.getElementById('btn-proceed-to-payment') as HTMLButtonElement | null;
   if (btnProceed) {
-    btnProceed.addEventListener('click', () => {
+    btnProceed.addEventListener('click', async () => {
       if (btnProceed.disabled) return;
-      const result = registration.createOrder();
+      const result = await registration.createOrder();
       if (result.ok && result.order) {
         appStore.openPayment(result.order.id);
       } else {

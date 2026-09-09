@@ -8,6 +8,9 @@ import {
   formatINR,
   CURRENT_PRICING_PHASE
 } from './pricing.ts';
+import * as remote from './remote.ts';
+import { isSupabaseConfigured } from './supabaseClient.ts';
+import { getCurrentUser } from './authService.ts';
 
 /* ============================================================================
  * STRIATUM 4.0 — registration & payment domain service.
@@ -164,6 +167,103 @@ export function subscribe(fn: Listener): () => void {
   return () => listeners.delete(fn);
 }
 
+/* ------------------------------------------------------------- server sync --
+ * Orders, registrations, delegate applications and payment proofs live in
+ * Supabase so organisers can actually see them. The cart deliberately stays on
+ * the device: it is a draft selection, and losing it costs nobody a payment.
+ *
+ * Reads stay synchronous for the views by serving an in-memory snapshot that
+ * this module refreshes after every mutation.
+ * -------------------------------------------------------------------------- */
+
+/** True once a signed-in session exists and the backend is configured. */
+export function isRemote(): boolean {
+  return isSupabaseConfigured() && getCurrentUser() !== null;
+}
+
+let isAdminUser = false;
+export function isAdmin(): boolean {
+  return isAdminUser;
+}
+
+function adoptSnapshot(snapshot: remote.RemoteSnapshot): void {
+  state.orders = snapshot.orders.map(order => ({
+    id: order.id,
+    reference: order.reference,
+    lines: order.lines.map(line => ({
+      eventId: line.eventId,
+      eventName: line.eventName,
+      eventCode: line.eventCode,
+      context: line.context,
+      category: line.category as SymposiumEvent['category'],
+      date: line.date,
+      startTime: line.startTime,
+      participation: line.participation,
+      unitPrice: line.unitPrice,
+      priceBasis: line.priceBasis
+    })),
+    subtotal: order.subtotal,
+    discountAmount: order.discountAmount,
+    discountRuleId: null,
+    discountLabel: order.discountLabel,
+    total: order.total,
+    pricingPhase: CURRENT_PRICING_PHASE,
+    status: order.status as OrderStatus,
+    createdAt: order.createdAt,
+    submittedAt: order.submittedAt,
+    reviewedAt: order.reviewedAt,
+    proof: order.proofPath
+      ? {
+          fileName: order.proofPath.split('/').pop() ?? 'payment',
+          mimeType: order.proofPath.endsWith('.png') ? 'image/png' : 'image/jpeg',
+          size: 0,
+          uploadedAt: order.submittedAt ?? order.createdAt
+        }
+      : undefined,
+    rejectionReason: order.rejectionReason
+  }));
+
+  state.registrations = snapshot.registrations.map(r => ({
+    id: r.id,
+    orderId: r.orderId,
+    eventId: r.eventId,
+    participation: r.participation,
+    confirmedAt: r.confirmedAt
+  }));
+
+  const d = snapshot.delegate;
+  state.delegate = d
+    ? {
+        fullName: d.fullName,
+        institution: d.institution,
+        email: d.email,
+        yearOfStudy: d.yearOfStudy,
+        phone: d.phone,
+        status: d.status,
+        delegateId: d.delegateId,
+        submittedAt: d.submittedAt,
+        reviewedAt: d.reviewedAt,
+        rejectionReason: d.rejectionReason
+      }
+    : null;
+
+  remoteDelegates = snapshot.allDelegates;
+  isAdminUser = snapshot.isAdmin;
+  proofPaths = new Map(snapshot.orders.filter(o => o.proofPath).map(o => [o.id, o.proofPath as string]));
+}
+
+/** Every delegate application, for the verification console. */
+let remoteDelegates: remote.RemoteDelegate[] = [];
+let proofPaths = new Map<string, string>();
+
+/** Pulls the authoritative state down from the server. */
+export async function hydrate(): Promise<void> {
+  if (!isRemote()) return;
+  const snapshot = await remote.fetchSnapshot();
+  adoptSnapshot(snapshot);
+  save();
+}
+
 /* ---------------------------------------------------------------- delegate -- */
 
 export function getDelegate(): DelegateApplication | null {
@@ -178,21 +278,28 @@ export function hasApprovedDelegatePass(): boolean {
   return state.delegate?.status === 'approved';
 }
 
-/** Submits a delegate application. Approval is manual — no ID is issued here. */
-export function applyForDelegate(input: {
+/**
+ * Files a delegate application. Approval is manual and happens server-side, so
+ * no Delegate ID is issued here.
+ */
+export async function applyForDelegate(input: {
   fullName: string;
   institution: string;
   email: string;
   yearOfStudy?: string;
   phone?: string;
-}): DelegateApplication {
-  state.delegate = {
-    ...input,
-    status: 'pending',
-    submittedAt: Date.now()
-  };
+}): Promise<{ ok: boolean; message: string }> {
+  if (isRemote()) {
+    const result = await remote.applyForDelegateRemote(input);
+    if (result.ok) await hydrate();
+    else save();
+    return result;
+  }
+
+  // Offline fallback so the flow still works before sign-in is configured.
+  state.delegate = { ...input, status: 'pending', submittedAt: Date.now() };
   save();
-  return { ...state.delegate };
+  return { ok: true, message: 'Delegate application submitted for verification' };
 }
 
 function nextDelegateId(): string {
@@ -522,7 +629,7 @@ export interface CreateOrderResult {
  * computes the authoritative total, then persists the order with a full snapshot.
  * The cart is only cleared once the order exists.
  */
-export function createOrder(): CreateOrderResult {
+export async function createOrder(): Promise<CreateOrderResult> {
   if (!state.cart.length) return { ok: false, message: 'Your cart is empty.' };
 
   const pricing = priceCart();
@@ -536,6 +643,18 @@ export function createOrder(): CreateOrderResult {
   if (pricing.unpricedEventIds.length) {
     const names = pricing.unpricedEventIds.map(id => getEvent(id)?.name ?? id).join(', ');
     return { ok: false, message: 'Fees are not yet published for ' + names + '.' };
+  }
+
+  if (isRemote()) {
+    // The server recomputes every price; we send only what was chosen.
+    const result = await remote.createOrderRemote(
+      state.cart.map(item => ({ eventId: item.eventId, participation: item.participation }))
+    );
+    if (!result.ok) return { ok: false, message: result.message };
+    state.cart = [];
+    await hydrate();
+    const created = getOrders().find(o => o.id === result.data?.id) ?? getOrders()[0];
+    return { ok: true, order: created };
   }
 
   const ref = nextOrderReference();
@@ -688,11 +807,40 @@ function proofKey(orderId: string): string {
 }
 
 /** Reads a stored proof image. Only the owning delegate and an admin reach this. */
+const signedProofUrls = new Map<string, string>();
+
+/**
+ * A displayable link to a stored proof.
+ *
+ * Remote proofs need a short-lived signed URL, which cannot be fetched
+ * synchronously during render. This returns the cached link if we have one and
+ * warms it otherwise, notifying listeners when it arrives.
+ */
 export function readProofImage(orderId: string): string | null {
+  if (isRemote()) {
+    const cached = signedProofUrls.get(orderId);
+    if (cached) return cached;
+    void warmProofUrl(orderId);
+    return null;
+  }
   try {
     return localStorage.getItem(proofKey(orderId));
   } catch {
     return null;
+  }
+}
+
+const warming = new Set<string>();
+
+async function warmProofUrl(orderId: string): Promise<void> {
+  const path = proofPaths.get(orderId);
+  if (!path || warming.has(orderId)) return;
+  warming.add(orderId);
+  const url = await remote.getProofUrl(path);
+  warming.delete(orderId);
+  if (url) {
+    signedProofUrls.set(orderId, url);
+    listeners.forEach(fn => fn());
   }
 }
 
@@ -706,10 +854,22 @@ export interface SubmitProofResult {
  * Only an order awaiting payment or sent back for re-upload accepts a submission,
  * which is what prevents an accidental duplicate submission.
  */
-export function submitPaymentProof(
+export async function submitPaymentProof(
   orderId: string,
-  proof: { fileName: string; mimeType: string; size: number; dataUrl: string }
-): SubmitProofResult {
+  proof: { fileName: string; mimeType: string; size: number; dataUrl: string; blob?: Blob }
+): Promise<SubmitProofResult> {
+  if (isRemote()) {
+    const blob = proof.blob ?? dataUrlToBlob(proof.dataUrl, proof.mimeType);
+    if (!blob) return { ok: false, message: 'That screenshot could not be read.' };
+    const result = await remote.submitPaymentProofRemote(orderId, {
+      blob,
+      mimeType: proof.mimeType,
+      size: proof.size
+    });
+    if (result.ok) await hydrate();
+    return result;
+  }
+
   const order = state.orders.find(o => o.id === orderId);
   if (!order) return { ok: false, message: 'Order not found.' };
   if (!['awaiting_payment', 'rejected'].includes(order.status)) {
@@ -735,6 +895,20 @@ export function submitPaymentProof(
   return { ok: true, message: 'Payment proof submitted for verification' };
 }
 
+/** Converts a stored data URL back to a Blob for upload. */
+function dataUrlToBlob(dataUrl: string, mimeType: string): Blob | null {
+  try {
+    const base64 = dataUrl.split(',')[1];
+    if (!base64) return null;
+    const binary = atob(base64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    return new Blob([bytes], { type: mimeType });
+  } catch {
+    return null;
+  }
+}
+
 /* ------------------------------------------------------------------- admin -- */
 
 export function listOrdersForReview(): Order[] {
@@ -757,7 +931,16 @@ export interface AdminActionResult {
  * Either all lines become registrations or none do — a partially approved order
  * would leave a delegate paid up but unregistered.
  */
-export function approveOrder(orderId: string): AdminActionResult {
+export async function approveOrder(orderId: string): Promise<AdminActionResult> {
+  if (isRemote()) {
+    const result = await remote.approveOrderRemote(orderId);
+    if (result.ok) await hydrate();
+    return result;
+  }
+  return approveOrderLocal(orderId);
+}
+
+function approveOrderLocal(orderId: string): AdminActionResult {
   const order = state.orders.find(o => o.id === orderId);
   if (!order) return { ok: false, message: 'Order not found.' };
   if (order.status === 'approved') return { ok: false, message: 'Order is already approved.' };
@@ -787,7 +970,17 @@ export function approveOrder(orderId: string): AdminActionResult {
   };
 }
 
-export function rejectOrder(orderId: string, reason: string): AdminActionResult {
+export async function rejectOrder(orderId: string, reason: string): Promise<AdminActionResult> {
+  if (!reason.trim()) return { ok: false, message: 'A rejection reason is required.' };
+  if (isRemote()) {
+    const result = await remote.rejectOrderRemote(orderId, reason.trim());
+    if (result.ok) await hydrate();
+    return result;
+  }
+  return rejectOrderLocal(orderId, reason);
+}
+
+function rejectOrderLocal(orderId: string, reason: string): AdminActionResult {
   const order = state.orders.find(o => o.id === orderId);
   if (!order) return { ok: false, message: 'Order not found.' };
   if (!reason.trim()) return { ok: false, message: 'A rejection reason is required.' };
@@ -808,10 +1001,40 @@ export const REJECTION_REASONS = [
 ];
 
 export function listDelegateApplications(): DelegateApplication[] {
+  if (isRemote()) {
+    return remoteDelegates.map(d => ({
+      fullName: d.fullName,
+      institution: d.institution,
+      email: d.email,
+      yearOfStudy: d.yearOfStudy,
+      phone: d.phone,
+      status: d.status,
+      delegateId: d.delegateId,
+      submittedAt: d.submittedAt,
+      reviewedAt: d.reviewedAt,
+      rejectionReason: d.rejectionReason
+    }));
+  }
   return state.delegate ? [{ ...state.delegate }] : [];
 }
 
-export function approveDelegate(): AdminActionResult {
+/** Application ids, parallel to listDelegateApplications(), for admin actions. */
+export function delegateApplicationIds(): string[] {
+  return isRemote() ? remoteDelegates.map(d => d.id) : [];
+}
+
+export async function approveDelegate(applicationId?: string): Promise<AdminActionResult> {
+  if (isRemote()) {
+    const id = applicationId ?? remoteDelegates.find(d => d.status === 'pending')?.id;
+    if (!id) return { ok: false, message: 'No delegate application.' };
+    const result = await remote.approveDelegateRemote(id);
+    if (result.ok) await hydrate();
+    return result;
+  }
+  return approveDelegateLocal();
+}
+
+function approveDelegateLocal(): AdminActionResult {
   if (!state.delegate) return { ok: false, message: 'No delegate application.' };
   if (state.delegate.status === 'approved') return { ok: false, message: 'Delegate is already approved.' };
   state.delegate.status = 'approved';
@@ -822,7 +1045,19 @@ export function approveDelegate(): AdminActionResult {
   return { ok: true, message: 'Delegate ID ' + state.delegate.delegateId + ' issued' };
 }
 
-export function rejectDelegate(reason: string): AdminActionResult {
+export async function rejectDelegate(reason: string, applicationId?: string): Promise<AdminActionResult> {
+  if (!reason.trim()) return { ok: false, message: 'A rejection reason is required.' };
+  if (isRemote()) {
+    const id = applicationId ?? remoteDelegates.find(d => d.status === 'pending')?.id;
+    if (!id) return { ok: false, message: 'No delegate application.' };
+    const result = await remote.rejectDelegateRemote(id, reason.trim());
+    if (result.ok) await hydrate();
+    return result;
+  }
+  return rejectDelegateLocal(reason);
+}
+
+function rejectDelegateLocal(reason: string): AdminActionResult {
   if (!state.delegate) return { ok: false, message: 'No delegate application.' };
   if (!reason.trim()) return { ok: false, message: 'A rejection reason is required.' };
   state.delegate.status = 'rejected';

@@ -595,8 +595,8 @@ export function attachAdminEvents(): void {
   /* ---- delegate approve / reject ---- */
 
   document.querySelectorAll<HTMLButtonElement>('[data-approve-delegate]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const result = registration.approveDelegate();
+    btn.addEventListener('click', async () => {
+      const result = await registration.approveDelegate();
       appStore.showToast(result.message);
       if (result.ok) delegateRejectOpen = false;
       appStore.refresh();
@@ -612,14 +612,14 @@ export function attachAdminEvents(): void {
 
   const btnConfirmRejectDelegate = document.getElementById('btn-confirm-reject-delegate');
   if (btnConfirmRejectDelegate) {
-    btnConfirmRejectDelegate.addEventListener('click', () => {
+    btnConfirmRejectDelegate.addEventListener('click', async () => {
       const input = document.getElementById('delegate-reject-reason') as HTMLInputElement | null;
       const reason = (input?.value ?? '').trim();
       if (!reason) {
         appStore.showToast('A rejection reason is required.');
         return;
       }
-      const result = registration.rejectDelegate(reason);
+      const result = await registration.rejectDelegate(reason);
       appStore.showToast(result.message);
       delegateRejectOpen = false;
       appStore.refresh();
@@ -629,10 +629,10 @@ export function attachAdminEvents(): void {
   /* ---- order approve / reject ---- */
 
   document.querySelectorAll<HTMLButtonElement>('[data-approve-order]').forEach(btn => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', async () => {
       const id = btn.getAttribute('data-approve-order');
       if (!id) return;
-      const result = registration.approveOrder(id);
+      const result = await registration.approveOrder(id);
       appStore.showToast(result.message);
       if (result.ok) expandedRejectOrderId = null;
       appStore.refresh();
@@ -659,7 +659,7 @@ export function attachAdminEvents(): void {
   });
 
   document.querySelectorAll<HTMLButtonElement>('[data-confirm-reject-order]').forEach(btn => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', async () => {
       const orderId = btn.getAttribute('data-confirm-reject-order');
       if (!orderId) return;
       const input = document.getElementById('reject-reason-' + orderId) as HTMLInputElement | null;
@@ -668,7 +668,7 @@ export function attachAdminEvents(): void {
         appStore.showToast('A rejection reason is required.');
         return;
       }
-      const result = registration.rejectOrder(orderId, reason);
+      const result = await registration.rejectOrder(orderId, reason);
       appStore.showToast(result.message);
       expandedRejectOrderId = null;
       appStore.refresh();
