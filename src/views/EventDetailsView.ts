@@ -195,17 +195,20 @@ function renderDelegateNotice(event: SymposiumEvent): string {
 
   switch (event.delegatePassRequirement) {
     case 'required': {
-      const approved = registration.hasApprovedDelegatePass();
       const status = registration.getDelegateStatus();
-      if (approved) {
-        return `<div class="delegate-required-notice">${icon}<span>Covered by your approved Delegate ID.</span></div>`;
+      if (status === 'approved') {
+        return `<div class="delegate-required-notice">${icon}<span>Covered by your verified Delegate Pass.</span></div>`;
+      }
+      if (status === 'pending') {
+        // The pass works immediately; verification happens alongside.
+        return `<div class="delegate-required-notice">${icon}<span>Covered by your Delegate Pass · verification in progress.</span></div>`;
       }
       const body =
-        status === 'pending'
-          ? 'Your Delegate ID is awaiting verification. This event unlocks once it is approved.'
+        status === 'revoked'
+          ? 'Your Delegate Pass has been revoked. Contact the organisers to restore access.'
           : status === 'rejected'
           ? 'Your delegate application needs attention before you can register for this event.'
-          : 'A <a href="#delegate" id="link-need-delegate" class="cyan-link">Delegate ID</a> is required for this event.';
+          : 'A <a href="#delegate" id="link-need-delegate" class="cyan-link">Delegate Pass</a> is required for this event.';
       return `<div class="delegate-required-notice is-blocking">${icon}<span>${body}</span></div>`;
     }
     case 'not_required':

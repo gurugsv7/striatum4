@@ -8,12 +8,14 @@ import * as registration from '../services/registrationService.ts';
  * dependency, and it guarantees the saved file contains exactly the approved
  * credential values rather than whatever happened to be on screen.
  *
- * Only ever called for an approved delegate — the button is disabled otherwise —
- * so an unissued Delegate ID can never be written into a downloadable file.
+ * Only called for a delegate whose pass is active (applied for and not revoked)
+ * and who therefore has an issued Delegate ID, so an unissued identifier can
+ * never be written into a downloadable file.
  */
 async function downloadDelegatePass(): Promise<boolean> {
   const delegate = registration.getDelegate();
-  if (!delegate || delegate.status !== 'approved' || !delegate.delegateId) return false;
+  const active = delegate?.status === 'approved' || delegate?.status === 'pending';
+  if (!delegate || !active || !delegate.delegateId) return false;
 
   const tier = appStore.getState().delegateForm.tier;
 
@@ -259,6 +261,9 @@ function renderRejectedState(delegate: registration.DelegateApplication): string
 
 function renderStatusCardState(delegate: registration.DelegateApplication, status: registration.DelegateStatus): string {
   const isApproved = status === 'approved';
+  // A pass is usable as soon as it is applied for; verification runs alongside
+  // and can revoke it later. Only a rejected or revoked pass is inactive.
+  const isActive = status === 'approved' || status === 'pending';
   const form = appStore.getState().delegateForm;
   const tierName = form.tier;
   const course = form.course;
@@ -327,10 +332,10 @@ function renderStatusCardState(delegate: registration.DelegateApplication, statu
 
           <!-- S4 QR Code Box -->
           <div class="holo-qr-wrap-col">
-            <div class="holo-qr-white-frame" style="${isApproved ? '' : 'opacity: 0.35; filter: grayscale(1);'}">
+            <div class="holo-qr-white-frame" style="${isActive ? '' : 'opacity: 0.35; filter: grayscale(1);'}">
               <img src="/art_confirm_s4_qr.png" alt="Pass QR Code" />
             </div>
-            <div class="holo-qr-sub-label">${isApproved ? 'SCAN AT VENUE &amp; EVENTS' : 'ACTIVATES ON APPROVAL'}</div>
+            <div class="holo-qr-sub-label">${isActive ? 'SCAN AT VENUE &amp; EVENTS' : 'PASS INACTIVE'}</div>
           </div>
 
           <!-- Attendee Information Fields -->
@@ -369,7 +374,7 @@ function renderStatusCardState(delegate: registration.DelegateApplication, statu
                       </svg>
                     </button>
                   `
-                  : `<span class="holo-id-bold" style="letter-spacing: 1px; opacity: 0.7;">AWAITING VERIFICATION</span>`}
+                  : `<span class="holo-id-bold" style="letter-spacing: 1px; opacity: 0.7;">NOT ISSUED</span>`}
               </div>
             </div>
 
@@ -388,7 +393,7 @@ function renderStatusCardState(delegate: registration.DelegateApplication, statu
                 <line x1="8" x2="8" y1="2" y2="6"/>
                 <line x1="3" x2="21" y1="10" y2="10"/>
               </svg>
-              <span>${isApproved ? 'ISSUED ON' : 'SUBMITTED ON'}</span>
+              <span>${isApproved ? 'VERIFIED ON' : 'ISSUED ON'}</span>
             </div>
             <div class="tri-val-bold">${issuedOn}</div>
           </div>
@@ -401,7 +406,7 @@ function renderStatusCardState(delegate: registration.DelegateApplication, statu
               </svg>
               <span>STATUS</span>
             </div>
-            <div class="tri-val-bold" style="color: ${isApproved ? '#4ade80' : '#facc15'};">${isApproved ? 'Verified' : 'Verification Pending'}</div>
+            <div class="tri-val-bold" style="color: ${isApproved ? '#4ade80' : isActive ? '#2af1fa' : '#facc15'};">${isApproved ? 'Verified' : isActive ? 'Active · verifying' : 'Inactive'}</div>
           </div>
 
           <div class="holo-tri-col">
@@ -465,13 +470,13 @@ function renderStatusCardState(delegate: registration.DelegateApplication, statu
       </div>
 
       <!-- Download Pass Button -->
-      <button class="confirm-wide-btn" id="btn-download-pass" ${isApproved ? '' : 'disabled style="opacity:0.5; cursor: not-allowed;"'}>
+      <button class="confirm-wide-btn" id="btn-download-pass" ${isActive ? '' : 'disabled style="opacity:0.5; cursor: not-allowed;"'}>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
           <polyline points="7 10 12 15 17 10"/>
           <line x1="12" x2="12" y1="15" y2="3"/>
         </svg>
-        <span>${isApproved ? 'Download Pass' : 'Pass available after approval'}</span>
+        <span>${isActive ? 'Download Pass' : 'Pass unavailable'}</span>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left: auto;">
           <path d="M5 12h14m-7-7 7 7-7 7"/>
         </svg>
@@ -489,7 +494,7 @@ export function renderDelegateConfirmView(): string {
   if (!delegate || status === 'none') {
     return renderNoneState();
   }
-  if (status === 'rejected') {
+  if (status === 'rejected' || status === 'revoked') {
     return renderRejectedState(delegate);
   }
   // pending or approved share the pass-card layout, distinguished within it.

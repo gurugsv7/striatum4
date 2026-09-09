@@ -590,10 +590,25 @@ html, body {
     width: 100% !important;
     min-width: 100% !important;
     max-width: 100% !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+
+    /* On a phone, 100vh is the height of the viewport WITHOUT the browser's
+       address bar, so the frame ran taller than the visible area and pushed the
+       bottom navigation off-screen. dvh tracks the actually-visible height and
+       reflows as the bar hides and shows. vh stays as the fallback for the few
+       engines without dvh. */
     height: 100vh !important;
     min-height: 100vh !important;
     max-height: 100vh !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    max-height: 100dvh !important;
+  }
+
+  /* The nav is the last flex child, so it must never be shrunk away either. */
+  .bottom-nav-container,
+  .ios-bottom-bar-container {
+    flex-shrink: 0 !important;
   }
 }

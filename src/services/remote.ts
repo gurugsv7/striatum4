@@ -21,7 +21,7 @@ export interface RemoteDelegate {
   email: string;
   yearOfStudy?: string;
   phone?: string;
-  status: 'pending' | 'approved' | 'rejected';
+  status: 'pending' | 'approved' | 'rejected' | 'revoked';
   delegateId?: string;
   rejectionReason?: string;
   submittedAt: number;
@@ -284,6 +284,19 @@ export async function getProofUrl(path: string, expiresInSeconds = 300): Promise
 export async function expireStaleOrders(): Promise<void> {
   if (!supabase) return;
   await supabase.rpc('expire_stale_orders');
+}
+
+/** Closes access for a pass that verification has found a problem with. */
+export async function revokeDelegateRemote(
+  applicationId: string,
+  reason: string
+): Promise<RemoteResult> {
+  if (!supabase) return { ok: false, message: 'Not connected.' };
+  const { error } = await supabase.rpc('revoke_delegate', {
+    p_application_id: applicationId,
+    p_reason: reason
+  });
+  return error ? { ok: false, message: error.message } : { ok: true, message: 'Delegate pass revoked' };
 }
 
 /* ------------------------------------------------------------------ admin -- */

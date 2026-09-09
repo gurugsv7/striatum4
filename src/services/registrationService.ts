@@ -34,7 +34,7 @@ export type OrderStatus =
   | 'rejected'
   | 'cancelled';
 
-export type DelegateStatus = 'none' | 'pending' | 'approved' | 'rejected';
+export type DelegateStatus = 'none' | 'pending' | 'approved' | 'rejected' | 'revoked';
 
 export type CtaState =
   | 'add_to_cart'
@@ -276,6 +276,17 @@ export function getDelegateStatus(): DelegateStatus {
   return state.delegate?.status ?? 'none';
 }
 
+/**
+ * A Delegate Pass is usable from the moment it is applied for. Verification is
+ * a revocation check, not a gate — making delegates wait to book the very
+ * events they bought the pass for was costing the symposium registrations.
+ */
+export function hasActiveDelegatePass(): boolean {
+  const status = state.delegate?.status;
+  return status === 'pending' || status === 'approved';
+}
+
+/** True only once an organiser has positively verified the pass. */
 export function hasApprovedDelegatePass(): boolean {
   return state.delegate?.status === 'approved';
 }
@@ -472,11 +483,11 @@ export function checkEligibility(eventId: string): EligibilityIssue[] {
   if (isFull(eventId)) {
     issues.push({ code: 'full', blocking: true, message: event.name + ' has no seats remaining.' });
   }
-  if (event.delegatePassRequirement === 'required' && !hasApprovedDelegatePass()) {
+  if (event.delegatePassRequirement === 'required' && !hasActiveDelegatePass()) {
     issues.push({
       code: 'delegate_pass',
       blocking: true,
-      message: event.name + ' requires an approved Delegate ID.'
+      message: event.name + ' requires a Delegate Pass.'
     });
   }
   return issues;
@@ -1022,6 +1033,28 @@ export const REJECTION_REASONS = [
   'Transaction details are not visible.',
   'Payment could not be traced.'
 ];
+
+/**
+ * Withdraws an active pass. Verification is a revocation check now that access
+ * is granted on application, so this is the organiser's real lever.
+ */
+export async function revokeDelegate(
+  applicationId: string,
+  reason: string
+): Promise<AdminActionResult> {
+  if (!reason.trim()) return { ok: false, message: 'A reason is required to revoke a pass.' };
+  if (isRemote()) {
+    const result = await remote.revokeDelegateRemote(applicationId, reason.trim());
+    if (result.ok) await hydrate();
+    return result;
+  }
+  if (!state.delegate) return { ok: false, message: 'No delegate application.' };
+  state.delegate.status = 'revoked';
+  state.delegate.reviewedAt = Date.now();
+  state.delegate.rejectionReason = reason.trim();
+  save();
+  return { ok: true, message: 'Delegate pass revoked' };
+}
 
 export function listDelegateApplications(): DelegateApplication[] {
   if (isRemote()) {

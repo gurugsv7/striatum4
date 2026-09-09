@@ -12,8 +12,16 @@ import { formatINR } from '../services/pricing.ts';
  */
 let ordersViewMode: 'awaiting' | 'all' = 'awaiting';
 let expandedRejectOrderId: string | null = null;
-let delegateRejectOpen = false;
+let delegateRejectOpenId: string | null = null;
 let enlargedScreenshotOrderId: string | null = null;
+let revokeOpenId: string | null = null;
+
+/** Reasons offered as one-tap chips when revoking an active delegate pass. */
+const REVOKE_REASONS = [
+  'Payment could not be verified.',
+  'Details do not match the delegate.',
+  'Duplicate application.'
+];
 
 type RosterFilter = 'ALL' | 'CONFIRMED' | 'AWAITING REVIEW' | 'NEEDS RE-UPLOAD';
 let rosterFilter: RosterFilter = 'ALL';
@@ -37,7 +45,31 @@ function formatTimestamp(ts?: number): string {
 
 /* --------------------------------------------------------- delegate section -- */
 
-function renderDelegateApplication(app: registration.DelegateApplication): string {
+function renderRevokePanel(id: string): string {
+  if (revokeOpenId !== id) return '';
+  return `
+    <div class="admin-reason-panel">
+      <label class="input-field-label">Reason for revocation</label>
+      <div class="admin-reason-chips">
+        ${REVOKE_REASONS.map(reason => `
+          <button class="filter-chip-btn admin-reason-chip" data-revoke-reason-chip="${id}" data-reason-text="${escapeHtml(reason)}">
+            ${escapeHtml(reason)}
+          </button>
+        `).join('')}
+      </div>
+      <div class="input-control-box" style="margin-top: 10px;">
+        <input type="text" id="revoke-reason-${id}" class="text-input-field" placeholder="Or type a custom reason" />
+      </div>
+      <button class="action-link-cyan" data-confirm-revoke-delegate="${id}" style="margin-top: 10px;">
+        CONFIRM REVOCATION →
+      </button>
+    </div>
+  `;
+}
+
+function renderDelegateApplication(app: registration.DelegateApplication, id: string | undefined): string {
+  const canAct = !!id && (app.status === 'pending' || app.status === 'approved');
+
   if (app.status === 'pending') {
     return `
       <div class="admin-panel">
@@ -46,7 +78,7 @@ function renderDelegateApplication(app: registration.DelegateApplication): strin
 
         <div class="admin-panel-top-row">
           <span class="admin-panel-name">${escapeHtml(app.fullName)}</span>
-          <span class="event-badge-pill">PENDING</span>
+          <span class="event-badge-pill">ACTIVE · AWAITING VERIFICATION</span>
         </div>
 
         <div class="admin-ledger">
@@ -70,61 +102,79 @@ function renderDelegateApplication(app: registration.DelegateApplication): strin
               <span class="admin-ledger-val">${escapeHtml(app.phone)}</span>
             </div>
           ` : ''}
+          ${app.delegateId ? `
+            <div class="admin-ledger-row">
+              <span class="admin-ledger-key">DELEGATE ID</span>
+              <span class="admin-ledger-val admin-ledger-val--cyan">${escapeHtml(app.delegateId)}</span>
+            </div>
+          ` : ''}
           <div class="admin-ledger-row">
             <span class="admin-ledger-key">SUBMITTED</span>
             <span class="admin-ledger-val">${formatTimestamp(app.submittedAt)}</span>
           </div>
         </div>
 
-        <div class="admin-action-row">
-          <button class="btn-chamfer-primary admin-btn-approve" data-approve-delegate>
-            <span class="btn-cyan-bead"></span>
-            <span>APPROVE</span>
-          </button>
-          <button class="btn-chamfer-dark admin-btn-reject" data-reject-delegate>REJECT</button>
-        </div>
-
-        ${delegateRejectOpen ? `
-          <div class="admin-reason-panel">
-            <label class="input-field-label">Rejection reason</label>
-            <div class="input-control-box">
-              <input type="text" id="delegate-reject-reason" class="text-input-field" placeholder="Reason for rejection" />
-            </div>
-            <button class="action-link-cyan" id="btn-confirm-reject-delegate" style="margin-top: 10px;">
-              CONFIRM REJECTION →
+        ${canAct ? `
+          <div class="admin-action-row">
+            <button class="btn-chamfer-primary admin-btn-approve" data-approve-delegate="${id}">
+              <span class="btn-cyan-bead"></span>
+              <span>VERIFY</span>
             </button>
+            <button class="btn-chamfer-dark admin-btn-reject" data-reject-delegate="${id}">REJECT</button>
+            <button class="btn-chamfer-dark admin-btn-reject" data-revoke-delegate="${id}">REVOKE PASS</button>
           </div>
+
+          ${delegateRejectOpenId === id ? `
+            <div class="admin-reason-panel">
+              <label class="input-field-label">Rejection reason</label>
+              <div class="input-control-box">
+                <input type="text" id="delegate-reject-reason-${id}" class="text-input-field" placeholder="Reason for rejection" />
+              </div>
+              <button class="action-link-cyan" data-confirm-reject-delegate="${id}" style="margin-top: 10px;">
+                CONFIRM REJECTION →
+              </button>
+            </div>
+          ` : ''}
+
+          ${renderRevokePanel(id!)}
         ` : ''}
       </div>
     `;
   }
 
-  const resolvedLabel = app.status === 'approved' ? 'APPROVED' : 'REJECTED';
+  const resolvedLabel = app.status === 'approved' ? 'APPROVED' : app.status === 'revoked' ? 'REVOKED' : 'REJECTED';
+  const isAmber = app.status === 'rejected' || app.status === 'revoked';
+  const pillStyle = isAmber ? ' style="color: #d8b26a; border-color: rgba(216, 178, 106, 0.4);"' : '';
   return `
     <div class="admin-panel admin-panel--quiet">
       <div class="admin-panel-top-row">
         <span class="admin-panel-name">${escapeHtml(app.fullName)}</span>
-        <span class="event-badge-pill ${app.status === 'rejected' ? 'event-badge-pill--dim' : ''}">${resolvedLabel}</span>
+        <span class="event-badge-pill ${isAmber ? 'event-badge-pill--dim' : ''}"${pillStyle}>${resolvedLabel}</span>
       </div>
       <div class="admin-ledger">
         <div class="admin-ledger-row">
           <span class="admin-ledger-key">EMAIL</span>
           <span class="admin-ledger-val">${escapeHtml(app.email)}</span>
         </div>
-        ${app.status === 'approved'
-          ? `
-            <div class="admin-ledger-row">
-              <span class="admin-ledger-key">DELEGATE ID</span>
-              <span class="admin-ledger-val admin-ledger-val--cyan">${escapeHtml(app.delegateId ?? '—')}</span>
-            </div>
-          `
-          : `
-            <div class="admin-ledger-row">
-              <span class="admin-ledger-key">REASON</span>
-              <span class="admin-ledger-val">${escapeHtml(app.rejectionReason ?? '—')}</span>
-            </div>
-          `}
+        ${app.delegateId ? `
+          <div class="admin-ledger-row">
+            <span class="admin-ledger-key">DELEGATE ID</span>
+            <span class="admin-ledger-val admin-ledger-val--cyan">${escapeHtml(app.delegateId)}</span>
+          </div>
+        ` : ''}
+        ${app.status === 'rejected' || app.status === 'revoked' ? `
+          <div class="admin-ledger-row">
+            <span class="admin-ledger-key">REASON</span>
+            <span class="admin-ledger-val">${escapeHtml(app.rejectionReason ?? '—')}</span>
+          </div>
+        ` : ''}
       </div>
+      ${canAct && app.status === 'approved' ? `
+        <div class="admin-action-row">
+          <button class="btn-chamfer-dark admin-btn-reject" data-revoke-delegate="${id}">REVOKE PASS</button>
+        </div>
+        ${renderRevokePanel(id!)}
+      ` : ''}
     </div>
   `;
 }
@@ -152,7 +202,12 @@ function renderDelegateSection(): string {
         <span class="slash">/</span>
         <span class="section-name">DELEGATE APPLICATIONS</span>
       </div>
-      ${applications.map(renderDelegateApplication).join('')}
+      ${(() => {
+        const ids = registration.delegateApplicationIds();
+        return applications
+          .map((app, i) => renderDelegateApplication(app, ids[i]))
+          .join('');
+      })()}
     </section>
   `;
 }
@@ -592,39 +647,79 @@ export function attachAdminEvents(): void {
     });
   });
 
-  /* ---- delegate approve / reject ---- */
+  /* ---- delegate verify / reject / revoke ---- */
 
   document.querySelectorAll<HTMLButtonElement>('[data-approve-delegate]').forEach(btn => {
     btn.addEventListener('click', async () => {
-      const result = await registration.approveDelegate();
+      const id = btn.getAttribute('data-approve-delegate') || undefined;
+      const result = await registration.approveDelegate(id);
       appStore.showToast(result.message);
-      if (result.ok) delegateRejectOpen = false;
+      if (result.ok) delegateRejectOpenId = null;
       appStore.refresh();
     });
   });
 
   document.querySelectorAll<HTMLButtonElement>('[data-reject-delegate]').forEach(btn => {
     btn.addEventListener('click', () => {
-      delegateRejectOpen = !delegateRejectOpen;
+      const id = btn.getAttribute('data-reject-delegate');
+      if (!id) return;
+      delegateRejectOpenId = delegateRejectOpenId === id ? null : id;
       appStore.refresh();
     });
   });
 
-  const btnConfirmRejectDelegate = document.getElementById('btn-confirm-reject-delegate');
-  if (btnConfirmRejectDelegate) {
-    btnConfirmRejectDelegate.addEventListener('click', async () => {
-      const input = document.getElementById('delegate-reject-reason') as HTMLInputElement | null;
+  document.querySelectorAll<HTMLButtonElement>('[data-confirm-reject-delegate]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const id = btn.getAttribute('data-confirm-reject-delegate');
+      if (!id) return;
+      const input = document.getElementById('delegate-reject-reason-' + id) as HTMLInputElement | null;
       const reason = (input?.value ?? '').trim();
       if (!reason) {
         appStore.showToast('A rejection reason is required.');
         return;
       }
-      const result = await registration.rejectDelegate(reason);
+      const result = await registration.rejectDelegate(reason, id);
       appStore.showToast(result.message);
-      delegateRejectOpen = false;
+      delegateRejectOpenId = null;
       appStore.refresh();
     });
-  }
+  });
+
+  document.querySelectorAll<HTMLButtonElement>('[data-revoke-delegate]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.getAttribute('data-revoke-delegate');
+      if (!id) return;
+      revokeOpenId = revokeOpenId === id ? null : id;
+      appStore.refresh();
+    });
+  });
+
+  document.querySelectorAll<HTMLButtonElement>('[data-revoke-reason-chip]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.getAttribute('data-revoke-reason-chip');
+      const reasonText = btn.getAttribute('data-reason-text') ?? '';
+      if (!id) return;
+      const input = document.getElementById('revoke-reason-' + id) as HTMLInputElement | null;
+      if (input) input.value = reasonText;
+    });
+  });
+
+  document.querySelectorAll<HTMLButtonElement>('[data-confirm-revoke-delegate]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const id = btn.getAttribute('data-confirm-revoke-delegate');
+      if (!id) return;
+      const input = document.getElementById('revoke-reason-' + id) as HTMLInputElement | null;
+      const reason = (input?.value ?? '').trim();
+      if (!reason) {
+        appStore.showToast('A reason is required to revoke a pass.');
+        return;
+      }
+      const result = await registration.revokeDelegate(id, reason);
+      appStore.showToast(result.message);
+      revokeOpenId = null;
+      appStore.refresh();
+    });
+  });
 
   /* ---- order approve / reject ---- */
 
