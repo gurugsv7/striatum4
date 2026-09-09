@@ -9,8 +9,10 @@ import './styles/commerce.css';
 import './styles/delegate.css';
 import './styles/programme.css';
 import './styles/admin.css';
+import './styles/legal.css';
 
 import { appStore, AppState, ScreenType } from './state/appStore.ts';
+import { initAuth, onAuthChange } from './services/authService.ts';
 import { renderDesktopSurround, attachDesktopSurroundEvents } from './components/DesktopSurround.ts';
 import { renderOnboardingView, attachOnboardingEvents } from './views/OnboardingView.ts';
 import { renderHomepageView, attachHomepageEvents } from './views/HomepageView.ts';
@@ -26,6 +28,12 @@ import { renderDelegateRegistrationView, attachDelegateRegistrationEvents } from
 import { renderDelegatePaymentView, attachDelegatePaymentEvents } from './views/DelegatePaymentView.ts';
 import { renderDelegateConfirmView, attachDelegateConfirmEvents } from './views/DelegateConfirmView.ts';
 import { renderEventPaymentView, attachEventPaymentEvents } from './views/EventPaymentView.ts';
+import {
+  renderPrivacyView,
+  attachPrivacyEvents,
+  renderTermsView,
+  attachTermsEvents
+} from './views/LegalView.ts';
 
 const VIEWS: Record<ScreenType, { render: () => string; attach: () => void }> = {
   onboarding: { render: renderOnboardingView, attach: attachOnboardingEvents },
@@ -40,7 +48,9 @@ const VIEWS: Record<ScreenType, { render: () => string; attach: () => void }> = 
   'delegate-registration': { render: renderDelegateRegistrationView, attach: attachDelegateRegistrationEvents },
   'delegate-payment': { render: renderDelegatePaymentView, attach: attachDelegatePaymentEvents },
   'delegate-confirm': { render: renderDelegateConfirmView, attach: attachDelegateConfirmEvents },
-  'event-payment': { render: renderEventPaymentView, attach: attachEventPaymentEvents }
+  'event-payment': { render: renderEventPaymentView, attach: attachEventPaymentEvents },
+  privacy: { render: renderPrivacyView, attach: attachPrivacyEvents },
+  terms: { render: renderTermsView, attach: attachTermsEvents }
 };
 
 /** Scroll position per screen, so returning to Explore does not lose the user's place. */
@@ -55,14 +65,24 @@ let lastScreen: ScreenType | null = null;
  * they rewrite unknown paths to index.html.
  * -------------------------------------------------------------------------- */
 
+/** Screens that own a real, linkable URL. */
+const ROUTES: Partial<Record<ScreenType, string>> = {
+  admin: '/admin',
+  privacy: '/privacy',
+  terms: '/terms'
+};
+
 function screenFromLocation(): ScreenType | null {
   const path = window.location.pathname.replace(/\/+$/, '').toLowerCase();
   const hash = window.location.hash.replace(/^#\/?/, '').toLowerCase();
-  return path === '/admin' || hash === 'admin' ? 'admin' : null;
+  const match = (Object.keys(ROUTES) as ScreenType[]).find(
+    screen => ROUTES[screen] === path || ROUTES[screen] === '/' + hash
+  );
+  return match ?? null;
 }
 
 function syncUrl(screen: ScreenType): void {
-  const target = screen === 'admin' ? '/admin' : '/';
+  const target = ROUTES[screen] ?? '/';
   if (window.location.pathname !== target) {
     window.history.replaceState({}, '', target + window.location.search);
   }
@@ -118,3 +138,14 @@ if (routed) appStore.setScreen(routed);
 
 renderApp(appStore.getState());
 appStore.subscribe(renderApp);
+
+// Restore a persisted Supabase session, so a returning delegate is not asked to
+// sign in again, and reflect sign-out that happened in another tab.
+onAuthChange(user => {
+  if (user) {
+    if (!appStore.getState().isAuthenticated) appStore.login(user.email, user.fullName);
+  } else if (appStore.getState().isAuthenticated) {
+    appStore.signOut();
+  }
+});
+void initAuth();

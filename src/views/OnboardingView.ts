@@ -1,4 +1,6 @@
 import { appStore } from '../state/appStore.ts';
+import { renderGoogleButton, signInWithEmail } from '../services/authService.ts';
+import { isSupabaseConfigured } from '../services/supabaseClient.ts';
 
 export function renderOnboardingView(): string {
   return `
@@ -68,7 +70,6 @@ export function renderOnboardingView(): string {
                 id="email-input" 
                 class="text-input-field" 
                 placeholder="you@example.com" 
-                value="delegate@igmcri.edu" 
                 required 
               />
             </div>
@@ -91,8 +92,15 @@ export function renderOnboardingView(): string {
             <span class="sep-line"></span>
           </div>
 
-          <!-- Continue with Google Button -->
-          <button type="button" id="btn-continue-google" class="btn-chamfer-dark">
+          <!--
+            Google renders its own button into this mount. Their branding terms
+            do not allow a custom-drawn button to issue real credentials, so we
+            control only size and theme. The button below is the fallback shown
+            when their script is blocked or sign-in is unconfigured.
+          -->
+          <div id="google-btn-mount" class="google-btn-mount"></div>
+
+          <button type="button" id="btn-continue-google" class="btn-chamfer-dark" hidden>
             <!-- Official Google 4-Color Icon -->
             <svg width="18" height="18" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -113,8 +121,8 @@ export function renderOnboardingView(): string {
             </div>
             <p class="terms-text">
               By continuing, you agree to the symposium registration 
-              <a href="#terms" class="cyan-link" id="link-terms">terms</a> and 
-              <a href="#privacy" class="cyan-link" id="link-privacy">privacy policy</a>.
+              <a href="/terms" class="cyan-link" id="link-terms">terms</a> and 
+              <a href="/privacy" class="cyan-link" id="link-privacy">privacy policy</a>.
             </p>
           </div>
         </form>
@@ -138,35 +146,61 @@ export function renderOnboardingView(): string {
 export function attachOnboardingEvents(): void {
   const form = document.getElementById('onboarding-form');
   const emailInput = document.getElementById('email-input') as HTMLInputElement;
-  const btnGoogle = document.getElementById('btn-continue-google');
+  const btnGoogle = document.getElementById('btn-continue-google') as HTMLButtonElement | null;
   const linkTerms = document.getElementById('link-terms');
   const linkPrivacy = document.getElementById('link-privacy');
 
   if (form) {
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async e => {
       e.preventDefault();
-      const val = emailInput?.value || 'delegate@igmcri.edu';
-      appStore.login(val);
+      const submitBtn = document.getElementById('btn-continue-email') as HTMLButtonElement | null;
+      const value = emailInput?.value ?? '';
+
+      if (!isSupabaseConfigured()) {
+        appStore.showToast('Sign-in is not configured on this deployment.');
+        return;
+      }
+      if (submitBtn) submitBtn.disabled = true;
+
+      // A magic link, so no password is ever collected or stored.
+      const result = await signInWithEmail(value);
+      appStore.showToast(result.message);
+      if (submitBtn) submitBtn.disabled = false;
     });
   }
 
-  if (btnGoogle) {
-    btnGoogle.addEventListener('click', () => {
-      appStore.login('alex.google@igmcri.edu');
+  // Google's own button, mounted where the placeholder used to be.
+  const mount = document.getElementById('google-btn-mount');
+  if (mount) {
+    renderGoogleButton(mount, result => {
+      if (!result.ok) {
+        appStore.showToast(result.message ?? 'Google sign-in failed.');
+        return;
+      }
+      const user = result.user;
+      if (user) appStore.login(user.email, user.fullName);
+    }).then(rendered => {
+      // Fall back to a visible, honest disabled state if GIS could not load.
+      if (!rendered && btnGoogle) {
+        btnGoogle.hidden = false;
+        btnGoogle.disabled = true;
+        const label = btnGoogle.querySelector('span');
+        if (label) label.textContent = 'Google sign-in unavailable';
+      }
     });
   }
 
   if (linkTerms) {
-    linkTerms.addEventListener('click', (e) => {
+    linkTerms.addEventListener('click', e => {
       e.preventDefault();
-      appStore.showToast('Terms of Registration: Open to verified medical delegates.');
+      appStore.setScreen('terms');
     });
   }
 
   if (linkPrivacy) {
-    linkPrivacy.addEventListener('click', (e) => {
+    linkPrivacy.addEventListener('click', e => {
       e.preventDefault();
-      appStore.showToast('Privacy Policy: Delegate data strictly for STRIATUM 4.0.');
+      appStore.setScreen('privacy');
     });
   }
 }

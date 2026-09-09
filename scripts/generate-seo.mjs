@@ -187,16 +187,25 @@ const newIndexHtml =
   indexHtml.slice(0, startIdx) + jsonLdScript + indexHtml.slice(endIdx + endMarker.length);
 writeFileSync(indexPath, newIndexHtml, 'utf8');
 
-// Sitemap — single indexable route. /admin must never appear here.
+// Sitemap. /admin must never appear here — it is the verification console.
+// The legal pages are public and are what Google's OAuth consent screen links
+// to, so they are indexable, just at a lower priority than the homepage.
 const today = new Date().toISOString().slice(0, 10);
+const ROUTES = [
+  { loc: SITE_ROOT, changefreq: 'weekly', priority: '1.0' },
+  { loc: `${SITE_URL}/privacy`, changefreq: 'yearly', priority: '0.3' },
+  { loc: `${SITE_URL}/terms`, changefreq: 'yearly', priority: '0.3' }
+];
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>${SITE_ROOT}</loc>
+${ROUTES.map(
+  r => `  <url>
+    <loc>${r.loc}</loc>
     <lastmod>${today}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
-  </url>
+    <changefreq>${r.changefreq}</changefreq>
+    <priority>${r.priority}</priority>
+  </url>`
+).join('\n')}
 </urlset>
 `;
 writeFileSync(resolve(root, 'public/sitemap.xml'), sitemap, 'utf8');

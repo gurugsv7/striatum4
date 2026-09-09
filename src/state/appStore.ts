@@ -15,7 +15,9 @@ export type ScreenType =
   | 'my-events'
   | 'programme'
   | 'profile'
-  | 'admin';
+  | 'admin'
+  | 'privacy'
+  | 'terms';
 
 export type PassTier = 'AQUALUME' | 'SYNEXA';
 
@@ -94,6 +96,8 @@ export interface AppState {
   /** Admin console passcode accepted for this browser session. */
   isAdminUnlocked: boolean;
   adminGateError: string | null;
+  /** Where to return to when leaving a legal page. */
+  legalReturnScreen: ScreenType;
   delegateForm: DelegateFormData;
   delegatePayment: StagedPayment;
   eventPayment: {
@@ -147,6 +151,7 @@ class AppStore {
     notificationMessage: null,
     isAdminUnlocked: readAdminUnlock(),
     adminGateError: null,
+    legalReturnScreen: 'onboarding',
     // The form starts empty. Prefilling invents a delegate who does not exist.
     delegateForm: {
       tier: 'AQUALUME',
@@ -206,8 +211,23 @@ class AppStore {
     if (screen === 'event-details' && this.state.currentScreen !== 'event-details') {
       this.state.returnScreen = this.state.currentScreen;
     }
+    const leavingLegal = this.state.currentScreen === 'privacy' || this.state.currentScreen === 'terms';
+    if ((screen === 'privacy' || screen === 'terms') && !leavingLegal) {
+      this.state.legalReturnScreen = this.state.currentScreen;
+    }
     this.state.currentScreen = screen;
     this.state.isFilterSheetOpen = false;
+    this.notify();
+  }
+
+  /**
+   * Leaves a legal page. Someone arriving straight from Google's consent screen
+   * has no history inside the app, so fall back to sign-in rather than a
+   * dead end.
+   */
+  goBackFromLegal(): void {
+    const target = this.state.legalReturnScreen;
+    this.state.currentScreen = target;
     this.notify();
   }
 
@@ -293,9 +313,17 @@ class AppStore {
     this.setScreen('delegate-confirm');
   }
 
-  login(email: string): void {
+  login(email: string, fullName?: string): void {
     this.state.isAuthenticated = true;
     this.state.userEmail = email;
+    // Prefill the delegate form from the verified identity, but never overwrite
+    // something the delegate has already typed themselves.
+    if (fullName && !this.state.delegateForm.fullName) {
+      this.state.delegateForm = { ...this.state.delegateForm, fullName };
+    }
+    if (!this.state.delegateForm.email) {
+      this.state.delegateForm = { ...this.state.delegateForm, email };
+    }
     this.state.currentScreen = 'home';
     this.showToast('Signed in as ' + email);
   }

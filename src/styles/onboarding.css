@@ -366,3 +366,22 @@
   letter-spacing: 2px;
   color: var(--text-dim);
 }
+
+/* ── Google Identity Services button mount ─────────────────────────────────
+   Google renders its own button here; their branding terms do not permit a
+   custom-drawn button that issues real credentials. We centre it and match the
+   surrounding rhythm, but the button's own styling is Google's.            */
+.google-btn-mount {
+  display: flex;
+  justify-content: center;
+  min-height: 44px;
+  margin-bottom: 18px;
+}
+
+.google-btn-mount:empty {
+  display: none;
+}
+
+.google-btn-mount > div {
+  color-scheme: light;
+}

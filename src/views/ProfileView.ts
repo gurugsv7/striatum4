@@ -1,5 +1,6 @@
 import { appStore } from '../state/appStore.ts';
 import * as registration from '../services/registrationService.ts';
+import { signOut } from '../services/authService.ts';
 
 export function renderProfileView(): string {
   const state = appStore.getState();
@@ -164,7 +165,8 @@ export function renderProfileView(): string {
 }
 
 export function attachProfileEvents(): void {
-  document.getElementById('btn-sign-out')?.addEventListener('click', () => {
+  document.getElementById('btn-sign-out')?.addEventListener('click', async () => {
+    await signOut();
     appStore.signOut();
     appStore.showToast('Signed out of STRIATUM 4.0');
   });
