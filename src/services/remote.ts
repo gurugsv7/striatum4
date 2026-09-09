@@ -280,6 +280,12 @@ export async function getProofUrl(path: string, expiresInSeconds = 300): Promise
   return error ? null : data?.signedUrl ?? null;
 }
 
+/** Releases seats held by orders unverified for more than 48 hours. */
+export async function expireStaleOrders(): Promise<void> {
+  if (!supabase) return;
+  await supabase.rpc('expire_stale_orders');
+}
+
 /* ------------------------------------------------------------------ admin -- */
 
 export async function approveOrderRemote(orderId: string): Promise<RemoteResult> {

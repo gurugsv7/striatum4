@@ -1,14 +1,43 @@
 import { appStore } from '../state/appStore.ts';
+import * as registration from '../services/registrationService.ts';
+import { getCurrentUser } from '../services/authService.ts';
 
 /**
- * Passcode screen guarding the verification console.
+ * Access screen for the verification console.
  *
- * This is a convenience gate, not a security boundary — see the note on
- * ADMIN_PASSCODE in appStore.ts. The enforceable check lives in Postgres
- * (`is_admin()`), which every verification RPC calls.
+ * There is no passcode any more. A bundled passcode shipped inside the
+ * JavaScript, so anyone who read the bundle could recover it — keeping it
+ * alongside the real check would only imply a protection it could not give.
+ *
+ * The boundary is now entirely server-side: the `admins` table and `is_admin()`
+ * in Postgres, which every verification RPC checks and which RLS uses to decide
+ * what rows come back. This screen only explains why the console is not
+ * available; it grants nothing.
  */
 export function renderAdminGateView(): string {
-  const state = appStore.getState();
+  const signedIn = getCurrentUser() !== null;
+
+  const body = signedIn
+    ? {
+        index: 'NOT AUTHORISED',
+        title: 'Organisers<br />only',
+        copy:
+          'You are signed in, but this account is not registered as a STRIATUM 4.0 organiser. ' +
+          'Access is granted server-side, so nothing you enter here can unlock it.',
+        note:
+          'If you should have access, ask an existing organiser to add your account to the ' +
+          'verification team.',
+        action: { id: 'btn-gate-home', label: 'Back to the symposium' }
+      }
+    : {
+        index: 'RESTRICTED',
+        title: 'Sign in to<br />continue',
+        copy:
+          'The verification console shows delegate details and payment screenshots. ' +
+          'Sign in with your organiser account to continue.',
+        note: 'Delegate data and payment proofs are confidential. Do not open this screen on a shared device.',
+        action: { id: 'btn-gate-signin', label: 'Go to sign in' }
+      };
 
   return `
     <div class="screen-content no-bottom-nav admin-gate-screen">
@@ -30,46 +59,20 @@ export function renderAdminGateView(): string {
           <div class="section-index-label" style="margin-bottom: 10px;">
             <span class="cyan-num">05</span>
             <span class="slash">/</span>
-            <span class="section-name">RESTRICTED</span>
+            <span class="section-name">${body.index}</span>
           </div>
 
-          <h1 class="admin-gate-title">
-            Organisers<br />only<span class="cyan-period">.</span>
-          </h1>
+          <h1 class="admin-gate-title">${body.title}<span class="cyan-period">.</span></h1>
 
-          <p class="admin-gate-copy">
-            This console shows delegate details and payment screenshots.
-            Enter the organiser passcode to continue.
-          </p>
+          <p class="admin-gate-copy">${body.copy}</p>
 
-          <form id="admin-gate-form" autocomplete="off">
-            <div class="form-field-group" style="margin-bottom: 14px;">
-              <label class="input-field-label" for="admin-passcode-input">PASSCODE</label>
-              <div class="input-control-box ${state.adminGateError ? 'has-error' : ''}">
-                <input
-                  type="password"
-                  id="admin-passcode-input"
-                  class="text-input-field"
-                  placeholder="••••••••"
-                  autocomplete="current-password"
-                  spellcheck="false"
-                />
-              </div>
-            </div>
+          <button class="btn-chamfer-primary" id="${body.action.id}">
+            <span class="btn-cyan-bead"></span>
+            <span>${body.action.label}</span>
+            <span>→</span>
+          </button>
 
-            ${state.adminGateError ? `<div class="admin-gate-error">${state.adminGateError}</div>` : ''}
-
-            <button type="submit" class="btn-chamfer-primary" id="btn-admin-unlock">
-              <span class="btn-cyan-bead"></span>
-              <span>Unlock console</span>
-              <span>→</span>
-            </button>
-          </form>
-
-          <p class="admin-gate-note">
-            Delegate data and payment proofs are confidential. Do not open this
-            screen on a shared or public device.
-          </p>
+          <p class="admin-gate-note">${body.note}</p>
         </div>
       </div>
 
@@ -79,20 +82,17 @@ export function renderAdminGateView(): string {
 
 export function attachAdminGateEvents(): void {
   document.getElementById('btn-gate-back')?.addEventListener('click', () => {
+    appStore.setScreen(getCurrentUser() ? 'home' : 'onboarding');
+  });
+
+  document.getElementById('btn-gate-home')?.addEventListener('click', () => {
     appStore.setScreen('home');
   });
 
-  const form = document.getElementById('admin-gate-form');
-  form?.addEventListener('submit', event => {
-    event.preventDefault();
-    const input = document.getElementById('admin-passcode-input') as HTMLInputElement | null;
-    const value = input?.value ?? '';
-    if (appStore.unlockAdmin(value)) {
-      appStore.showToast('Verification console unlocked');
-    }
+  document.getElementById('btn-gate-signin')?.addEventListener('click', () => {
+    appStore.setScreen('onboarding');
   });
 
-  // Focus the field so a passcode can be typed immediately.
-  const input = document.getElementById('admin-passcode-input') as HTMLInputElement | null;
-  if (input && !input.value) input.focus();
+  // An organiser may land here a moment before the admin check has returned.
+  void registration.hydrate();
 }

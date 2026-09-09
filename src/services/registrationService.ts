@@ -259,6 +259,8 @@ let proofPaths = new Map<string, string>();
 /** Pulls the authoritative state down from the server. */
 export async function hydrate(): Promise<void> {
   if (!isRemote()) return;
+  // Release any holds that lapsed since the last sync before reading capacity.
+  await remote.expireStaleOrders();
   const snapshot = await remote.fetchSnapshot();
   adoptSnapshot(snapshot);
   save();
@@ -289,14 +291,18 @@ export async function applyForDelegate(input: {
   yearOfStudy?: string;
   phone?: string;
 }): Promise<{ ok: boolean; message: string }> {
-  if (isRemote()) {
+  if (isSupabaseConfigured()) {
+    if (!getCurrentUser()) {
+      return { ok: false, message: 'Please sign in before applying for a Delegate Pass.' };
+    }
+    // A failed server write is reported, never quietly downgraded to a local
+    // copy an organiser would never see.
     const result = await remote.applyForDelegateRemote(input);
     if (result.ok) await hydrate();
-    else save();
     return result;
   }
 
-  // Offline fallback so the flow still works before sign-in is configured.
+  // Local fallback only when no backend is configured at all (development).
   state.delegate = { ...input, status: 'pending', submittedAt: Date.now() };
   save();
   return { ok: true, message: 'Delegate application submitted for verification' };
@@ -327,11 +333,22 @@ export function isRegistered(eventId: string): boolean {
 
 const OPEN_ORDER_STATUSES: OrderStatus[] = ['awaiting_payment', 'payment_submitted', 'under_review'];
 
+/**
+ * How long an unverified order holds its seats. Mirrors
+ * order_hold_expires_at() in Postgres — the server is authoritative, this keeps
+ * the capacity shown on screen honest between refreshes.
+ */
+export const HOLD_DURATION_MS = 48 * 60 * 60 * 1000;
+
+function holdIsLive(order: Order): boolean {
+  if (!OPEN_ORDER_STATUSES.includes(order.status)) return false;
+  const from = order.status === 'awaiting_payment' ? order.createdAt : order.submittedAt ?? order.createdAt;
+  return from + HOLD_DURATION_MS > Date.now();
+}
+
 /** True when a created-but-unapproved order already contains this event. */
 export function isPendingReview(eventId: string): boolean {
-  return state.orders.some(
-    o => OPEN_ORDER_STATUSES.includes(o.status) && o.lines.some(l => l.eventId === eventId)
-  );
+  return state.orders.some(o => holdIsLive(o) && o.lines.some(l => l.eventId === eventId));
 }
 
 export interface CartMutationResult {
@@ -396,7 +413,7 @@ export function getCapacity(eventId: string): Capacity {
 
   const confirmed = state.registrations.filter(r => r.eventId === eventId).length;
   const pending = state.orders.filter(
-    o => OPEN_ORDER_STATUSES.includes(o.status) && o.lines.some(l => l.eventId === eventId)
+    o => holdIsLive(o) && o.lines.some(l => l.eventId === eventId)
   ).length;
 
   return {
@@ -645,6 +662,9 @@ export async function createOrder(): Promise<CreateOrderResult> {
     return { ok: false, message: 'Fees are not yet published for ' + names + '.' };
   }
 
+  if (isSupabaseConfigured() && !getCurrentUser()) {
+    return { ok: false, message: 'Please sign in before checking out.' };
+  }
   if (isRemote()) {
     // The server recomputes every price; we send only what was chosen.
     const result = await remote.createOrderRemote(
@@ -858,6 +878,9 @@ export async function submitPaymentProof(
   orderId: string,
   proof: { fileName: string; mimeType: string; size: number; dataUrl: string; blob?: Blob }
 ): Promise<SubmitProofResult> {
+  if (isSupabaseConfigured() && !getCurrentUser()) {
+    return { ok: false, message: 'Please sign in before submitting payment proof.' };
+  }
   if (isRemote()) {
     const blob = proof.blob ?? dataUrlToBlob(proof.dataUrl, proof.mimeType);
     if (!blob) return { ok: false, message: 'That screenshot could not be read.' };

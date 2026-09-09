@@ -93,9 +93,6 @@ export interface AppState {
   selectedProgrammeDate: string | null;
   isFilterSheetOpen: boolean;
   notificationMessage: string | null;
-  /** Admin console passcode accepted for this browser session. */
-  isAdminUnlocked: boolean;
-  adminGateError: string | null;
   /** Where to return to when leaving a legal page. */
   legalReturnScreen: ScreenType;
   delegateForm: DelegateFormData;
@@ -107,30 +104,6 @@ export interface AppState {
     screenshotUrl: string | null;
     screenshotName: string | null;
   };
-}
-
-/**
- * Admin passcode.
- *
- * NOTE — this is a convenience gate, NOT a security boundary. It ships inside the
- * JavaScript bundle, so anyone who reads the bundle can find it. It exists to stop
- * a delegate wandering into the console on a shared laptop.
- *
- * The real boundary is server-side: the `admins` table plus `is_admin()` in
- * Postgres, which every verification RPC checks. Once Supabase Auth is wired,
- * this gate should be replaced by that check.
- */
-const ADMIN_PASSCODE: string = (import.meta.env?.VITE_ADMIN_PASSCODE as string | undefined) ?? '';
-
-const ADMIN_UNLOCK_KEY = 'striatum4.admin.unlocked';
-
-/** The unlock is per-browser-session, so closing the tab re-locks the console. */
-function readAdminUnlock(): boolean {
-  try {
-    return sessionStorage.getItem(ADMIN_UNLOCK_KEY) === 'true';
-  } catch {
-    return false;
-  }
 }
 
 type Listener = (state: AppState) => void;
@@ -149,8 +122,6 @@ class AppStore {
     selectedProgrammeDate: null,
     isFilterSheetOpen: false,
     notificationMessage: null,
-    isAdminUnlocked: readAdminUnlock(),
-    adminGateError: null,
     legalReturnScreen: 'onboarding',
     // The form starts empty. Prefilling invents a delegate who does not exist.
     delegateForm: {
@@ -300,17 +271,21 @@ class AppStore {
    * the verification console. The pass is NOT active at this point — an
    * organiser still has to approve it, and only then is a Delegate ID issued.
    */
-  confirmDelegateRegistration(): void {
+  async confirmDelegateRegistration(): Promise<boolean> {
     const form = this.state.delegateForm;
-    registration.applyForDelegate({
+    const result = await registration.applyForDelegate({
       fullName: form.fullName.trim(),
       institution: form.college.trim(),
       email: form.email.trim(),
       yearOfStudy: form.yearOfStudy || undefined,
       phone: form.phone.trim() || undefined
     });
-    this.showToast('Delegate application submitted for verification');
-    this.setScreen('delegate-confirm');
+
+    // Only report success once the server has actually accepted it. Announcing
+    // it first would repeat the fake-receipt mistake in a different place.
+    this.showToast(result.message);
+    if (result.ok) this.setScreen('delegate-confirm');
+    return result.ok;
   }
 
   login(email: string, fullName?: string): void {
@@ -376,42 +351,7 @@ class AppStore {
     this.notify();
   }
 
-  /** Checks the console passcode. Returns true when the gate opens. */
-  unlockAdmin(passcode: string): boolean {
-    // No passcode configured means the console stays shut. Shipping a default
-    // would put a working passcode in a public repository.
-    if (!ADMIN_PASSCODE) {
-      this.state.adminGateError =
-        'The console is not configured on this deployment. Set VITE_ADMIN_PASSCODE and redeploy.';
-      this.notify();
-      return false;
-    }
-    if (passcode.trim() === ADMIN_PASSCODE) {
-      this.state.isAdminUnlocked = true;
-      this.state.adminGateError = null;
-      try {
-        sessionStorage.setItem(ADMIN_UNLOCK_KEY, 'true');
-      } catch {
-        /* session storage unavailable — the unlock simply won't survive a reload */
-      }
-      this.notify();
-      return true;
-    }
-    this.state.adminGateError = 'That passcode was not recognised.';
-    this.notify();
-    return false;
-  }
 
-  lockAdmin(): void {
-    this.state.isAdminUnlocked = false;
-    this.state.adminGateError = null;
-    try {
-      sessionStorage.removeItem(ADMIN_UNLOCK_KEY);
-    } catch {
-      /* ignore */
-    }
-    this.notify();
-  }
 
   showToast(message: string): void {
     this.state.notificationMessage = message;

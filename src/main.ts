@@ -13,7 +13,8 @@ import './styles/legal.css';
 
 import { appStore, AppState, ScreenType } from './state/appStore.ts';
 import { initAuth, onAuthChange } from './services/authService.ts';
-import { hydrate as hydrateRegistrations } from './services/registrationService.ts';
+import * as registrationService from './services/registrationService.ts';
+const hydrateRegistrations = registrationService.hydrate;
 import { renderDesktopSurround, attachDesktopSurroundEvents } from './components/DesktopSurround.ts';
 import { renderOnboardingView, attachOnboardingEvents } from './views/OnboardingView.ts';
 import { renderHomepageView, attachHomepageEvents } from './views/HomepageView.ts';
@@ -103,9 +104,10 @@ function renderApp(state: AppState): void {
   const caretStart = searchFocused ? active.selectionStart : null;
   const caretEnd = searchFocused ? active.selectionEnd : null;
 
-  // The console is only reachable once the organiser passcode has been accepted.
+  // Admin access is decided server-side by is_admin(); this only mirrors it so
+  // a non-organiser sees an explanation instead of an empty console.
   const view =
-    state.currentScreen === 'admin' && !state.isAdminUnlocked
+    state.currentScreen === 'admin' && !registrationService.isAdmin()
       ? { render: renderAdminGateView, attach: attachAdminGateEvents }
       : VIEWS[state.currentScreen] ?? VIEWS.home;
 
