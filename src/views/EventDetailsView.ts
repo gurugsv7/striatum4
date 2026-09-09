@@ -326,25 +326,8 @@ export function renderEventDetailsView(): string {
             </svg>
             ${cartCount ? `<span class="cart-count-bead">${cartCount}</span>` : ''}
           </button>
-          <div class="details-brand-sig">
-            <div class="sig-striatum">STRIATUM <span class="cyan-text">4.0</span></div>
-            <div class="sig-inst">IGMCRI · SIGMA 2026</div>
-          </div>
         </div>
       </header>
-
-      <!-- Orbit HUD -->
-      <div class="orbit-hud-container">
-        <div class="orbit-hud-arc"></div>
-        <div class="orbit-hud-line"></div>
-        <div class="orbit-hud-node"></div>
-        <div class="orbit-hud-labels">
-          <div>PRACTICE</div>
-          <div>LEARN</div>
-          <div>REFINE</div>
-          <div>GO FURTHER</div>
-        </div>
-      </div>
 
       <!-- Hero -->
       <section class="event-hero-section">
@@ -388,11 +371,6 @@ export function renderEventDetailsView(): string {
           <span class="symp-name">STRIATUM 4.0</span>
           <span class="symp-sub">IGMCRI · SIGMA 2026</span>
           <span class="footer-dash-line"></span>
-        </div>
-        <div class="footer-right-sig">
-          <span>A FAMILIAR JOURNEY.</span>
-          <span class="cyan-text">A DEEPER DIVE.</span>
-          <span class="footer-dash-line" style="margin-left: auto;"></span>
         </div>
       </footer>
 

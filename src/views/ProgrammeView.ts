@@ -112,6 +112,8 @@ export function renderProgrammeView(): string {
   const committedIds = new Set(registration.committedEventIds());
   const unpublishedCount = EVENTS.filter(e => !e.isoDate).length;
 
+  const cartCount = registration.cartCount();
+
   return `
     <div class="screen-content no-bottom-nav">
       <!-- Header -->
@@ -122,10 +124,14 @@ export function renderProgrammeView(): string {
           </svg>
           <span>BACK</span>
         </button>
-        <div class="details-brand-sig">
-          <span class="sig-striatum">STRIATUM 4.0</span>
-          <span class="sig-inst">IGMCRI · SIGMA 2026</span>
-        </div>
+        <button class="header-cart-btn ${cartCount ? 'has-items' : ''}" id="btn-programme-cart" title="View cart">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 4h2l2.4 11.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.6L21 8H6.2"/>
+            <circle cx="10" cy="20" r="1"/>
+            <circle cx="18" cy="20" r="1"/>
+          </svg>
+          ${cartCount ? `<span class="cart-count-bead">${cartCount}</span>` : ''}
+        </button>
       </header>
 
       <!-- Hero -->
@@ -206,5 +212,9 @@ export function attachProgrammeEvents(): void {
       const eventId = el.getAttribute('data-open-event-id');
       if (eventId && getEvent(eventId)) appStore.openEvent(eventId);
     });
+  });
+
+  document.getElementById('btn-programme-cart')?.addEventListener('click', () => {
+    appStore.setScreen('cart');
   });
 }

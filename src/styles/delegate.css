@@ -1,0 +1,1243 @@
+/* ==========================================================================
+   STRIATUM 4.0 — AUTHENTIC MOCKUP-FAITHFUL DELEGATE & COMMERCE FLOWS
+   Based on:
+   - delegate_registration.jpg (Horizontal Pass Tiers, Timeline Rail, Input Cards)
+   - delegate_payment.jpg (Complete your registration, UPI Card, Dropzone, Guidelines)
+   - delegate_confirm.jpg (Your Delegate Pass is Ready, Holographic Pass, QR, Actions)
+   - event_payment.jpg (Your Selection, Bracketed UPI QR, Upload Screenshot)
+   ========================================================================== */
+
+/* Outer scrollable page frame */
+.mockup-flow-page {
+  padding: 18px 16px 60px 16px;
+  position: relative;
+  min-height: 100%;
+}
+
+/* ==========================================================================
+   TOP BAR (Chevron, STRIATUM 4.0, Right Motto Block)
+   ========================================================================== */
+.mockup-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 14px;
+  margin-bottom: 24px;
+  position: relative;
+  z-index: 10;
+}
+
+.top-bar-back-btn {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  cursor: pointer;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.top-bar-back-btn:hover {
+  color: var(--cyan-glow);
+  transform: translateX(-2px);
+}
+
+.top-bar-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.top-bar-brand-title {
+  font-family: var(--font-sans-ui);
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: #ffffff;
+}
+
+.top-bar-brand-meta {
+  font-family: var(--font-mono-meta);
+  font-size: 8px;
+  letter-spacing: 1.8px;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+.top-bar-motto-col {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-align: right;
+}
+
+.top-bar-motto-text {
+  font-family: var(--font-mono-meta);
+  font-size: 7.5px;
+  line-height: 1.35;
+  letter-spacing: 1.6px;
+  color: var(--text-silver);
+  display: flex;
+  flex-direction: column;
+}
+
+.top-bar-motto-pipe {
+  width: 1px;
+  height: 28px;
+  background: rgba(42, 241, 250, 0.4);
+}
+
+/* ==========================================================================
+   TIMELINE RAIL SYSTEM
+   ========================================================================== */
+.mockup-timeline-wrap {
+  position: relative;
+  padding-left: 26px;
+  margin-bottom: 20px;
+}
+
+.mockup-timeline-rail {
+  position: absolute;
+  left: 3px;
+  top: 8px;
+  bottom: 30px;
+  width: 1px;
+  background: linear-gradient(180deg, rgba(42, 241, 250, 0.5) 0%, rgba(42, 241, 250, 0.15) 100%);
+  pointer-events: none;
+}
+
+.timeline-step-block {
+  position: relative;
+  margin-bottom: 26px;
+}
+
+.timeline-bead {
+  position: absolute;
+  left: -27px;
+  top: 5px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--cyan-glow);
+  box-shadow: 0 0 8px var(--cyan-glow), 0 0 16px rgba(42, 241, 250, 0.9);
+  z-index: 5;
+}
+
+.timeline-step-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.step-label-tag {
+  font-family: var(--font-mono-meta);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--cyan-glow);
+  text-transform: uppercase;
+}
+
+.step-annotation-right {
+  font-family: var(--font-mono-meta);
+  font-size: 7.5px;
+  line-height: 1.35;
+  letter-spacing: 1.8px;
+  color: var(--text-dim);
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.step-annotation-right .dash {
+  margin-top: 2px;
+  color: var(--cyan-glow);
+}
+
+/* Hero Display Title */
+.hero-display-title {
+  font-family: var(--font-serif-display);
+  font-size: 34px;
+  font-weight: 500;
+  line-height: 1.12;
+  color: #ffffff;
+  letter-spacing: -0.3px;
+  margin-bottom: 10px;
+}
+
+.cyan-dot {
+  color: var(--cyan-glow);
+  text-shadow: 0 0 10px var(--cyan-glow);
+}
+
+.hero-display-sub {
+  font-family: var(--font-sans-ui);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+.hero-display-sub strong {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   HORIZONTAL PASS TIERS GRID (delegate_registration.jpg)
+   Two cards aligned horizontally side-by-side with chamfered corners!
+   ========================================================================== */
+.horizontal-pass-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px;
+  margin-top: 6px;
+}
+
+.pass-tier-card {
+  position: relative;
+  background: rgba(1, 14, 24, 0.75);
+  border: 1px solid rgba(42, 241, 250, 0.22);
+  border-radius: 12px;
+  clip-path: polygon(
+    10px 0, 
+    100% 0, 
+    100% calc(100% - 10px), 
+    calc(100% - 10px) 100%, 
+    0 100%, 
+    0 10px
+  );
+  padding: 10px 10px 12px;
+  cursor: pointer;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  min-height: 128px;
+  transition: all 0.25s ease;
+}
+
+.pass-tier-card:hover {
+  border-color: rgba(42, 241, 250, 0.5);
+  box-shadow: 0 0 16px rgba(42, 241, 250, 0.25);
+  transform: translateY(-2px);
+}
+
+.pass-tier-card.active {
+  border: 1.5px solid var(--cyan-glow);
+  background: rgba(1, 20, 36, 0.92);
+  box-shadow: 0 0 20px rgba(42, 241, 250, 0.4), inset 0 0 14px rgba(42, 241, 250, 0.12);
+}
+
+.pass-card-radio-circle {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  border: 1.2px solid rgba(42, 241, 250, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 5px;
+  transition: all 0.2s ease;
+}
+
+.pass-tier-card.active .pass-card-radio-circle {
+  border-color: var(--cyan-glow);
+  box-shadow: 0 0 7px var(--cyan-glow);
+}
+
+.pass-card-radio-inner {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: transparent;
+  transition: all 0.2s ease;
+}
+
+.pass-tier-card.active .pass-card-radio-inner {
+  background: var(--cyan-glow);
+  box-shadow: 0 0 5px var(--cyan-glow);
+}
+
+.pass-card-title {
+  font-family: var(--font-serif-display);
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  color: #ffffff;
+  margin-bottom: 1px;
+}
+
+.pass-card-price {
+  font-family: var(--font-sans-ui);
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 5px;
+}
+
+.pass-tier-card.active .pass-card-price {
+  color: var(--cyan-glow);
+  text-shadow: 0 0 8px rgba(42, 241, 250, 0.5);
+}
+
+.pass-card-dash {
+  width: 14px;
+  height: 1px;
+  background: rgba(42, 241, 250, 0.4);
+  margin-bottom: 5px;
+}
+
+.pass-card-desc {
+  font-family: var(--font-sans-ui);
+  font-size: 9px;
+  font-weight: 450;
+  line-height: 1.38;
+  color: #ffffff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+  position: relative;
+  z-index: 2;
+}
+
+.pass-card-bullets {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5px;
+  position: relative;
+  z-index: 2;
+}
+
+.pass-card-bullets li {
+  font-family: var(--font-sans-ui);
+  font-size: 8.5px;
+  font-weight: 450;
+  line-height: 1.3;
+  color: #ffffff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+  display: flex;
+  align-items: center;
+  gap: 3.5px;
+}
+
+.pass-card-bullets li::before {
+  content: '•';
+  color: var(--cyan-glow);
+  font-size: 9px;
+  line-height: 1;
+}
+
+/* Artwork inside pass cards */
+.pass-card-art-bg {
+  position: absolute;
+  right: 0;
+  top: 4px;
+  bottom: 4px;
+  width: 72px;
+  height: calc(100% - 8px);
+  pointer-events: none;
+  opacity: 0.9;
+  mix-blend-mode: screen;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.pass-card-art-bg img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  object-position: right center;
+}
+
+/* ==========================================================================
+   INPUT FORM CARDS (delegate_registration.jpg)
+   ========================================================================== */
+.details-input-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.input-card-box {
+  background: rgba(1, 10, 18, 0.7);
+  border: 1px solid rgba(42, 241, 250, 0.2);
+  border-radius: 10px;
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.2s ease;
+}
+
+.input-card-box:focus-within {
+  border-color: var(--cyan-glow);
+  box-shadow: 0 0 14px rgba(42, 241, 250, 0.25);
+  background: rgba(1, 16, 28, 0.88);
+}
+
+.input-card-icon {
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: color 0.2s ease;
+}
+
+.input-card-box:focus-within .input-card-icon {
+  color: var(--cyan-glow);
+}
+
+.input-card-col {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.input-card-lbl {
+  font-family: var(--font-sans-ui);
+  font-size: 10px;
+  color: var(--text-dim);
+  margin-bottom: 2px;
+}
+
+.input-card-core {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: var(--font-sans-ui);
+  font-size: 13px;
+  color: #ffffff;
+  padding: 0;
+}
+
+.input-card-core::placeholder {
+  color: var(--text-dim);
+}
+
+.input-card-split-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.input-card-select {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: var(--font-sans-ui);
+  font-size: 12.5px;
+  color: #ffffff;
+  padding: 0;
+  cursor: pointer;
+}
+
+.input-card-select option {
+  background: #010c16;
+  color: #ffffff;
+}
+
+/* ==========================================================================
+   BEVELED ACTION BUTTONS (with glowing timeline notch connection)
+   ========================================================================== */
+.button-step-block {
+  margin-top: 18px;
+  margin-bottom: 24px;
+}
+
+.beveled-cyan-btn {
+  width: 100%;
+  background: #a5f3fc;
+  color: #010913;
+  border: none;
+  font-family: var(--font-sans-ui);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 14px 20px;
+  clip-path: polygon(
+    14px 0, 
+    calc(100% - 14px) 0, 
+    100% 14px, 
+    100% calc(100% - 14px), 
+    calc(100% - 14px) 100%, 
+    14px 100%, 
+    0 calc(100% - 14px), 
+    0 14px
+  );
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all 0.25s ease;
+  box-shadow: 0 0 20px rgba(165, 243, 252, 0.4);
+}
+
+.beveled-cyan-btn:hover {
+  background: #2af1fa;
+  box-shadow: 0 0 28px rgba(42, 241, 250, 0.6);
+  transform: translateY(-2px);
+}
+
+.btn-bottom-subtext {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 12px;
+  font-family: var(--font-sans-ui);
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--text-muted);
+}
+
+.btn-bottom-subtext svg {
+  flex-shrink: 0;
+  color: var(--text-dim);
+  margin-top: 1px;
+}
+
+/* ==========================================================================
+   FOOTER (delegate_registration.jpg & delegate_payment.jpg)
+   ========================================================================== */
+.mockup-flow-footer {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-end;
+  margin-top: 30px;
+  padding-top: 14px;
+}
+
+.footer-left-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.f-title-main {
+  font-family: var(--font-sans-ui);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 1.6px;
+  color: #ffffff;
+}
+
+.f-title-sub {
+  font-family: var(--font-mono-meta);
+  font-size: 8px;
+  letter-spacing: 1.8px;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+.f-line-dash {
+  width: 22px;
+  height: 1.5px;
+  background: rgba(42, 241, 250, 0.4);
+  margin-top: 8px;
+}
+
+.footer-right-col {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  text-align: right;
+}
+
+.f-motto-lines {
+  font-family: var(--font-mono-meta);
+  font-size: 7.5px;
+  line-height: 1.35;
+  letter-spacing: 1.6px;
+  color: var(--text-silver);
+  display: flex;
+  flex-direction: column;
+}
+
+.f-pipe {
+  width: 1px;
+  height: 28px;
+  background: rgba(42, 241, 250, 0.4);
+}
+
+/* ==========================================================================
+   PAYMENT SCREEN SPECIFIC (delegate_payment.jpg)
+   ========================================================================== */
+.payment-main-card {
+  position: relative;
+  background: rgba(1, 12, 22, 0.88);
+  border: 1.5px solid rgba(42, 241, 250, 0.35);
+  border-radius: 16px;
+  clip-path: polygon(
+    14px 0, 
+    100% 0, 
+    100% calc(100% - 14px), 
+    calc(100% - 14px) 100%, 
+    0 100%, 
+    0 14px
+  );
+  padding: 20px 16px 16px;
+  margin-bottom: 24px;
+}
+
+.pay-card-watermark {
+  position: absolute;
+  right: -10px;
+  top: 10px;
+  width: 100px;
+  height: 160px;
+  pointer-events: none;
+  opacity: 0.85;
+  mix-blend-mode: screen;
+}
+
+.pay-card-watermark img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.pay-qr-center-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+}
+
+.pay-qr-frame-box {
+  width: 165px;
+  height: 165px;
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+  overflow: hidden;
+}
+
+.pay-qr-frame-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.pay-qr-caption {
+  font-family: var(--font-sans-ui);
+  font-size: 12px;
+  color: #ffffff;
+  margin-top: 10px;
+  font-weight: 500;
+}
+
+.pay-apps-pills-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 12px 0 16px;
+}
+
+.pay-app-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-sans-ui);
+  font-size: 11px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.pay-card-bottom-split {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  border-top: 1px solid rgba(42, 241, 250, 0.15);
+  padding-top: 14px;
+  margin-top: 6px;
+  position: relative;
+  z-index: 2;
+}
+
+.pay-amount-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.pay-lbl-tag {
+  font-family: var(--font-mono-meta);
+  font-size: 8px;
+  letter-spacing: 1.8px;
+  color: var(--cyan-glow);
+  text-transform: uppercase;
+}
+
+.pay-huge-price {
+  font-family: var(--font-sans-ui);
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--cyan-glow);
+  line-height: 1;
+  text-shadow: 0 0 14px rgba(42, 241, 250, 0.5);
+  margin-top: 2px;
+}
+
+.pay-order-meta-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+}
+
+.pay-tier-text {
+  font-family: var(--font-sans-ui);
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.pay-order-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-mono-meta);
+  font-size: 9.5px;
+  color: var(--cyan-glow);
+  margin-top: 3px;
+}
+
+.copy-icon-btn {
+  background: none;
+  border: none;
+  color: var(--cyan-glow);
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  transition: transform 0.2s ease;
+}
+
+.copy-icon-btn:hover {
+  transform: scale(1.2);
+}
+
+/* Upload dropzone (delegate_payment.jpg) */
+.dropzone-upload-box {
+  border: 1.5px dashed rgba(42, 241, 250, 0.4);
+  background: rgba(0, 14, 26, 0.55);
+  border-radius: 12px;
+  clip-path: polygon(
+    10px 0, 
+    100% 0, 
+    100% calc(100% - 10px), 
+    calc(100% - 10px) 100%, 
+    0 100%, 
+    0 10px
+  );
+  padding: 22px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  cursor: pointer;
+  margin-bottom: 14px;
+  transition: all 0.25s ease;
+}
+
+.dropzone-upload-box:hover {
+  border-color: var(--cyan-glow);
+  background: rgba(1, 18, 32, 0.75);
+  box-shadow: 0 0 16px rgba(42, 241, 250, 0.25);
+}
+
+.dropzone-cloud-icon {
+  color: var(--cyan-glow);
+  margin-bottom: 6px;
+}
+
+.dropzone-main-text {
+  font-family: var(--font-sans-ui);
+  font-size: 13px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.dropzone-hint-text {
+  font-family: var(--font-mono-meta);
+  font-size: 9px;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+/* Guidelines checklist */
+.verification-guidelines-box {
+  background: rgba(1, 10, 18, 0.7);
+  border: 1px solid rgba(42, 241, 250, 0.18);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.guide-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-family: var(--font-sans-ui);
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--text-muted);
+}
+
+.guide-row svg {
+  color: var(--cyan-glow);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* ==========================================================================
+   HOLOGRAPHIC CONFIRMATION PASS (delegate_confirm.jpg)
+   ========================================================================== */
+.holographic-pass-container {
+  position: relative;
+  background: linear-gradient(135deg, rgba(2, 22, 40, 0.95) 0%, rgba(1, 10, 18, 0.98) 100%);
+  border: 1.5px solid var(--cyan-glow);
+  border-radius: 18px;
+  clip-path: polygon(
+    14px 0, 
+    100% 0, 
+    100% calc(100% - 14px), 
+    calc(100% - 14px) 100%, 
+    0 100%, 
+    0 14px
+  );
+  padding: 20px 18px 16px;
+  margin-bottom: 20px;
+  box-shadow: 0 0 28px rgba(42, 241, 250, 0.35), inset 0 0 20px rgba(42, 241, 250, 0.12);
+  overflow: hidden;
+}
+
+.holo-card-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+
+.holo-card-brand-title {
+  font-family: var(--font-sans-ui);
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 1.8px;
+  color: #ffffff;
+}
+
+.holo-card-brand-sub {
+  font-family: var(--font-mono-meta);
+  font-size: 7.5px;
+  letter-spacing: 1.6px;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+.holo-card-type-title {
+  font-family: var(--font-serif-display);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  color: #ffffff;
+}
+
+.holo-card-type-sub {
+  font-family: var(--font-mono-meta);
+  font-size: 7.5px;
+  letter-spacing: 1.8px;
+  color: var(--cyan-glow);
+  margin-top: 2px;
+  text-align: right;
+}
+
+.holo-pass-split-body {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+  margin-bottom: 16px;
+}
+
+.holo-qr-wrap-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.holo-qr-white-frame {
+  width: 104px;
+  height: 104px;
+  background: #ffffff;
+  border-radius: 6px;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 16px rgba(0, 0, 0, 0.7);
+}
+
+.holo-qr-white-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.holo-qr-sub-label {
+  font-family: var(--font-mono-meta);
+  font-size: 7.5px;
+  letter-spacing: 1.2px;
+  color: var(--text-dim);
+  margin-top: 6px;
+  text-align: center;
+}
+
+.holo-attendee-details-col {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  flex: 1;
+}
+
+.holo-field-grp {
+  display: flex;
+  flex-direction: column;
+}
+
+.holo-field-lbl {
+  font-family: var(--font-mono-meta);
+  font-size: 7.5px;
+  letter-spacing: 1.4px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+
+.holo-field-val {
+  font-family: var(--font-sans-ui);
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.25;
+}
+
+.holo-field-val.cyan-glow-text {
+  color: var(--cyan-glow);
+  font-size: 13px;
+  letter-spacing: 1px;
+}
+
+.holo-id-display-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.holo-id-bold {
+  font-family: var(--font-mono-meta);
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--cyan-glow);
+  letter-spacing: 1px;
+  text-shadow: 0 0 10px var(--cyan-glow);
+}
+
+.holo-card-watermark-jelly {
+  position: absolute;
+  right: -10px;
+  top: 10px;
+  width: 80px;
+  height: 130px;
+  pointer-events: none;
+  opacity: 0.85;
+  mix-blend-mode: screen;
+}
+
+.holo-card-watermark-jelly img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.holo-card-bottom-tri-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.1fr;
+  gap: 6px;
+  border-top: 1px solid rgba(42, 241, 250, 0.15);
+  padding-top: 12px;
+  position: relative;
+  z-index: 2;
+}
+
+.holo-tri-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.tri-lbl-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-mono-meta);
+  font-size: 7.5px;
+  letter-spacing: 1.2px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.tri-lbl-row svg {
+  color: var(--cyan-glow);
+}
+
+.tri-val-bold {
+  font-family: var(--font-sans-ui);
+  font-size: 10.5px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.tri-sub-hint {
+  font-size: 8px;
+  color: var(--text-dim);
+  margin-top: 1px;
+}
+
+/* Action button grid in confirm */
+.confirm-buttons-split-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.confirm-box-btn {
+  background: rgba(1, 12, 22, 0.8);
+  border: 1px solid rgba(42, 241, 250, 0.25);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  color: #ffffff;
+  font-family: var(--font-sans-ui);
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.25s ease;
+}
+
+.confirm-box-btn:hover {
+  border-color: var(--cyan-glow);
+  box-shadow: 0 0 14px rgba(42, 241, 250, 0.3);
+  color: var(--cyan-glow);
+}
+
+.confirm-wide-btn {
+  width: 100%;
+  background: rgba(1, 12, 22, 0.8);
+  border: 1px solid rgba(42, 241, 250, 0.25);
+  border-radius: 12px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  color: #ffffff;
+  font-family: var(--font-sans-ui);
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.25s ease;
+}
+
+.confirm-wide-btn:hover {
+  border-color: var(--cyan-glow);
+  box-shadow: 0 0 14px rgba(42, 241, 250, 0.3);
+  color: var(--cyan-glow);
+}
+
+/* ==========================================================================
+   EVENT CHECKOUT SPECIFIC (event_payment.jpg)
+   ========================================================================== */
+.selection-summary-container {
+  background: rgba(1, 10, 18, 0.85);
+  border: 1px solid rgba(42, 241, 250, 0.22);
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 22px;
+}
+
+.selection-row-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+}
+
+.selection-row-item + .selection-row-item {
+  border-top: 1px solid rgba(42, 241, 250, 0.1);
+}
+
+.selection-left-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.selection-thumb-wrap {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  border: 1px solid rgba(42, 241, 250, 0.3);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.selection-thumb-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.selection-name-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.selection-event-title {
+  font-family: var(--font-serif-display);
+  font-size: 15px;
+  font-weight: 600;
+  color: #ffffff;
+  letter-spacing: 0.5px;
+}
+
+.selection-event-sub {
+  font-family: var(--font-sans-ui);
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.selection-price-tag {
+  font-family: var(--font-sans-ui);
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.event-qr-card-split {
+  background: rgba(1, 10, 18, 0.88);
+  border: 1px solid rgba(42, 241, 250, 0.28);
+  border-radius: 14px;
+  padding: 18px 16px;
+  display: flex;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.event-qr-bracketed-col {
+  width: 110px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.bracket-qr-box {
+  position: relative;
+  width: 95px;
+  height: 95px;
+  background: #ffffff;
+  border-radius: 6px;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bracket-qr-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.b-corner {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+}
+
+.b-corner.tl {
+  top: -4px;
+  left: -4px;
+  border-top: 2px solid var(--cyan-glow);
+  border-left: 2px solid var(--cyan-glow);
+}
+
+.b-corner.br {
+  bottom: -4px;
+  right: -4px;
+  border-bottom: 2px solid var(--cyan-glow);
+  border-right: 2px solid var(--cyan-glow);
+}
+
+.event-qr-side-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex: 1;
+}
+
+.event-pay-to {
+  font-family: var(--font-sans-ui);
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.event-upi-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono-meta);
+  font-size: 10px;
+  color: var(--text-silver);
+  margin: 3px 0 8px;
+}
+
+.event-exact-price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  border-top: 1px solid rgba(42, 241, 250, 0.15);
+  padding-top: 8px;
+  margin-top: 8px;
+}
+
+.event-exact-val {
+  font-family: var(--font-sans-ui);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--cyan-glow);
+  text-shadow: 0 0 10px rgba(42, 241, 250, 0.5);
+}

@@ -518,11 +518,6 @@ export function renderAdminView(): string {
           </svg>
           <span class="back-nav-label">PROFILE</span>
         </button>
-
-        <div class="details-brand-sig">
-          <div class="sig-striatum">STRIATUM <span class="cyan-text">4.0</span></div>
-          <div class="sig-inst">IGMCRI · SIGMA 2026</div>
-        </div>
       </header>
 
       <section class="explore-hero-section">

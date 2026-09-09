@@ -307,7 +307,7 @@
 /* Onboarding Footer */
 .onboarding-footer {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: flex-end;
   margin-top: auto;
   padding-top: 24px;

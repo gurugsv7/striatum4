@@ -57,14 +57,6 @@ export function renderHomepageView(): string {
         </div>
 
         <div class="header-right-block">
-          <div class="header-sub-motto">
-            <span>MEDICINE</span>
-            <span>PEOPLE</span>
-            <span>IDEAS</span>
-            <span>A DEEPER</span>
-            <span>TOMORROW</span>
-            <span class="motto-dash"></span>
-          </div>
           <button class="header-cart-btn ${cartCount ? 'has-items' : ''}" id="btn-home-cart" title="View cart">
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
               <path d="M4 4h2l2.4 11.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.6L21 8H6.2"/>
@@ -72,9 +64,6 @@ export function renderHomepageView(): string {
               <circle cx="18" cy="20" r="1"/>
             </svg>
             ${cartCount ? `<span class="cart-count-bead">${cartCount}</span>` : ''}
-          </button>
-          <button class="user-avatar-circle" id="btn-user-avatar" title="View Profile">
-            <span>G</span>
           </button>
         </div>
       </header>
@@ -89,16 +78,6 @@ export function renderHomepageView(): string {
           <p class="home-welcome-sub">
             Your symposium journey starts here.
           </p>
-        </div>
-
-        <div class="side-annotation-col">
-          <div class="side-annotation-text">
-            <span>SAME</span>
-            <span>CURIOSITY</span>
-            <span>A DEEPER</span>
-            <span>TOMORROW</span>
-            <span class="bottom-dash"></span>
-          </div>
         </div>
       </section>
 
@@ -129,38 +108,6 @@ export function renderHomepageView(): string {
             <span>${delegateCta}</span>
             <span>→</span>
           </button>
-
-          <!-- HUD Delegate ID Card -->
-          <div class="hud-delegate-card" id="hud-card-trigger">
-            <div class="hud-corner-tl"></div>
-            <div class="hud-corner-br"></div>
-            
-            <div class="hud-label-top">DELEGATE ID</div>
-            
-            <div class="hud-id-value-row">
-              <span class="hud-id-prefix">${delegateApproved ? (delegate?.delegateId ?? 'S4') : 'S4'}</span>
-              ${!delegateApproved ? `
-                <div class="hud-id-track">
-                  <span class="track-node-line"></span>
-                  <span class="track-node-dot"></span>
-                  <span class="track-node-line"></span>
-                  <span class="track-dash"></span>
-                  <span class="track-dash"></span>
-                  <span class="track-dash"></span>
-                  <span class="track-dash"></span>
-                </div>
-              ` : `
-                <span class="track-node-dot" style="margin-left: 8px;"></span>
-              `}
-            </div>
-
-            <div class="hud-status-row">
-              <span class="hud-status-label">STATUS</span>
-              <span class="hud-status-val ${delegateApproved ? 'registered' : ''}">
-                ${delegateStatusText}
-              </span>
-            </div>
-          </div>
         </div>
 
         <!-- 02 / EXPLORE -->
@@ -186,16 +133,6 @@ export function renderHomepageView(): string {
             <span>EXPLORE EVENTS</span>
             <span>→</span>
           </button>
-
-          <div class="side-annotation-col" style="top: 15px;">
-            <div class="side-annotation-text">
-              <span>LEARN</span>
-              <span>COLLABORATE</span>
-              <span>COMPETE</span>
-              <span>CREATE</span>
-              <span class="bottom-dash"></span>
-            </div>
-          </div>
         </div>
 
         <!-- 03 / PROGRAMME -->
@@ -219,25 +156,6 @@ export function renderHomepageView(): string {
             <span>VIEW PROGRAMME</span>
             <span>→</span>
           </button>
-
-          <!-- Schedule Stepper -->
-          <div class="schedule-stepper-wrap">
-            <div class="stepper-nodes-row">
-              <div class="stepper-connecting-line"></div>
-              ${days.map(day => `
-                <button class="stepper-node-item ${activeDay === day.iso ? 'active' : ''}" data-day-iso="${day.iso}">
-                  <span class="stepper-dot"></span>
-                  <span class="stepper-num">${day.display.split(' ')[0]}</span>
-                </button>
-              `).join('')}
-            </div>
-
-            <div class="schedule-subtext-meta">
-              <span>SIX DAYS</span>
-              <span>A WIDER PERSPECTIVE</span>
-              <span class="meta-line"></span>
-            </div>
-          </div>
         </div>
 
       </div>
@@ -249,10 +167,6 @@ export function renderHomepageView(): string {
           <span class="symp-sub">MEDICAL SYMPOSIUM · 2026</span>
           <span class="footer-dash-line"></span>
         </div>
-        <div class="footer-right-motto">
-          <span>A FAMILIAR JOURNEY,</span>
-          <span class="cyan-text">A DEEPER DIVE.</span>
-        </div>
       </footer>
 
     </div>
@@ -261,20 +175,12 @@ export function renderHomepageView(): string {
 
 export function attachHomepageEvents(): void {
   const btnRegisterLink = document.getElementById('btn-register-delegate-link');
-  const hudCardTrigger = document.getElementById('hud-card-trigger');
   const btnExploreLink = document.getElementById('btn-explore-events-link');
   const btnProgrammeLink = document.getElementById('btn-view-programme-link');
-  const btnAvatar = document.getElementById('btn-user-avatar');
 
   if (btnRegisterLink) {
     btnRegisterLink.addEventListener('click', () => {
-      appStore.setDelegateModalOpen(true);
-    });
-  }
-
-  if (hudCardTrigger) {
-    hudCardTrigger.addEventListener('click', () => {
-      appStore.setDelegateModalOpen(true);
+      appStore.setScreen('delegate-registration');
     });
   }
 
@@ -292,22 +198,5 @@ export function attachHomepageEvents(): void {
 
   document.getElementById('btn-home-cart')?.addEventListener('click', () => {
     appStore.setScreen('cart');
-  });
-
-  if (btnAvatar) {
-    btnAvatar.addEventListener('click', () => {
-      appStore.setScreen('profile');
-    });
-  }
-
-  const dayButtons = document.querySelectorAll<HTMLButtonElement>('.stepper-node-item');
-  dayButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const iso = btn.getAttribute('data-day-iso');
-      if (iso) {
-        appStore.setSelectedProgrammeDate(iso);
-        appStore.setScreen('programme');
-      }
-    });
   });
 }

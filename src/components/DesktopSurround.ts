@@ -10,15 +10,18 @@ export function renderDesktopSurround(screenContentHtml: string): string {
     { id: 'home', num: '01', label: 'Homepage', desc: 'Symposium Journey' },
     { id: 'explore', num: '02', label: 'Explore Events', desc: '26 Events Directory' },
     { id: 'event-details', num: '03', label: 'Event Details', desc: 'Adaptive Event Page' },
-    { id: 'cart', num: '04', label: 'Cart', desc: 'Selected Events' },
-    { id: 'payment', num: '05', label: 'Payment', desc: 'QR & Proof Upload' },
-    { id: 'my-events', num: '06', label: 'My Events', desc: 'Registration Status' },
-    { id: 'programme', num: '07', label: 'Programme', desc: 'Day Timeline' },
-    { id: 'profile', num: '08', label: 'Delegate Profile', desc: 'Credential & Pass' },
-    { id: 'admin', num: '09', label: 'Verification', desc: 'Manual Payment Review' }
+    { id: 'delegate-registration', num: '04', label: 'Delegate Registration', desc: 'Pass Tier & Form' },
+    { id: 'delegate-payment', num: '05', label: 'Delegate Payment', desc: 'UPI QR & Screenshot' },
+    { id: 'delegate-confirm', num: '06', label: 'Delegate Pass Ready', desc: 'Holographic Pass' },
+    { id: 'cart', num: '07', label: 'Cart', desc: 'Selected Events' },
+    { id: 'event-payment', num: '08', label: 'Event Payment', desc: 'Checkout & Proof' },
+    { id: 'my-events', num: '09', label: 'My Events', desc: 'Registration Status' },
+    { id: 'programme', num: '10', label: 'Programme', desc: 'Day Timeline' },
+    { id: 'profile', num: '11', label: 'Delegate Profile', desc: 'Credential & Pass' },
+    { id: 'admin', num: '12', label: 'Verification', desc: 'Manual Payment Review' }
   ];
 
-  const hasBottomNav = ['home', 'explore', 'my-events', 'profile'].includes(state.currentScreen);
+  const hasBottomNav = ['home', 'explore', 'my-events', 'profile', 'delegate-confirm'].includes(state.currentScreen);
 
   const delegate = registration.getDelegate();
   const delegateApproved = delegate?.status === 'approved';
@@ -141,12 +144,8 @@ export function renderDesktopSurround(screenContentHtml: string): string {
             <!-- 1. Fixed Background Layer (Canvas Backdrop) -->
             <div class="screen-bg-container">
               <div class="screen-bg-base"></div>
-              ${state.currentScreen === 'onboarding' ? `
-                <div class="screen-bg-onboarding-layer"></div>
-                <div class="screen-bg-onboarding-overlay"></div>
-              ` : `
-                <div class="screen-bg-veil"></div>
-              `}
+              <div class="screen-bg-onboarding-layer"></div>
+              <div class="screen-bg-onboarding-overlay"></div>
             </div>
 
             <!-- 2. Independent Scrollable Viewport Wrapper -->

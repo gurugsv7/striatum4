@@ -90,11 +90,6 @@ export function renderCartView(): string {
           </svg>
           <span class="back-nav-label">CONTINUE EXPLORING</span>
         </button>
-
-        <div class="details-brand-sig">
-          <div class="sig-striatum">STRIATUM <span class="cyan-text">4.0</span></div>
-          <div class="sig-inst">IGMCRI · SIGMA 2026</div>
-        </div>
       </header>
 
       <!-- Section 02 / CART -->

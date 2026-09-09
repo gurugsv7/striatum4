@@ -115,6 +115,7 @@ function pendingGroup(entries: MyEventEntry[]): string {
 export function renderMyEventsView(): string {
   const groups = registration.getMyEvents();
   const isEmpty = groups.confirmed.length === 0 && groups.pending.length === 0 && groups.actionRequired.length === 0;
+  const cartCount = registration.cartCount();
 
   return `
     <div class="screen-content">
@@ -130,8 +131,13 @@ export function renderMyEventsView(): string {
         </div>
 
         <div class="header-right-block">
-          <button class="user-avatar-circle" id="btn-myevents-avatar" title="View Profile">
-            <span>G</span>
+          <button class="header-cart-btn ${cartCount ? 'has-items' : ''}" id="btn-myevents-cart" title="View cart">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 4h2l2.4 11.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.6L21 8H6.2"/>
+              <circle cx="10" cy="20" r="1"/>
+              <circle cx="18" cy="20" r="1"/>
+            </svg>
+            ${cartCount ? `<span class="cart-count-bead">${cartCount}</span>` : ''}
           </button>
         </div>
       </header>
@@ -221,5 +227,9 @@ export function attachMyEventsEvents(): void {
       const eventId = el.getAttribute('data-open-event-id');
       if (eventId) appStore.openEvent(eventId);
     });
+  });
+
+  document.getElementById('btn-myevents-cart')?.addEventListener('click', () => {
+    appStore.setScreen('cart');
   });
 }

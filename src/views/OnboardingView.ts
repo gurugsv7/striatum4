@@ -46,10 +46,6 @@ export function renderOnboardingView(): string {
             <span class="meta-symp-year">2026</span>
           </div>
         </div>
-        <p class="striatum-motto-callout">
-          A FAMILIAR JOURNEY,<br />
-          <span class="cyan-highlight">A DEEPER DIVE.</span>
-        </p>
       </section>
 
       <!-- Welcome Sign-In Card -->
@@ -131,14 +127,6 @@ export function renderOnboardingView(): string {
           <div class="footer-sub-row">
             <span class="footer-year">SIGMA 2026</span>
             <span class="footer-dash"></span>
-          </div>
-        </div>
-        <div class="footer-right">
-          <div class="footer-divider-line"></div>
-          <div class="footer-right-text">
-            <span>KNOWLEDGE</span>
-            <span>BEYOND</span>
-            <span>SURFACE</span>
           </div>
         </div>
       </footer>

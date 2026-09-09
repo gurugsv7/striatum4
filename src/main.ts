@@ -6,6 +6,7 @@ import './styles/homepage.css';
 import './styles/explore.css';
 import './styles/details.css';
 import './styles/commerce.css';
+import './styles/delegate.css';
 import './styles/programme.css';
 import './styles/admin.css';
 
@@ -17,12 +18,15 @@ import { renderHomepageView, attachHomepageEvents } from './views/HomepageView.t
 import { renderExploreView, attachExploreEvents } from './views/ExploreView.ts';
 import { renderEventDetailsView, attachEventDetailsEvents } from './views/EventDetailsView.ts';
 import { renderCartView, attachCartEvents } from './views/CartView.ts';
-import { renderPaymentView, attachPaymentEvents } from './views/PaymentView.ts';
 import { renderMyEventsView, attachMyEventsEvents } from './views/MyEventsView.ts';
 import { renderProgrammeView, attachProgrammeEvents } from './views/ProgrammeView.ts';
 import { renderProfileView, attachProfileEvents } from './views/ProfileView.ts';
 import { renderAdminView, attachAdminEvents } from './views/AdminView.ts';
 import { renderAdminGateView, attachAdminGateEvents } from './views/AdminGateView.ts';
+import { renderDelegateRegistrationView, attachDelegateRegistrationEvents } from './views/DelegateRegistrationView.ts';
+import { renderDelegatePaymentView, attachDelegatePaymentEvents } from './views/DelegatePaymentView.ts';
+import { renderDelegateConfirmView, attachDelegateConfirmEvents } from './views/DelegateConfirmView.ts';
+import { renderEventPaymentView, attachEventPaymentEvents } from './views/EventPaymentView.ts';
 
 const VIEWS: Record<ScreenType, { render: () => string; attach: () => void }> = {
   onboarding: { render: renderOnboardingView, attach: attachOnboardingEvents },
@@ -30,11 +34,14 @@ const VIEWS: Record<ScreenType, { render: () => string; attach: () => void }> = 
   explore: { render: renderExploreView, attach: attachExploreEvents },
   'event-details': { render: renderEventDetailsView, attach: attachEventDetailsEvents },
   cart: { render: renderCartView, attach: attachCartEvents },
-  payment: { render: renderPaymentView, attach: attachPaymentEvents },
   'my-events': { render: renderMyEventsView, attach: attachMyEventsEvents },
   programme: { render: renderProgrammeView, attach: attachProgrammeEvents },
   profile: { render: renderProfileView, attach: attachProfileEvents },
-  admin: { render: renderAdminView, attach: attachAdminEvents }
+  admin: { render: renderAdminView, attach: attachAdminEvents },
+  'delegate-registration': { render: renderDelegateRegistrationView, attach: attachDelegateRegistrationEvents },
+  'delegate-payment': { render: renderDelegatePaymentView, attach: attachDelegatePaymentEvents },
+  'delegate-confirm': { render: renderDelegateConfirmView, attach: attachDelegateConfirmEvents },
+  'event-payment': { render: renderEventPaymentView, attach: attachEventPaymentEvents }
 };
 
 /** Scroll position per screen, so returning to Explore does not lose the user's place. */

@@ -247,9 +247,6 @@ export function renderExploreView(): string {
             </svg>
             ${cartCount ? `<span class="cart-count-bead">${cartCount}</span>` : ''}
           </button>
-          <button class="user-avatar-circle" id="btn-explore-avatar" title="View Profile">
-            <span>${(state.userEmail || 'G').charAt(0).toUpperCase()}</span>
-          </button>
         </div>
       </header>
 
@@ -266,16 +263,6 @@ export function renderExploreView(): string {
             Find your<br />
             event<span class="cyan-period">.</span>
           </h1>
-
-          <div class="side-annotation-col" style="top: -10px;">
-            <div class="side-annotation-text">
-              <span>SAME</span>
-              <span>CURIOSITY</span>
-              <span>A DEEPER</span>
-              <span>TOMORROW</span>
-              <span class="bottom-dash"></span>
-            </div>
-          </div>
         </div>
 
         <p class="explore-subtitle">
@@ -370,15 +357,7 @@ export function renderExploreView(): string {
       </div>
 
       <!-- Footer -->
-      <footer class="explore-footer">
-        <div class="footer-left-quote">
-          <span>BENEATH</span>
-          <span>SURFACES</span>
-          <span>GREATER</span>
-          <span>HORIZONS</span>
-          <span class="motto-dash"></span>
-        </div>
-
+      <footer class="explore-footer" style="justify-content: flex-end;">
         <div class="footer-right-sig">
           <span class="sig-name">STRIATUM 4.0</span>
           <span class="sig-college">IGMCRI · SIGMA 2026</span>
@@ -400,10 +379,6 @@ export function attachExploreEvents(): void {
   document.getElementById('btn-clear-search')?.addEventListener('click', () => {
     appStore.setSearchQuery('');
     (document.getElementById('explore-search-input') as HTMLInputElement | null)?.focus();
-  });
-
-  document.getElementById('btn-explore-avatar')?.addEventListener('click', () => {
-    appStore.setScreen('profile');
   });
 
   document.getElementById('btn-explore-cart')?.addEventListener('click', () => {

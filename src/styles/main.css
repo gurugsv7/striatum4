@@ -481,6 +481,37 @@ html, body {
   pointer-events: none;
 }
 
+/* Custom Homepage Background Artwork for all pages */
+.screen-bg-homepage-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('/assets/homepage.jpg');
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
+  z-index: 1;
+}
+
+.screen-bg-homepage-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    180deg, 
+    rgba(1, 4, 10, 0.45) 0%, 
+    rgba(1, 6, 15, 0.25) 20%, 
+    rgba(1, 6, 15, 0.55) 60%, 
+    rgba(1, 6, 15, 0.85) 100%
+  );
+  pointer-events: none;
+  z-index: 2;
+}
+
 /* Custom Onboarding Abyss Background Artwork */
 .screen-bg-onboarding-layer {
   position: absolute;

@@ -7,12 +7,55 @@ export type ScreenType =
   | 'home'
   | 'explore'
   | 'event-details'
+  | 'delegate-registration'
+  | 'delegate-payment'
+  | 'delegate-confirm'
+  | 'event-payment'
   | 'cart'
-  | 'payment'
   | 'my-events'
   | 'programme'
   | 'profile'
   | 'admin';
+
+export type PassTier = 'AQUALUME' | 'SYNEXA';
+
+/**
+ * Delegate pass tiers.
+ *
+ * ⚠ These fees are NOT in the brochure master data — they were added with the
+ * pass-tier UI. Confirm with the organisers before launch, and keep them here so
+ * there is a single place to correct.
+ */
+export const DELEGATE_PASS_TIERS: Record<PassTier, { label: string; fee: number }> = {
+  AQUALUME: { label: 'AQUALUME', fee: 500 },
+  SYNEXA: { label: 'SYNEXA', fee: 600 }
+};
+
+export interface DelegateFormData {
+  tier: PassTier;
+  fullName: string;
+  phone: string;
+  email: string;
+  college: string;
+  course: string;
+  yearOfStudy: string;
+}
+
+export interface StagedPayment {
+  orderId: string;
+  amount: number;
+  tier?: string;
+  screenshotUrl: string | null;
+  screenshotName: string | null;
+}
+
+export interface SelectedCheckoutItem {
+  id: string;
+  title: string;
+  subtitle: string;
+  fee: number;
+  image: string;
+}
 
 /** Secondary (bottom-sheet) filters layered on top of the primary category pills. */
 export interface ExploreFilters {
@@ -52,6 +95,15 @@ export interface AppState {
   /** Admin console passcode accepted for this browser session. */
   isAdminUnlocked: boolean;
   adminGateError: string | null;
+  delegateForm: DelegateFormData;
+  delegatePayment: StagedPayment;
+  eventPayment: {
+    orderId: string;
+    items: SelectedCheckoutItem[];
+    total: number;
+    screenshotUrl: string | null;
+    screenshotName: string | null;
+  };
 }
 
 /**
@@ -96,7 +148,33 @@ class AppStore {
     isFilterSheetOpen: false,
     notificationMessage: null,
     isAdminUnlocked: readAdminUnlock(),
-    adminGateError: null
+    adminGateError: null,
+    // The form starts empty. Prefilling invents a delegate who does not exist.
+    delegateForm: {
+      tier: 'AQUALUME',
+      fullName: '',
+      phone: '',
+      email: '',
+      college: '',
+      course: '',
+      yearOfStudy: ''
+    },
+    delegatePayment: {
+      orderId: '',
+      amount: DELEGATE_PASS_TIERS.AQUALUME.fee,
+      tier: 'AQUALUME',
+      screenshotUrl: null,
+      screenshotName: null
+    },
+    // Items and total are derived from the real order at render time — never
+    // hardcoded. A fabricated line would show a delegate a fee they never chose.
+    eventPayment: {
+      orderId: '',
+      items: [],
+      total: 0,
+      screenshotUrl: null,
+      screenshotName: null
+    }
   };
 
   private listeners: Set<Listener> = new Set();
@@ -161,10 +239,60 @@ class AppStore {
     this.notify();
   }
 
-  /** Opens the payment screen for a specific order. */
+  /**
+   * Opens the payment screen for a specific order. Everything routes to the
+   * single event-payment screen so there is one payment surface, not two that
+   * can drift apart.
+   */
   openPayment(orderId: string): void {
     this.state.selectedOrderId = orderId;
-    this.setScreen('payment');
+    this.state.eventPayment.orderId = orderId;
+    this.state.eventPayment.screenshotUrl = null;
+    this.state.eventPayment.screenshotName = null;
+    this.setScreen('event-payment');
+  }
+
+  setDelegateForm(updates: Partial<DelegateFormData>): void {
+    this.state.delegateForm = { ...this.state.delegateForm, ...updates };
+    if (updates.tier) {
+      this.state.delegatePayment.tier = updates.tier;
+      this.state.delegatePayment.amount = DELEGATE_PASS_TIERS[updates.tier].fee;
+    }
+    this.notify();
+  }
+
+  setPassTier(tier: PassTier): void {
+    this.setDelegateForm({ tier });
+  }
+
+  setDelegateScreenshot(url: string | null, name: string | null): void {
+    this.state.delegatePayment.screenshotUrl = url;
+    this.state.delegatePayment.screenshotName = name;
+    this.notify();
+  }
+
+  setEventScreenshot(url: string | null, name: string | null): void {
+    this.state.eventPayment.screenshotUrl = url;
+    this.state.eventPayment.screenshotName = name;
+    this.notify();
+  }
+
+  /**
+   * Files the delegate application with the registration service so it reaches
+   * the verification console. The pass is NOT active at this point — an
+   * organiser still has to approve it, and only then is a Delegate ID issued.
+   */
+  confirmDelegateRegistration(): void {
+    const form = this.state.delegateForm;
+    registration.applyForDelegate({
+      fullName: form.fullName.trim(),
+      institution: form.college.trim(),
+      email: form.email.trim(),
+      yearOfStudy: form.yearOfStudy || undefined,
+      phone: form.phone.trim() || undefined
+    });
+    this.showToast('Delegate application submitted for verification');
+    this.setScreen('delegate-confirm');
   }
 
   login(email: string): void {
