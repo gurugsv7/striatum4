@@ -385,3 +385,10 @@
 .google-btn-mount > div {
   color-scheme: light;
 }
+
+/* The Google fallback button carries display:flex from .btn-chamfer-dark, which
+   overrides the `hidden` attribute's UA display:none. Without this, both the
+   Google-rendered button and our fallback show at once. */
+[hidden] {
+  display: none !important;
+}

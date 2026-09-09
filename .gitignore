@@ -21,3 +21,6 @@ Thumbs.db
 
 # Local tooling scratch
 scripts/.seo-jsonld.json
+
+# Local env import file for Vercel — not committed
+vercel-import.env
