@@ -899,6 +899,13 @@ export const EVENTS_PART_1: SymposiumEvent[] = [
     category: 'quiz',
     specialties: ['Endocrinology'],
     format: 'Quiz',
+    // Prelims open the quiz on 3 October; semifinals and finals are on the
+    // 13th. Both dates are stated in the brochure.
+    date: '3 OCT',
+    isoDate: '2026-10-03',
+    isoEndDate: '2026-10-13',
+    startTime: '6:00 PM',
+    endTime: '6:45 PM',
     mode: 'hybrid',
     participation: 'team',
     teamSize: { min: 2, max: 2 },

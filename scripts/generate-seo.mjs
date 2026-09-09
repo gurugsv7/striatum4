@@ -95,22 +95,45 @@ let datedCount = 0;
 let offerCount = 0;
 let capacityCount = 0;
 
-const subEvents = EVENTS.map(e => {
+/*
+ * Google requires `startDate` for Event rich results. Fourteen events have no
+ * date published in the brochure, and inventing one would send a delegate to
+ * the venue on the wrong day — so those are OMITTED from the Event graph
+ * instead of being marked up with a guess. They keep their own pages and rank
+ * on content; the moment organisers publish a date and it is added as
+ * `isoDate`, the event joins this graph automatically with no code change.
+ *
+ * `performer` and `offers.validFrom` stay absent for every event: we have no
+ * performer data, and we do not know when each offer opened. Both are optional
+ * and Google reports them only as non-critical.
+ */
+const undated = EVENTS.filter(e => !e.isoDate);
+
+const subEvents = EVENTS.filter(e => e.isoDate).map(e => {
+  const eventUrl = `${SITE_URL}/event/${encodeURIComponent(e.id)}`;
   const node = {
     '@type': 'Event',
+    '@id': eventUrl,
+    url: eventUrl,
     name: e.name,
     description: e.summary ?? e.description ?? undefined,
-    eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
-    location: PLACE
+    eventStatus: 'https://schema.org/EventScheduled',
+    eventAttendanceMode:
+      e.mode === 'online'
+        ? 'https://schema.org/OnlineEventAttendanceMode'
+        : e.mode === 'hybrid'
+        ? 'https://schema.org/MixedEventAttendanceMode'
+        : 'https://schema.org/OfflineEventAttendanceMode',
+    location: PLACE,
+    organizer: { '@id': `${SITE_URL}/#organization` },
+    image: IMAGE_URL,
+    startDate: e.isoDate,
+    // A single-day event ends the day it starts; only a genuinely multi-day
+    // event (GLANDSWARS) carries a different end date.
+    endDate: e.isoEndDate ?? e.isoDate
   };
+  datedCount += 1;
 
-  // startDate: only when the brochure published an isoDate. Never invented.
-  if (e.isoDate) {
-    node.startDate = e.isoDate;
-    datedCount += 1;
-  }
-
-  // offers: only when a price is published (pricing.unspecified omits it).
   const price = lowestPrice(e.pricing);
   if (price !== undefined) {
     node.offers = {
@@ -118,21 +141,15 @@ const subEvents = EVENTS.map(e => {
       price,
       priceCurrency: 'INR',
       availability: 'https://schema.org/InStock',
-      url: SITE_ROOT
+      url: eventUrl
     };
     offerCount += 1;
   }
 
-  // maximumAttendeeCapacity: only when slots is published.
   if (typeof e.slots === 'number') {
     node.maximumAttendeeCapacity = e.slots;
     capacityCount += 1;
   }
-
-  // Each sub-event now has its own canonical page at /event/<id>.
-  const eventUrl = `${SITE_URL}/event/${encodeURIComponent(e.id)}`;
-  node['@id'] = eventUrl;
-  node.url = eventUrl;
 
   return node;
 });
@@ -232,4 +249,7 @@ console.log(`  offers present:    ${offerCount} | omitted: ${subEvents.length - 
 console.log(`  maximumAttendeeCapacity present: ${capacityCount}`);
 console.log(`  umbrella event: ${umbrellaStart} .. ${umbrellaEnd}`);
 console.log(`  sitemap URLs: ${ROUTES.length}`);
+console.log(`  subEvents in graph: ${subEvents.length} (all carry startDate)`);
+console.log(`  omitted for no published date: ${undated.length}`);
+undated.forEach(e => console.log(`    - ${e.name}`));
 console.log(`  wrote index.html JSON-LD block + public/sitemap.xml`);

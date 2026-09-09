@@ -106,6 +106,8 @@ export interface SymposiumEvent {
   date?: string;
   /** ISO date used for the Programme timeline & conflict detection. */
   isoDate?: string;
+  /** ISO end date, only when an event genuinely spans more than one day. */
+  isoEndDate?: string;
   startTime?: string;
   endTime?: string;
   reportingTime?: string;
