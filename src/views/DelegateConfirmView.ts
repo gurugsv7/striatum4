@@ -1,6 +1,146 @@
 import { appStore } from '../state/appStore.ts';
 import * as registration from '../services/registrationService.ts';
 
+/**
+ * Renders the delegate pass to a PNG and saves it.
+ *
+ * Drawn directly on a canvas rather than screenshotting the DOM: it needs no
+ * dependency, and it guarantees the saved file contains exactly the approved
+ * credential values rather than whatever happened to be on screen.
+ *
+ * Only ever called for an approved delegate — the button is disabled otherwise —
+ * so an unissued Delegate ID can never be written into a downloadable file.
+ */
+async function downloadDelegatePass(): Promise<boolean> {
+  const delegate = registration.getDelegate();
+  if (!delegate || delegate.status !== 'approved' || !delegate.delegateId) return false;
+
+  const tier = appStore.getState().delegateForm.tier;
+
+  const W = 1000;
+  const H = 620;
+  const canvas = document.createElement('canvas');
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return false;
+
+  // Wait for the webfonts so the file matches the on-screen card.
+  try {
+    await document.fonts?.ready;
+  } catch {
+    /* fall back to system fonts */
+  }
+
+  const CYAN = '#2af1fa';
+  const serif = '"Playfair Display", Georgia, serif';
+  const mono = '"JetBrains Mono", ui-monospace, monospace';
+
+  // Deep-ocean ground with a bioluminescent bloom, matching the app palette.
+  const bg = ctx.createLinearGradient(0, 0, W, H);
+  bg.addColorStop(0, '#010409');
+  bg.addColorStop(0.55, '#041224');
+  bg.addColorStop(1, '#010409');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  const bloom = ctx.createRadialGradient(W * 0.82, H * 0.5, 0, W * 0.82, H * 0.5, W * 0.5);
+  bloom.addColorStop(0, 'rgba(42, 241, 250, 0.16)');
+  bloom.addColorStop(1, 'rgba(42, 241, 250, 0)');
+  ctx.fillStyle = bloom;
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.strokeStyle = 'rgba(42, 241, 250, 0.30)';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(28, 28, W - 56, H - 56);
+
+  // Corner brackets — the recurring motif across the interface.
+  const bracket = 46;
+  ctx.strokeStyle = CYAN;
+  ctx.lineWidth = 3;
+  const corners: [number, number, number, number][] = [
+    [28, 28, 1, 1],
+    [W - 28, 28, -1, 1],
+    [28, H - 28, 1, -1],
+    [W - 28, H - 28, -1, -1]
+  ];
+  corners.forEach(([x, y, dx, dy]) => {
+    ctx.beginPath();
+    ctx.moveTo(x + dx * bracket, y);
+    ctx.lineTo(x, y);
+    ctx.lineTo(x, y + dy * bracket);
+    ctx.stroke();
+  });
+
+  ctx.textBaseline = 'alphabetic';
+
+  ctx.fillStyle = '#ffffff';
+  ctx.font = `700 30px ${mono}`;
+  ctx.fillText('STRIATUM', 72, 108);
+  ctx.fillStyle = CYAN;
+  ctx.fillText(' 4.0', 72 + ctx.measureText('STRIATUM').width, 108);
+
+  ctx.fillStyle = '#8ca3b8';
+  ctx.font = `13px ${mono}`;
+  ctx.fillText('INDIRA GANDHI MEDICAL COLLEGE & RESEARCH INSTITUTE', 72, 136);
+  ctx.fillText('SIGMA 2026  ·  PUDUCHERRY', 72, 158);
+
+  ctx.strokeStyle = 'rgba(42, 241, 250, 0.22)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(72, 186);
+  ctx.lineTo(W - 72, 186);
+  ctx.stroke();
+
+  ctx.fillStyle = '#546e84';
+  ctx.font = `12px ${mono}`;
+  ctx.fillText('D E L E G A T E', 72, 224);
+
+  ctx.fillStyle = '#ffffff';
+  ctx.font = `500 46px ${serif}`;
+  ctx.fillText(delegate.fullName, 72, 276);
+
+  ctx.fillStyle = '#e1ebf4';
+  ctx.font = `17px ${mono}`;
+  ctx.fillText(delegate.institution, 72, 310);
+
+  const fields: [string, string][] = [
+    ['DELEGATE ID', delegate.delegateId],
+    ['PASS TIER', tier],
+    ['VALID', '15–18 OCT 2026']
+  ];
+  let fx = 72;
+  fields.forEach(([label, value]) => {
+    ctx.fillStyle = '#546e84';
+    ctx.font = `11px ${mono}`;
+    ctx.fillText(label, fx, 400);
+    ctx.fillStyle = CYAN;
+    ctx.font = `700 24px ${mono}`;
+    ctx.fillText(value, fx, 434);
+    fx += Math.max(ctx.measureText(value).width, 190) + 56;
+  });
+
+  ctx.fillStyle = '#546e84';
+  ctx.font = `12px ${mono}`;
+  ctx.fillText('Present this pass at the registration desk.', 72, H - 78);
+  ctx.fillStyle = 'rgba(42, 241, 250, 0.75)';
+  ctx.font = `italic 18px ${serif}`;
+  ctx.fillText('A Familiar Journey, A Deeper Dive.', 72, H - 48);
+
+  const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/png'));
+  if (!blob) return false;
+
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'STRIATUM-4.0-Delegate-Pass-' + delegate.delegateId + '.png';
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  return true;
+}
+
 function topBar(): string {
   return `
     <header class="mockup-top-bar">
@@ -386,12 +526,21 @@ export function attachDelegateConfirmEvents(): void {
     appStore.setScreen('delegate-registration');
   });
 
-  btnDownload?.addEventListener('click', () => {
+  btnDownload?.addEventListener('click', async () => {
     if (btnDownload.disabled) return;
-    appStore.showToast('Generating official Delegate Pass PDF...');
-    window.setTimeout(() => {
-      appStore.showToast('Delegate pass downloaded successfully!');
-    }, 900);
+    btnDownload.disabled = true;
+    appStore.showToast('Preparing your Delegate Pass…');
+    try {
+      const saved = await downloadDelegatePass();
+      // Only claim success when a file was actually produced.
+      appStore.showToast(
+        saved ? 'Delegate Pass saved to your downloads' : 'Your pass could not be generated. Please try again.'
+      );
+    } catch {
+      appStore.showToast('Your pass could not be generated. Please try again.');
+    } finally {
+      btnDownload.disabled = false;
+    }
   });
 
   btnCopyId?.addEventListener('click', () => {

@@ -187,7 +187,7 @@ export function attachDesktopSurroundEvents(): void {
   const btnDelegate = document.getElementById('btn-sidebar-delegate-action');
   if (btnDelegate) {
     btnDelegate.addEventListener('click', () => {
-      appStore.setDelegateModalOpen(true);
+      appStore.setScreen('delegate-registration');
     });
   }
 

@@ -12,7 +12,6 @@ import './styles/admin.css';
 
 import { appStore, AppState, ScreenType } from './state/appStore.ts';
 import { renderDesktopSurround, attachDesktopSurroundEvents } from './components/DesktopSurround.ts';
-import { renderDelegateModal, attachDelegateModalEvents } from './components/DelegateModal.ts';
 import { renderOnboardingView, attachOnboardingEvents } from './views/OnboardingView.ts';
 import { renderHomepageView, attachHomepageEvents } from './views/HomepageView.ts';
 import { renderExploreView, attachExploreEvents } from './views/ExploreView.ts';
@@ -91,13 +90,9 @@ function renderApp(state: AppState): void {
 
   syncUrl(state.currentScreen);
 
-  appContainer.innerHTML = `
-    ${renderDesktopSurround(view.render())}
-    ${renderDelegateModal()}
-  `;
+  appContainer.innerHTML = renderDesktopSurround(view.render());
 
   attachDesktopSurroundEvents();
-  attachDelegateModalEvents();
   view.attach();
 
   const newScroller = document.getElementById('viewport-scroller');

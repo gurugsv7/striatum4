@@ -89,7 +89,6 @@ export interface AppState {
   activeCategory: string;
   filters: ExploreFilters;
   selectedProgrammeDate: string | null;
-  isDelegateModalOpen: boolean;
   isFilterSheetOpen: boolean;
   notificationMessage: string | null;
   /** Admin console passcode accepted for this browser session. */
@@ -144,7 +143,6 @@ class AppStore {
     activeCategory: 'ALL',
     filters: { ...EMPTY_FILTERS },
     selectedProgrammeDate: null,
-    isDelegateModalOpen: false,
     isFilterSheetOpen: false,
     notificationMessage: null,
     isAdminUnlocked: readAdminUnlock(),
@@ -347,11 +345,6 @@ class AppStore {
 
   setSelectedProgrammeDate(iso: string | null): void {
     this.state.selectedProgrammeDate = iso;
-    this.notify();
-  }
-
-  setDelegateModalOpen(isOpen: boolean): void {
-    this.state.isDelegateModalOpen = isOpen;
     this.notify();
   }
 

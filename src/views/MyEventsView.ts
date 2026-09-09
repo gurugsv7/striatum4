@@ -202,7 +202,7 @@ export function attachMyEventsEvents(): void {
   const btnGetDelegate = document.getElementById('btn-myevents-get-delegate');
   if (btnGetDelegate) {
     btnGetDelegate.addEventListener('click', () => {
-      appStore.setDelegateModalOpen(true);
+      appStore.setScreen('delegate-registration');
     });
   }
 

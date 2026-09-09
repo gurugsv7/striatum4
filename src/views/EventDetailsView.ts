@@ -391,7 +391,7 @@ export function attachEventDetailsEvents(): void {
 
   document.getElementById('link-need-delegate')?.addEventListener('click', e => {
     e.preventDefault();
-    appStore.setDelegateModalOpen(true);
+    appStore.setScreen('delegate-registration');
   });
 
   document.querySelectorAll<HTMLButtonElement>('[data-participation]').forEach(btn => {

@@ -170,7 +170,7 @@ export function attachProfileEvents(): void {
   });
 
   document.getElementById('btn-activate-pass')?.addEventListener('click', () => {
-    appStore.setDelegateModalOpen(true);
+    appStore.setScreen('delegate-registration');
   });
 
   document.getElementById('btn-view-my-events-profile')?.addEventListener('click', () => {
