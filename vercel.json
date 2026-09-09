@@ -1,14 +1,117 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
-    { "source": "/admin", "destination": "/index.html" },
-    { "source": "/privacy", "destination": "/index.html" },
-    { "source": "/terms", "destination": "/index.html" }
+    {
+      "source": "/home",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/explore",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/programme",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/cart",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/payment",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/delegate",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/delegate/payment",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/delegate/pass",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/my-events",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/profile",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/admin",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/privacy",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/terms",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/event/:id",
+      "destination": "/index.html"
+    }
   ],
   "headers": [
     {
       "source": "/admin",
-      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      "source": "/cart",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      "source": "/payment",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      "source": "/my-events",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      "source": "/profile",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      "source": "/delegate/(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
     }
   ]
 }

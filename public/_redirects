@@ -1,7 +1,18 @@
-# Only the app's real routes get the SPA shell. A catch-all (/* -> /index.html 200)
-# would make retired URLs from the previous site return 200 and stay indexed by
-# Google — unknown paths must 404.
-# Used by Netlify / Cloudflare Pages; Vercel uses vercel.json.
-/admin      /index.html   200
-/privacy    /index.html   200
-/terms      /index.html   200
+# Explicit routes only. A catch-all (/* -> /index.html 200) would make retired
+# URLs from the previous site return 200 and stay in Google's index forever.
+# Vercel uses vercel.json; this covers Netlify / Cloudflare Pages.
+
+/home                 /index.html   200
+/explore              /index.html   200
+/programme            /index.html   200
+/cart                 /index.html   200
+/payment              /index.html   200
+/delegate             /index.html   200
+/delegate/payment     /index.html   200
+/delegate/pass        /index.html   200
+/my-events            /index.html   200
+/profile              /index.html   200
+/admin                /index.html   200
+/privacy              /index.html   200
+/terms                /index.html   200
+/event/*              /index.html   200

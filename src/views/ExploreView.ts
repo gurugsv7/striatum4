@@ -429,6 +429,19 @@ function attachFilterSheetEvents(): void {
   const overlay = document.getElementById('filter-sheet-overlay');
   if (!overlay) return;
 
+  // Escape is the expected way out of a sheet; without it the only exit was a
+  // precise tap on the backdrop.
+  const onKey = (event: KeyboardEvent) => {
+    if (event.key === 'Escape') {
+      appStore.setFilterSheetOpen(false);
+      document.removeEventListener('keydown', onKey);
+    }
+  };
+  document.addEventListener('keydown', onKey);
+
+  // Move focus into the sheet so keyboard and screen-reader users land inside it.
+  (overlay.querySelector('.sheet-chip, .filter-sheet-close') as HTMLElement | null)?.focus();
+
   overlay.addEventListener('click', e => {
     if (e.target === overlay) appStore.setFilterSheetOpen(false);
   });

@@ -129,6 +129,11 @@ const subEvents = EVENTS.map(e => {
     capacityCount += 1;
   }
 
+  // Each sub-event now has its own canonical page at /event/<id>.
+  const eventUrl = `${SITE_URL}/event/${encodeURIComponent(e.id)}`;
+  node['@id'] = eventUrl;
+  node.url = eventUrl;
+
   return node;
 });
 
@@ -187,12 +192,22 @@ const newIndexHtml =
   indexHtml.slice(0, startIdx) + jsonLdScript + indexHtml.slice(endIdx + endMarker.length);
 writeFileSync(indexPath, newIndexHtml, 'utf8');
 
-// Sitemap. /admin must never appear here — it is the verification console.
-// The legal pages are public and are what Google's OAuth consent screen links
-// to, so they are indexable, just at a lower priority than the homepage.
+// Sitemap. /admin and the other private/transactional routes (/home, /cart,
+// /payment, /my-events, /profile, /delegate, /delegate/payment,
+// /delegate/pass) must never appear here. The legal pages are public and are
+// what Google's OAuth consent screen links to, so they are indexable, just at
+// a lower priority than the homepage. Every event now has its own canonical
+// URL at /event/<id> and is a real SEO opportunity, so each one is included.
 const today = new Date().toISOString().slice(0, 10);
 const ROUTES = [
   { loc: SITE_ROOT, changefreq: 'weekly', priority: '1.0' },
+  { loc: `${SITE_URL}/explore`, changefreq: 'weekly', priority: '0.9' },
+  { loc: `${SITE_URL}/programme`, changefreq: 'weekly', priority: '0.8' },
+  ...EVENTS.map(e => ({
+    loc: `${SITE_URL}/event/${encodeURIComponent(e.id)}`,
+    changefreq: 'weekly',
+    priority: '0.8'
+  })),
   { loc: `${SITE_URL}/privacy`, changefreq: 'yearly', priority: '0.3' },
   { loc: `${SITE_URL}/terms`, changefreq: 'yearly', priority: '0.3' }
 ];
@@ -216,4 +231,5 @@ console.log(`  startDate present: ${datedCount} | omitted: ${subEvents.length - 
 console.log(`  offers present:    ${offerCount} | omitted: ${subEvents.length - offerCount}`);
 console.log(`  maximumAttendeeCapacity present: ${capacityCount}`);
 console.log(`  umbrella event: ${umbrellaStart} .. ${umbrellaEnd}`);
+console.log(`  sitemap URLs: ${ROUTES.length}`);
 console.log(`  wrote index.html JSON-LD block + public/sitemap.xml`);

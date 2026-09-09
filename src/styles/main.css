@@ -612,3 +612,31 @@ html, body {
     flex-shrink: 0 !important;
   }
 }
+
+/* Respect a reduced-motion preference: the ocean scene and cyan glows are
+   decorative, and animation should never be forced on someone who has asked
+   the OS to stop it. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* A visible focus ring for keyboard users. Mouse users never see it. */
+:focus-visible {
+  outline: 2px solid var(--cyan-glow);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Headings receive focus on navigation; that is programmatic, not a control. */
+h1:focus,
+.explore-heading:focus,
+.hero-display-title:focus {
+  outline: none;
+}

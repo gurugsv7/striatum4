@@ -13,6 +13,7 @@ import './styles/legal.css';
 
 import { appStore, AppState, ScreenType } from './state/appStore.ts';
 import { initAuth, onAuthChange } from './services/authService.ts';
+import { pathFor, routeFromPath, titleFor } from './services/router.ts';
 import * as registrationService from './services/registrationService.ts';
 const hydrateRegistrations = registrationService.hydrate;
 import { renderDesktopSurround, attachDesktopSurroundEvents } from './components/DesktopSurround.ts';
@@ -60,34 +61,61 @@ const scrollMemory: Partial<Record<ScreenType, number>> = {};
 let lastScreen: ScreenType | null = null;
 
 /* ---------------------------------------------------------------- routing --
- * Only the admin console needs a shareable address — organisers are told to
- * visit /admin. Delegate screens stay internal to the app's own flow, so they
- * deliberately do not get URLs that could be bookmarked mid-registration.
- * Both /admin and #/admin are accepted, since static hosts differ on whether
- * they rewrite unknown paths to index.html.
+ * Every screen owns a URL and pushes a history entry, so Back moves within the
+ * app instead of leaving it, and any screen can be refreshed or shared.
+ *
+ * `popstate` restores state without pushing again, which is what stops Back
+ * from fighting the app.
  * -------------------------------------------------------------------------- */
 
-/** Screens that own a real, linkable URL. */
-const ROUTES: Partial<Record<ScreenType, string>> = {
-  admin: '/admin',
-  privacy: '/privacy',
-  terms: '/terms'
-};
+/** Set while handling popstate so the render does not push a duplicate entry. */
+let restoringFromHistory = false;
 
-function screenFromLocation(): ScreenType | null {
-  const path = window.location.pathname.replace(/\/+$/, '').toLowerCase();
-  const hash = window.location.hash.replace(/^#\/?/, '').toLowerCase();
-  const match = (Object.keys(ROUTES) as ScreenType[]).find(
-    screen => ROUTES[screen] === path || ROUTES[screen] === '/' + hash
-  );
-  return match ?? null;
+function syncUrlAndTitle(state: AppState): void {
+  const eventName = state.currentScreen === 'event-details' ? appStore.getSelectedEvent()?.name : undefined;
+  document.title = titleFor(state.currentScreen, eventName);
+
+  const target = pathFor(state.currentScreen, state.selectedEventId) + window.location.search;
+  const current = window.location.pathname + window.location.search;
+  if (current === target) return;
+
+  if (restoringFromHistory) {
+    // The address bar is already correct; touching history here would fight Back.
+    return;
+  }
+  window.history.pushState({ screen: state.currentScreen, eventId: state.selectedEventId }, '', target);
 }
 
-function syncUrl(screen: ScreenType): void {
-  const target = ROUTES[screen] ?? '/';
-  if (window.location.pathname !== target) {
-    window.history.replaceState({}, '', target + window.location.search);
+window.addEventListener('popstate', () => {
+  const route = routeFromPath(window.location.pathname);
+  restoringFromHistory = true;
+  if (route) {
+    if (route.eventId) appStore.setSelectedEvent(route.eventId);
+    appStore.setScreen(route.screen);
+  } else {
+    appStore.setScreen('home');
   }
+  restoringFromHistory = false;
+});
+
+/**
+ * Politely announces a navigation. Lives outside #app so the wholesale
+ * innerHTML replacement never destroys the live region mid-announcement.
+ */
+function announce(message: string): void {
+  let region = document.getElementById('route-announcer');
+  if (!region) {
+    region = document.createElement('div');
+    region.id = 'route-announcer';
+    region.setAttribute('role', 'status');
+    region.setAttribute('aria-live', 'polite');
+    region.setAttribute('aria-atomic', 'true');
+    region.style.cssText =
+      'position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;' +
+      'clip:rect(0 0 0 0);white-space:nowrap;border:0;';
+    document.body.appendChild(region);
+  }
+  region.textContent = message;
 }
 
 function renderApp(state: AppState): void {
@@ -111,7 +139,7 @@ function renderApp(state: AppState): void {
       ? { render: renderAdminGateView, attach: attachAdminGateEvents }
       : VIEWS[state.currentScreen] ?? VIEWS.home;
 
-  syncUrl(state.currentScreen);
+  syncUrlAndTitle(state);
 
   appContainer.innerHTML = renderDesktopSurround(view.render());
 
@@ -122,6 +150,18 @@ function renderApp(state: AppState): void {
   if (newScroller) {
     newScroller.scrollTop = isScreenChange ? scrollMemory[state.currentScreen] ?? 0 : scrollMemory[state.currentScreen] ?? newScroller.scrollTop;
     if (isScreenChange && scrollMemory[state.currentScreen] === undefined) newScroller.scrollTop = 0;
+  }
+  if (isScreenChange) {
+    // The app replaces its entire DOM on navigation, so focus would otherwise
+    // fall back to <body> and a screen reader would announce nothing.
+    const heading = document.querySelector<HTMLElement>(
+      '.screen-content h1, .screen-content .explore-heading, .screen-content .hero-display-title'
+    );
+    if (heading) {
+      heading.setAttribute('tabindex', '-1');
+      heading.focus({ preventScroll: true });
+    }
+    announce(document.title.replace(' | STRIATUM 4.0', ''));
   }
   lastScreen = state.currentScreen;
 
@@ -134,10 +174,19 @@ function renderApp(state: AppState): void {
   }
 }
 
-// A direct visit to /admin lands on the console (behind the passcode gate)
-// rather than the delegate sign-in flow.
-const routed = screenFromLocation();
-if (routed) appStore.setScreen(routed);
+// Restore the screen named by the address, so a refresh or a shared link lands
+// where it should instead of bouncing to sign-in.
+const initialRoute = routeFromPath(window.location.pathname);
+if (initialRoute) {
+  if (initialRoute.eventId) appStore.setSelectedEvent(initialRoute.eventId);
+  appStore.setScreen(initialRoute.screen);
+}
+// Seed the first history entry so the very first Back has somewhere to return to.
+window.history.replaceState(
+  { screen: appStore.getState().currentScreen, eventId: appStore.getState().selectedEventId },
+  '',
+  window.location.pathname + window.location.search
+);
 
 renderApp(appStore.getState());
 appStore.subscribe(renderApp);

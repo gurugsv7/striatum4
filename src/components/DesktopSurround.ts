@@ -163,7 +163,8 @@ export function renderDesktopSurround(screenContentHtml: string): string {
       </section>
 
       <!-- Floating Toast Feedback Notice -->
-      <div class="toast-notice ${state.notificationMessage ? 'visible' : ''}" id="toast-notice">
+      <div class="toast-notice ${state.notificationMessage ? 'visible' : ''}" id="toast-notice"
+           role="status" aria-live="polite" aria-atomic="true">
         ${state.notificationMessage || ''}
       </div>
 
