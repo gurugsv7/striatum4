@@ -57,6 +57,12 @@ export function isSignedIn(): boolean {
   return currentUser !== null;
 }
 
+/** Sets an authenticated user directly for testing and mock environments. */
+export function setMockUser(user: AuthUser | null): void {
+  currentUser = user;
+  emit();
+}
+
 /** Restores any persisted session and subscribes to future auth changes. */
 export async function initAuth(): Promise<AuthUser | null> {
   if (!supabase || initialised) return currentUser;

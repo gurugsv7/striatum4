@@ -272,6 +272,12 @@ export function getDelegate(): DelegateApplication | null {
   return state.delegate ? { ...state.delegate } : null;
 }
 
+/** Set delegate state directly for test verification suites. */
+export function setDelegateForTesting(delegate: DelegateApplication | null): void {
+  state.delegate = delegate;
+  save();
+}
+
 export function getDelegateStatus(): DelegateStatus {
   return state.delegate?.status ?? 'none';
 }
