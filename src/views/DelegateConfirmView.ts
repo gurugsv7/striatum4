@@ -335,10 +335,11 @@ function renderStatusCardState(delegate: registration.DelegateApplication, statu
   const isActive = status === 'approved' || status === 'pending';
   const form = appStore.getState().delegateForm;
   const tierName = form.tier || 'AQUALUME';
-  const course = form.course || 'B.Tech AI & Data Science';
+  const course = form.course || '';
   const attendeeName = delegate.fullName || form.fullName || 'Guru Sabarivasan M';
   const college = delegate.institution || form.college || 'IIT Jodhpur';
   const year = delegate.yearOfStudy || form.yearOfStudy || '3rd Year';
+  const courseYearDisplay = course ? `${escapeHtml(course)} · ${escapeHtml(year)}` : escapeHtml(year);
   const delegateCode = delegate.delegateId || 'S4-01842';
 
   const headline = isApproved
@@ -383,11 +384,6 @@ function renderStatusCardState(delegate: registration.DelegateApplication, statu
       <!-- Holographic Pass Card matching Mockup exactly -->
       <div class="holographic-pass-container">
 
-        <!-- Background Floating Jellyfish Watermark -->
-        <div class="holo-card-watermark-jelly">
-          <img src="/art_pass_jelly.png" alt="Bioluminescent Jellyfish" />
-        </div>
-
         <!-- Card Top Bar -->
         <div class="holo-card-top-row">
           <div>
@@ -430,7 +426,7 @@ function renderStatusCardState(delegate: registration.DelegateApplication, statu
 
             <div class="holo-field-grp">
               <span class="holo-field-lbl">COURSE / YEAR</span>
-              <span class="holo-field-val">${escapeHtml(course)} · ${escapeHtml(year)}</span>
+              <span class="holo-field-val">${courseYearDisplay}</span>
             </div>
 
             <div class="holo-field-grp">

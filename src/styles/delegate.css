@@ -12,6 +12,12 @@
   padding: 8px 16px 28px 16px;
   position: relative;
   min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.mockup-flow-page > * {
+  flex-shrink: 0;
 }
 
 /* ==========================================================================
@@ -812,13 +818,16 @@
    ========================================================================== */
 .holographic-pass-container {
   position: relative;
-  background: linear-gradient(145deg, rgba(2, 22, 38, 0.95) 0%, rgba(1, 10, 20, 0.98) 100%);
+  background: linear-gradient(145deg, rgba(2, 22, 38, 0.96) 0%, rgba(1, 10, 20, 0.98) 100%);
   border: 1.5px solid var(--cyan-glow);
   border-radius: 16px;
   padding: 16px 14px 14px;
   margin-bottom: 14px;
   box-shadow: 0 0 24px rgba(42, 241, 250, 0.28), inset 0 0 16px rgba(42, 241, 250, 0.08);
-  overflow: hidden;
+  flex-shrink: 0 !important;
+  min-height: min-content !important;
+  height: auto !important;
+  overflow: visible !important;
 }
 
 .holo-card-top-row {
@@ -879,12 +888,12 @@
   flex-direction: column;
   align-items: center;
   flex-shrink: 0;
-  width: 102px;
+  width: 104px;
 }
 
 .holo-qr-white-frame {
-  width: 102px;
-  height: 102px;
+  width: 104px;
+  height: 104px;
   background: #ffffff;
   border-radius: 8px;
   padding: 5px;
@@ -893,6 +902,7 @@
   align-items: center;
   justify-content: center;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
+  flex-shrink: 0;
 }
 
 .holo-qr-white-frame svg {
@@ -930,19 +940,20 @@
 
 .holo-qr-sub-label {
   font-family: var(--font-mono-meta);
-  font-size: 7px;
-  letter-spacing: 1.1px;
+  font-size: 7.5px;
+  letter-spacing: 0.8px;
   color: var(--text-dim);
   margin-top: 6px;
   text-align: center;
-  white-space: nowrap;
+  line-height: 1.3;
+  white-space: normal;
 }
 
 .holo-attendee-details-col {
   display: flex;
   flex-direction: column;
   gap: 7px;
-  flex: 1;
+  flex: 1 1 auto;
   min-width: 0;
   position: relative;
   z-index: 2;
@@ -967,7 +978,7 @@
   font-size: 12px;
   font-weight: 600;
   color: #ffffff;
-  line-height: 1.2;
+  line-height: 1.25;
   word-break: break-word;
 }
 
@@ -1011,30 +1022,13 @@
   transform: scale(1.15);
 }
 
-.holo-card-watermark-jelly {
-  position: absolute;
-  right: -4px;
-  top: 34px;
-  width: 95px;
-  height: 150px;
-  pointer-events: none;
-  opacity: 0.85;
-  mix-blend-mode: screen;
-  z-index: 1;
-}
-
-.holo-card-watermark-jelly img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
 .holo-card-bottom-tri-row {
   display: grid;
   grid-template-columns: 1fr 1.15fr 1fr;
   gap: 6px;
   border-top: 1px solid rgba(42, 241, 250, 0.16);
   padding-top: 10px;
+  margin-top: 2px;
   position: relative;
   z-index: 2;
 }
@@ -1073,6 +1067,32 @@
   font-size: 7.5px;
   color: var(--text-dim);
   margin-top: 1px;
+}
+
+@media (max-width: 360px) {
+  .holo-qr-wrap-col {
+    width: 92px;
+  }
+  .holo-qr-white-frame {
+    width: 92px;
+    height: 92px;
+    padding: 4px;
+  }
+  .holo-pass-split-body {
+    gap: 10px;
+  }
+  .holo-id-bold {
+    font-size: 13.5px;
+  }
+  .holo-card-bottom-tri-row {
+    gap: 4px;
+  }
+  .tri-val-bold {
+    font-size: 8.5px;
+  }
+  .holo-field-val {
+    font-size: 11px;
+  }
 }
 
 /* Action button grid in confirm */
