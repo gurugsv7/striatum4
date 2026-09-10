@@ -3,14 +3,16 @@ import { EVENTS_PART_1 } from './events.part1.ts';
 import { EVENTS_PART_2 } from './events.part2.ts';
 
 /**
- * Canonical event-data corrections from the latest STRIATUM 4.0 brochure.
+ * Canonical event-data corrections from the latest STRIATUM 4.0 brochure and
+ * organiser-confirmed additions that could not fit in the brochure.
  *
- * Keep these as a small normalization layer so the UI/components remain untouched while
- * stale brochure facts in the split source files are safely overridden. Once the source
- * files are regenerated from the final brochure, this layer can be folded back into them.
+ * Keep these as a normalization layer so UI/components remain untouched while
+ * stale facts in the split source files are safely overridden. Once the final
+ * brochure data is regenerated into the source files, this layer can be folded
+ * back into them.
  */
 const LATEST_BROCHURE_OVERRIDES: Record<string, Partial<SymposiumEvent>> = {
-  'SUTUREX': {
+  SUTUREX: {
     name: 'STITCHREEF',
     date: '15 OCT',
     isoDate: '2026-10-15',
@@ -18,13 +20,13 @@ const LATEST_BROCHURE_OVERRIDES: Record<string, Partial<SymposiumEvent>> = {
     endTime: '12:30 PM',
     needsConfirmation: undefined
   },
-  'PENUMBRA': {
+  PENUMBRA: {
     date: '17 OCT',
     isoDate: '2026-10-17',
     startTime: '9:00 AM',
     endTime: '1:00 PM'
   },
-  'GENESIS': {
+  GENESIS: {
     date: '16 OCT',
     isoDate: '2026-10-16',
     startTime: '8:00 AM',
@@ -36,13 +38,45 @@ const LATEST_BROCHURE_OVERRIDES: Record<string, Partial<SymposiumEvent>> = {
     startTime: '8:30 AM',
     endTime: '4:00 PM'
   },
-  'PLEURALIS': {
+  VITALIS: {
+    name: 'Trauma Resuscitation',
+    date: '16 OCT',
+    isoDate: '2026-10-16',
+    startTime: '8:00 AM',
+    endTime: '4:30 PM',
+    needsConfirmation: undefined
+  },
+  PLEURALIS: {
     date: '15 OCT',
     isoDate: '2026-10-15',
     startTime: '2:00 PM',
     endTime: '5:00 PM'
   },
-  'LUMINARA': {
+  RYTHMICA: {
+    date: '16 OCT',
+    isoDate: '2026-10-16',
+    startTime: '8:00 AM',
+    endTime: '1:00 PM'
+  },
+  'OCEANIC ODYSSEY': {
+    date: '18 OCT',
+    isoDate: '2026-10-18',
+    reportingTime: '8:00 AM'
+  },
+  AQUAQUEST: {
+    date: '18 OCT',
+    isoDate: '2026-10-18',
+    reportingTime: '8:00 AM'
+  },
+  GLANDSWARS: {
+    date: '3 OCT',
+    isoDate: '2026-10-03',
+    isoEndDate: '2026-10-14',
+    startTime: '6:00 PM',
+    endTime: '6:45 PM',
+    mode: 'hybrid'
+  },
+  LUMINARA: {
     date: '17 OCT',
     isoDate: '2026-10-17'
   },
@@ -54,13 +88,13 @@ const LATEST_BROCHURE_OVERRIDES: Record<string, Partial<SymposiumEvent>> = {
     date: '18 OCT',
     isoDate: '2026-10-18'
   },
-  'CHIRONEX': {
+  CHIRONEX: {
     date: '18 OCT',
     isoDate: '2026-10-18',
     submissionDeadline: '13 October 2026',
     needsConfirmation: undefined
   },
-  'NEURONOVA': {
+  NEURONOVA: {
     date: '18 OCT',
     isoDate: '2026-10-18',
     startTime: '9:00 AM'
@@ -73,7 +107,8 @@ const LATEST_BROCHURE_OVERRIDES: Record<string, Partial<SymposiumEvent>> = {
     date: '17 OCT',
     isoDate: '2026-10-17'
   },
-  'BIOVERSE': {
+  BIOVERSE: {
+    // Organiser supplied this directly because the brochure had no room for it.
     date: '14 OCT',
     isoDate: '2026-10-14',
     startTime: '10:00 AM'
@@ -84,17 +119,125 @@ const LATEST_BROCHURE_OVERRIDES: Record<string, Partial<SymposiumEvent>> = {
   },
   'AURELIA CELESTIA': {
     date: '17 OCT',
-    isoDate: '2026-10-17'
+    isoDate: '2026-10-17',
+    venue: 'OAT'
   },
-  'MEDMAZE': {
+  MEDMAZE: {
     date: '17 OCT',
     isoDate: '2026-10-17'
   }
 };
 
+/** Exact section facts whose old brochure values would otherwise still render. */
+const SECTION_FACT_OVERRIDES: Record<string, Record<string, Record<string, string>>> = {
+  GLANDSWARS: {
+    'QUIZ FORMAT': {
+      Prelims: 'Online · 3 October 2026 · 6:00 PM – 6:45 PM · 45 questions (45 minutes)',
+      Semifinals: 'Offline · 14 October 2026 · Top 12 teams qualify',
+      Finals: 'Offline · 14 October 2026 · Top 6 teams qualify'
+    }
+  },
+  CHIRONEX: {
+    'IMPORTANT INFORMATION': {
+      'Submission deadline': '13 October 2026',
+      'PPT deadline': '13 October 2026'
+    }
+  }
+};
+
+const LEGACY_SEARCH_NAMES: Record<string, string[]> = {
+  SUTUREX: ['suturex'],
+  VITALIS: ['vitalis']
+};
+
+function longDate(isoDate?: string): string | undefined {
+  if (!isoDate) return undefined;
+  const [year, month, day] = isoDate.split('-').map(Number);
+  if (!year || !month || !day) return undefined;
+  const monthName = new Intl.DateTimeFormat('en', { month: 'long', timeZone: 'UTC' }).format(
+    new Date(Date.UTC(year, month - 1, day))
+  );
+  return `${day} ${monthName} ${year}`;
+}
+
+function patchSections(
+  originalName: string,
+  event: SymposiumEvent,
+  override: Partial<SymposiumEvent>
+): SymposiumEvent['sections'] {
+  const sections = event.sections?.map(section => {
+    const explicitFacts = SECTION_FACT_OVERRIDES[originalName]?.[section.title] ?? {};
+    let facts = section.facts?.map(fact => {
+      if (explicitFacts[fact.label] !== undefined) {
+        return { ...fact, value: explicitFacts[fact.label] };
+      }
+
+      if (section.title === 'IMPORTANT INFORMATION') {
+        if (fact.label.toLowerCase() === 'date' && override.isoDate) {
+          return { ...fact, value: longDate(override.isoDate) ?? fact.value };
+        }
+        if (fact.label.toLowerCase() === 'time' && override.startTime) {
+          const time = override.endTime ? `${override.startTime} – ${override.endTime}` : override.startTime;
+          return { ...fact, value: time };
+        }
+        if (fact.label.toLowerCase() === 'reporting time' && override.reportingTime) {
+          return { ...fact, value: override.reportingTime };
+        }
+        if (fact.label.toLowerCase() === 'venue' && override.venue) {
+          return { ...fact, value: override.venue };
+        }
+      }
+
+      return fact;
+    });
+
+    // Newly dated events often had no Date fact in the older brochure-derived section.
+    if (section.title === 'IMPORTANT INFORMATION' && override.isoDate) {
+      facts = facts ?? [];
+      if (!facts.some(f => f.label.toLowerCase() === 'date')) {
+        const value = longDate(override.isoDate);
+        if (value) facts = [{ label: 'Date', value }, ...facts];
+      }
+    }
+
+    if (section.title === 'IMPORTANT INFORMATION' && override.startTime) {
+      facts = facts ?? [];
+      if (!facts.some(f => f.label.toLowerCase() === 'time')) {
+        const value = override.endTime ? `${override.startTime} – ${override.endTime}` : override.startTime;
+        facts = [...facts, { label: 'Time', value }];
+      }
+    }
+
+    if (section.title === 'IMPORTANT INFORMATION' && override.venue) {
+      facts = facts ?? [];
+      if (!facts.some(f => f.label.toLowerCase() === 'venue')) {
+        facts = [...facts, { label: 'Venue', value: override.venue }];
+      }
+    }
+
+    return facts ? { ...section, facts } : section;
+  });
+
+  return sections;
+}
+
 function applyLatestBrochureData(event: SymposiumEvent): SymposiumEvent {
-  const override = LATEST_BROCHURE_OVERRIDES[event.name];
-  return override ? { ...event, ...override } : event;
+  const originalName = event.name;
+  const override = LATEST_BROCHURE_OVERRIDES[originalName];
+  if (!override) return event;
+
+  const patched: SymposiumEvent = {
+    ...event,
+    ...override,
+    sections: patchSections(originalName, event, override)
+  };
+
+  const legacyNames = LEGACY_SEARCH_NAMES[originalName] ?? [];
+  if (legacyNames.length) {
+    patched.keywords = [...new Set([...(patched.keywords ?? []), ...legacyNames])];
+  }
+
+  return patched;
 }
 
 /** All 26 named STRIATUM 4.0 activities, in official brochure order. */
