@@ -5,15 +5,14 @@
  *
  * Run it whenever the event data changes:
  *
- *   node scripts/generate-seo.mjs
+ *   npm run seo
  *
- * (There is no package.json "seo" script for this — package.json is owned by
- * someone else in this repo; run the command above directly.)
+ * The production build also runs this automatically, preventing event-data and
+ * structured-data drift.
  *
- * CANONICAL DOMAIN — note the "r" right after "igmc", before "isigma". The
- * currently-live site shipped with that "r" dropped, producing a domain that
- * does not resolve. Every absolute URL emitted by this script must use the
- * constant below, character for character.
+ * CANONICAL DOMAIN — note the "r" right after "igmc", before "isigma". Every
+ * absolute URL emitted by this script must use the constant below, character
+ * for character.
  */
 import { build } from 'esbuild';
 import { readFileSync, writeFileSync } from 'node:fs';
@@ -26,6 +25,13 @@ const SITE_URL = 'https://www.igmcrisigma.com';
 const SITE_ROOT = `${SITE_URL}/`;
 const LOGO_URL = `${SITE_URL}/assets/caduceus_crest.png`;
 const IMAGE_URL = `${SITE_URL}/assets/homepage.jpg`;
+
+// Official conference window from the current brochure. Pre-conference rounds
+// (for example GLANDSWARS prelims on 3 Oct) remain sub-events but must not move
+// the symposium itself outside its published 14–18 October dates.
+const CONFERENCE_START = '2026-10-14';
+const CONFERENCE_END = '2026-10-18';
+const CONFERENCE_DATE_COPY = '14–18 October 2026';
 
 const bundle = await build({
   entryPoints: [resolve(root, 'src/data/events.ts')],
@@ -96,16 +102,13 @@ let offerCount = 0;
 let capacityCount = 0;
 
 /*
- * Google requires `startDate` for Event rich results. Fourteen events have no
- * date published in the brochure, and inventing one would send a delegate to
- * the venue on the wrong day — so those are OMITTED from the Event graph
- * instead of being marked up with a guess. They keep their own pages and rank
- * on content; the moment organisers publish a date and it is added as
- * `isoDate`, the event joins this graph automatically with no code change.
+ * Google requires `startDate` for Event rich results. Events without a confirmed
+ * date are omitted from the Event graph rather than receiving guessed dates.
+ * They keep their pages and can join the graph automatically once `isoDate` is
+ * added to the canonical event data.
  *
- * `performer` and `offers.validFrom` stay absent for every event: we have no
- * performer data, and we do not know when each offer opened. Both are optional
- * and Google reports them only as non-critical.
+ * `performer` and `offers.validFrom` remain absent because the organisers have
+ * not supplied those facts.
  */
 const undated = EVENTS.filter(e => !e.isoDate);
 
@@ -128,8 +131,6 @@ const subEvents = EVENTS.filter(e => e.isoDate).map(e => {
     organizer: { '@id': `${SITE_URL}/#organization` },
     image: IMAGE_URL,
     startDate: e.isoDate,
-    // A single-day event ends the day it starts; only a genuinely multi-day
-    // event (GLANDSWARS) carries a different end date.
     endDate: e.isoEndDate ?? e.isoDate
   };
   datedCount += 1;
@@ -154,23 +155,15 @@ const subEvents = EVENTS.filter(e => e.isoDate).map(e => {
   return node;
 });
 
-// The umbrella Event's startDate/endDate are derived — not separately stated
-// in the brochure — as the earliest and latest of the 11 published sub-event
-// isoDates (2026-10-15 .. 2026-10-18). Never hand-edit these independently of
-// the underlying event dates.
-const isoDates = EVENTS.map(e => e.isoDate).filter(Boolean).sort();
-const umbrellaStart = isoDates[0];
-const umbrellaEnd = isoDates[isoDates.length - 1];
-
 const SYMPOSIUM = {
   '@type': 'Event',
   '@id': `${SITE_URL}/#event`,
   name: 'STRIATUM 4.0',
   alternateName: 'STRIATUM 4.0 Medical Symposium 2026',
   description:
-    'STRIATUM 4.0, presented by SIGMA 2026 at Indira Gandhi Medical College & Research Institute (IGMCRI), Puducherry — a medical symposium with workshops, quizzes and paper presentations.',
-  startDate: umbrellaStart,
-  endDate: umbrellaEnd,
+    `STRIATUM 4.0, presented by SIGMA 2026 at Indira Gandhi Medical College & Research Institute (IGMCRI), Puducherry — a medical symposium with workshops, quizzes and paper presentations, ${CONFERENCE_DATE_COPY}.`,
+  startDate: CONFERENCE_START,
+  endDate: CONFERENCE_END,
   eventStatus: 'https://schema.org/EventScheduled',
   eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
   location: PLACE,
@@ -205,16 +198,17 @@ if (startIdx === -1 || endIdx === -1) {
   );
 }
 
-const newIndexHtml =
+let newIndexHtml =
   indexHtml.slice(0, startIdx) + jsonLdScript + indexHtml.slice(endIdx + endMarker.length);
+
+// Repair the three public social/search descriptions if an older generated
+// index still carries the previous 15–18 Oct copy. This is intentionally exact
+// so unrelated prose is never rewritten.
+newIndexHtml = newIndexHtml.replaceAll('15–18 October 2026', CONFERENCE_DATE_COPY);
 writeFileSync(indexPath, newIndexHtml, 'utf8');
 
-// Sitemap. /admin and the other private/transactional routes (/home, /cart,
-// /payment, /my-events, /profile, /delegate, /delegate/payment,
-// /delegate/pass) must never appear here. The legal pages are public and are
-// what Google's OAuth consent screen links to, so they are indexable, just at
-// a lower priority than the homepage. Every event now has its own canonical
-// URL at /event/<id> and is a real SEO opportunity, so each one is included.
+// Sitemap. /admin and other private/transactional routes must never appear
+// here. Public legal pages and all event detail routes remain indexable.
 const today = new Date().toISOString().slice(0, 10);
 const ROUTES = [
   { loc: SITE_ROOT, changefreq: 'weekly', priority: '1.0' },
@@ -244,12 +238,11 @@ writeFileSync(resolve(root, 'public/sitemap.xml'), sitemap, 'utf8');
 
 console.log(`STRIATUM 4.0 SEO generation complete.`);
 console.log(`  subEvents emitted: ${subEvents.length}`);
-console.log(`  startDate present: ${datedCount} | omitted: ${subEvents.length - datedCount}`);
-console.log(`  offers present:    ${offerCount} | omitted: ${subEvents.length - offerCount}`);
+console.log(`  dated events:       ${datedCount}`);
+console.log(`  offers present:     ${offerCount}`);
 console.log(`  maximumAttendeeCapacity present: ${capacityCount}`);
-console.log(`  umbrella event: ${umbrellaStart} .. ${umbrellaEnd}`);
+console.log(`  official conference: ${CONFERENCE_START} .. ${CONFERENCE_END}`);
 console.log(`  sitemap URLs: ${ROUTES.length}`);
-console.log(`  subEvents in graph: ${subEvents.length} (all carry startDate)`);
-console.log(`  omitted for no published date: ${undated.length}`);
+console.log(`  omitted for no confirmed date: ${undated.length}`);
 undated.forEach(e => console.log(`    - ${e.name}`));
-console.log(`  wrote index.html JSON-LD block + public/sitemap.xml`);
+console.log(`  wrote index.html JSON-LD/meta date copy + public/sitemap.xml`);
