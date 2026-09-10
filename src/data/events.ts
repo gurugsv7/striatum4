@@ -2,8 +2,103 @@ import { SymposiumEvent, EventCategory, CATEGORY_FILTERS } from './eventTypes.ts
 import { EVENTS_PART_1 } from './events.part1.ts';
 import { EVENTS_PART_2 } from './events.part2.ts';
 
+/**
+ * Canonical event-data corrections from the latest STRIATUM 4.0 brochure.
+ *
+ * Keep these as a small normalization layer so the UI/components remain untouched while
+ * stale brochure facts in the split source files are safely overridden. Once the source
+ * files are regenerated from the final brochure, this layer can be folded back into them.
+ */
+const LATEST_BROCHURE_OVERRIDES: Record<string, Partial<SymposiumEvent>> = {
+  'SUTUREX': {
+    name: 'STITCHREEF',
+    date: '15 OCT',
+    isoDate: '2026-10-15',
+    startTime: '8:30 AM',
+    endTime: '12:30 PM',
+    needsConfirmation: undefined
+  },
+  'PENUMBRA': {
+    date: '17 OCT',
+    isoDate: '2026-10-17',
+    startTime: '9:00 AM',
+    endTime: '1:00 PM'
+  },
+  'GENESIS': {
+    date: '16 OCT',
+    isoDate: '2026-10-16',
+    startTime: '8:00 AM',
+    endTime: '4:00 PM'
+  },
+  'GLOW CODE': {
+    date: '17 OCT',
+    isoDate: '2026-10-17',
+    startTime: '8:30 AM',
+    endTime: '4:00 PM'
+  },
+  'PLEURALIS': {
+    date: '15 OCT',
+    isoDate: '2026-10-15',
+    startTime: '2:00 PM',
+    endTime: '5:00 PM'
+  },
+  'LUMINARA': {
+    date: '17 OCT',
+    isoDate: '2026-10-17'
+  },
+  'THE DIAGNOSTIC ABYSS': {
+    date: '18 OCT',
+    isoDate: '2026-10-18'
+  },
+  'CORAL CANVAS': {
+    date: '18 OCT',
+    isoDate: '2026-10-18'
+  },
+  'CHIRONEX': {
+    date: '18 OCT',
+    isoDate: '2026-10-18',
+    submissionDeadline: '13 October 2026',
+    needsConfirmation: undefined
+  },
+  'NEURONOVA': {
+    date: '18 OCT',
+    isoDate: '2026-10-18',
+    startTime: '9:00 AM'
+  },
+  'THE UNCHARTED': {
+    date: '17 OCT',
+    isoDate: '2026-10-17'
+  },
+  'LIFE REIMAGINED': {
+    date: '17 OCT',
+    isoDate: '2026-10-17'
+  },
+  'BIOVERSE': {
+    date: '14 OCT',
+    isoDate: '2026-10-14',
+    startTime: '10:00 AM'
+  },
+  'THE MEDICAL VAULT': {
+    date: '18 OCT',
+    isoDate: '2026-10-18'
+  },
+  'AURELIA CELESTIA': {
+    date: '17 OCT',
+    isoDate: '2026-10-17'
+  },
+  'MEDMAZE': {
+    date: '17 OCT',
+    isoDate: '2026-10-17'
+  }
+};
+
+function applyLatestBrochureData(event: SymposiumEvent): SymposiumEvent {
+  const override = LATEST_BROCHURE_OVERRIDES[event.name];
+  return override ? { ...event, ...override } : event;
+}
+
 /** All 26 named STRIATUM 4.0 activities, in official brochure order. */
-export const EVENTS: SymposiumEvent[] = [...EVENTS_PART_1, ...EVENTS_PART_2];
+export const EVENTS: SymposiumEvent[] = [...EVENTS_PART_1, ...EVENTS_PART_2].map(applyLatestBrochureData);
 
 const BY_ID = new Map(EVENTS.map(e => [e.id, e]));
 
