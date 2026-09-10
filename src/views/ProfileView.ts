@@ -39,6 +39,8 @@ export function renderProfileView(): string {
   const role = approved ? 'Delegate' : status === 'pending' ? 'Delegate (Pending)' : 'Delegate';
   const delegateCode = approved && delegate?.delegateId ? delegate.delegateId : 'S4 / 01';
 
+  const cartCount = registration.cartCount();
+
   const gender = getProfileGender();
   const avatarSrc = gender === 'female'
     ? '/assets/profile/avatar_doctor_female.jpg'
@@ -63,14 +65,15 @@ export function renderProfileView(): string {
             </div>
           </div>
 
-          <div class="profile-pillar-col">
-            <div class="profile-pillar-text">
-              PEOPLE<br>
-              SCIENCE<br>
-              A DEEPER<br>
-              TOMORROW
-            </div>
-            <div class="profile-pillar-line"></div>
+          <div class="header-right-block">
+            <button class="header-cart-btn ${cartCount ? 'has-items' : ''}" id="btn-profile-cart" title="View cart">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 4h2l2.4 11.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.6L21 8H6.2"/>
+                <circle cx="10" cy="20" r="1"/>
+                <circle cx="18" cy="20" r="1"/>
+              </svg>
+              ${cartCount ? `<span class="cart-count-bead">${cartCount}</span>` : ''}
+            </button>
           </div>
         </header>
 
@@ -109,11 +112,6 @@ export function renderProfileView(): string {
             <div class="profile-s4-code-row">
               <span class="profile-cyan-pulse-dot"></span>
               <span class="profile-s4-code">${escapeHtml(delegateCode)}</span>
-            </div>
-            <div class="profile-expedition-sub">
-              A SMALL PART<br>
-              OF A LARGER<br>
-              EXPEDITION
             </div>
           </div>
 
@@ -296,31 +294,12 @@ export function renderProfileView(): string {
             Thank you for being a part of STRIATUM 4.0.
           </div>
         </div>
-
-        <div class="profile-quote-right-pillar">
-          <div class="profile-quote-pillar-text">
-            SCIENCE<br>
-            PEOPLE<br>
-            POSSIBILITIES<br>
-            BELOW<br>
-            THE SURFACE
-          </div>
-          <div class="profile-quote-pillar-line"></div>
-        </div>
       </section>
 
       <!-- ================================================================= -->
       <!-- 5. FOOTER SEABED ARTWORK & SIGNOFF                                -->
       <!-- ================================================================= -->
       <footer class="profile-footer-seabed-backdrop">
-        <div class="profile-footer-left">
-          <div class="profile-footer-ideas-text">
-            IDEAS TRAVEL<br>
-            FURTHER HERE.
-          </div>
-          <div class="profile-footer-left-line"></div>
-        </div>
-
         <div class="profile-footer-right">
           <div class="profile-footer-brand-title">
             STRIATUM <span class="cyan-text">4.0</span>
@@ -586,6 +565,11 @@ export function attachProfileEvents(): void {
         overlay.classList.remove('open');
       }
     });
+  });
+
+  // Cart button in header
+  document.getElementById('btn-profile-cart')?.addEventListener('click', () => {
+    appStore.setScreen('cart');
   });
 
   // Sample Certificate download toast

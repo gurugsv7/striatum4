@@ -6,7 +6,7 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-html, body {
+html, body, #app {
   width: 100%;
   height: 100%;
   background-color: #01040a;
@@ -553,8 +553,7 @@ html, body {
   display: flex;
   flex-direction: column;
 }
-
-.screen-content.no-bottom-nav {
+.screen-content.no-bottom-nav {
   padding-bottom: 24px;
 }
 
@@ -573,43 +572,75 @@ html, body {
 /* Mobile Screen Breakpoint: Fold sidebar on phones */
 @media (max-width: 768px) {
   .desktop-workbench-root {
-    flex-direction: column;
+    flex-direction: column !important;
+    width: 100% !important;
+    height: 100% !important;
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    max-height: 100dvh !important;
+    overflow: hidden !important;
   }
   .workbench-left-sidebar {
-    display: none;
+    display: none !important;
   }
   .workbench-right-stage {
-    padding: 0;
+    padding: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    max-height: 100dvh !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    overflow: hidden !important;
   }
   .phone-viewport-container {
     transform: none !important;
-    width: 100%;
-    height: 100%;
+    width: 100% !important;
+    height: 100% !important;
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    max-height: 100dvh !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    overflow: hidden !important;
   }
   .mobile-canvas-frame {
     width: 100% !important;
     min-width: 100% !important;
     max-width: 100% !important;
     border-radius: 0 !important;
+    border: none !important;
     box-shadow: none !important;
-
-    /* On a phone, 100vh is the height of the viewport WITHOUT the browser's
-       address bar, so the frame ran taller than the visible area and pushed the
-       bottom navigation off-screen. dvh tracks the actually-visible height and
-       reflows as the bar hides and shows. vh stays as the fallback for the few
-       engines without dvh. */
-    height: 100vh !important;
-    min-height: 100vh !important;
-    max-height: 100vh !important;
+    height: 100% !important;
     height: 100dvh !important;
     min-height: 100dvh !important;
     max-height: 100dvh !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    overflow: hidden !important;
+  }
+
+  .app-viewport-wrapper {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    height: auto !important;
   }
 
   /* The nav is the last flex child, so it must never be shrunk away either. */
   .bottom-nav-container,
   .ios-bottom-bar-container {
     flex-shrink: 0 !important;
+  }
+
+  /* On mobile phones, hide the simulated iOS home bar so it doesn't collide with native gestures */
+  .ios-home-indicator {
+    display: none !important;
   }
 }
 

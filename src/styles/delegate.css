@@ -9,7 +9,7 @@
 
 /* Outer scrollable page frame */
 .mockup-flow-page {
-  padding: 18px 16px 60px 16px;
+  padding: 8px 16px 28px 16px;
   position: relative;
   min-height: 100%;
 }
@@ -21,8 +21,9 @@
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  gap: 14px;
-  margin-bottom: 24px;
+  gap: 12px;
+  margin-top: 0;
+  margin-bottom: 12px;
   position: relative;
   z-index: 10;
 }
@@ -161,12 +162,12 @@
 /* Hero Display Title */
 .hero-display-title {
   font-family: var(--font-serif-display);
-  font-size: 34px;
+  font-size: 32px;
   font-weight: 500;
-  line-height: 1.12;
+  line-height: 1.1;
   color: #ffffff;
   letter-spacing: -0.3px;
-  margin-bottom: 10px;
+  margin-bottom: 6px;
 }
 
 .cyan-dot {
@@ -811,20 +812,12 @@
    ========================================================================== */
 .holographic-pass-container {
   position: relative;
-  background: linear-gradient(135deg, rgba(2, 22, 40, 0.95) 0%, rgba(1, 10, 18, 0.98) 100%);
+  background: linear-gradient(145deg, rgba(2, 22, 38, 0.95) 0%, rgba(1, 10, 20, 0.98) 100%);
   border: 1.5px solid var(--cyan-glow);
-  border-radius: 18px;
-  clip-path: polygon(
-    14px 0, 
-    100% 0, 
-    100% calc(100% - 14px), 
-    calc(100% - 14px) 100%, 
-    0 100%, 
-    0 14px
-  );
-  padding: 20px 18px 16px;
-  margin-bottom: 20px;
-  box-shadow: 0 0 28px rgba(42, 241, 250, 0.35), inset 0 0 20px rgba(42, 241, 250, 0.12);
+  border-radius: 16px;
+  padding: 16px 14px 14px;
+  margin-bottom: 14px;
+  box-shadow: 0 0 24px rgba(42, 241, 250, 0.28), inset 0 0 16px rgba(42, 241, 250, 0.08);
   overflow: hidden;
 }
 
@@ -832,37 +825,41 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(42, 241, 250, 0.16);
+  position: relative;
+  z-index: 2;
 }
 
 .holo-card-brand-title {
   font-family: var(--font-sans-ui);
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 800;
-  letter-spacing: 1.8px;
+  letter-spacing: 1.6px;
   color: #ffffff;
 }
 
 .holo-card-brand-sub {
   font-family: var(--font-mono-meta);
-  font-size: 7.5px;
-  letter-spacing: 1.6px;
+  font-size: 7px;
+  letter-spacing: 1.2px;
   color: var(--text-dim);
   margin-top: 2px;
 }
 
 .holo-card-type-title {
   font-family: var(--font-serif-display);
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
-  letter-spacing: 1.5px;
+  letter-spacing: 1.4px;
   color: #ffffff;
 }
 
 .holo-card-type-sub {
   font-family: var(--font-mono-meta);
-  font-size: 7.5px;
-  letter-spacing: 1.8px;
+  font-size: 7px;
+  letter-spacing: 1.4px;
   color: var(--cyan-glow);
   margin-top: 2px;
   text-align: right;
@@ -870,11 +867,11 @@
 
 .holo-pass-split-body {
   display: flex;
-  gap: 16px;
-  align-items: center;
+  gap: 14px;
+  align-items: flex-start;
   position: relative;
   z-index: 2;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .holo-qr-wrap-col {
@@ -882,18 +879,26 @@
   flex-direction: column;
   align-items: center;
   flex-shrink: 0;
+  width: 102px;
 }
 
 .holo-qr-white-frame {
-  width: 104px;
-  height: 104px;
+  width: 102px;
+  height: 102px;
   background: #ffffff;
-  border-radius: 6px;
-  padding: 6px;
+  border-radius: 8px;
+  padding: 5px;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 0 16px rgba(0, 0, 0, 0.7);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
+}
+
+.holo-qr-white-frame svg {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
 .holo-qr-white-frame img {
@@ -902,13 +907,35 @@
   object-fit: contain;
 }
 
+.holo-qr-center-badge {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 28px;
+  height: 28px;
+  background: #020f1c;
+  border: 1.5px solid var(--cyan-glow);
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-sans-ui);
+  font-weight: 800;
+  font-size: 11px;
+  color: var(--cyan-glow);
+  box-shadow: 0 0 10px rgba(42, 241, 250, 0.5);
+  pointer-events: none;
+}
+
 .holo-qr-sub-label {
   font-family: var(--font-mono-meta);
-  font-size: 7.5px;
-  letter-spacing: 1.2px;
+  font-size: 7px;
+  letter-spacing: 1.1px;
   color: var(--text-dim);
   margin-top: 6px;
   text-align: center;
+  white-space: nowrap;
 }
 
 .holo-attendee-details-col {
@@ -916,6 +943,9 @@
   flex-direction: column;
   gap: 7px;
   flex: 1;
+  min-width: 0;
+  position: relative;
+  z-index: 2;
 }
 
 .holo-field-grp {
@@ -925,24 +955,28 @@
 
 .holo-field-lbl {
   font-family: var(--font-mono-meta);
-  font-size: 7.5px;
-  letter-spacing: 1.4px;
+  font-size: 7px;
+  letter-spacing: 1.2px;
   color: var(--text-dim);
   text-transform: uppercase;
+  margin-bottom: 1px;
 }
 
 .holo-field-val {
   font-family: var(--font-sans-ui);
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 600;
   color: #ffffff;
-  line-height: 1.25;
+  line-height: 1.2;
+  word-break: break-word;
 }
 
 .holo-field-val.cyan-glow-text {
   color: var(--cyan-glow);
-  font-size: 13px;
-  letter-spacing: 1px;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-shadow: 0 0 8px rgba(42, 241, 250, 0.6);
 }
 
 .holo-id-display-row {
@@ -953,22 +987,40 @@
 
 .holo-id-bold {
   font-family: var(--font-mono-meta);
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 800;
   color: var(--cyan-glow);
   letter-spacing: 1px;
-  text-shadow: 0 0 10px var(--cyan-glow);
+  text-shadow: 0 0 10px rgba(42, 241, 250, 0.6);
+}
+
+.copy-icon-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.copy-icon-btn:hover {
+  color: var(--cyan-glow);
+  transform: scale(1.15);
 }
 
 .holo-card-watermark-jelly {
   position: absolute;
-  right: -10px;
-  top: 10px;
-  width: 80px;
-  height: 130px;
+  right: -4px;
+  top: 34px;
+  width: 95px;
+  height: 150px;
   pointer-events: none;
   opacity: 0.85;
   mix-blend-mode: screen;
+  z-index: 1;
 }
 
 .holo-card-watermark-jelly img {
@@ -979,10 +1031,10 @@
 
 .holo-card-bottom-tri-row {
   display: grid;
-  grid-template-columns: 1fr 1fr 1.1fr;
+  grid-template-columns: 1fr 1.15fr 1fr;
   gap: 6px;
-  border-top: 1px solid rgba(42, 241, 250, 0.15);
-  padding-top: 12px;
+  border-top: 1px solid rgba(42, 241, 250, 0.16);
+  padding-top: 10px;
   position: relative;
   z-index: 2;
 }
@@ -997,8 +1049,8 @@
   align-items: center;
   gap: 4px;
   font-family: var(--font-mono-meta);
-  font-size: 7.5px;
-  letter-spacing: 1.2px;
+  font-size: 7px;
+  letter-spacing: 1.1px;
   color: var(--text-dim);
   text-transform: uppercase;
   margin-bottom: 2px;
@@ -1006,17 +1058,19 @@
 
 .tri-lbl-row svg {
   color: var(--cyan-glow);
+  flex-shrink: 0;
 }
 
 .tri-val-bold {
   font-family: var(--font-sans-ui);
-  font-size: 10.5px;
+  font-size: 10px;
   font-weight: 600;
   color: #ffffff;
+  line-height: 1.2;
 }
 
 .tri-sub-hint {
-  font-size: 8px;
+  font-size: 7.5px;
   color: var(--text-dim);
   margin-top: 1px;
 }

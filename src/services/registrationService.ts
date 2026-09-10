@@ -314,7 +314,12 @@ export async function applyForDelegate(input: {
   }
 
   // Local fallback only when no backend is configured at all (development).
-  state.delegate = { ...input, status: 'pending', submittedAt: Date.now() };
+  state.delegate = {
+    ...input,
+    status: 'pending',
+    delegateId: nextDelegateId(),
+    submittedAt: Date.now()
+  };
   save();
   return { ok: true, message: 'Delegate application submitted for verification' };
 }

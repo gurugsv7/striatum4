@@ -5,9 +5,9 @@
   flex-shrink: 0;
   width: 100%;
   /* Grow by the device's gesture-bar inset so the tab row is never sat on by
-     the home indicator. env() resolves to 0 where there is no inset. */
-  height: calc(72px + env(safe-area-inset-bottom, 0px));
-  padding-bottom: env(safe-area-inset-bottom, 0px);
+     the home indicator or system gesture navigation bar. */
+  height: calc(64px + max(16px, env(safe-area-inset-bottom, 0px)));
+  padding-bottom: max(16px, env(safe-area-inset-bottom, 0px));
   background: rgba(1, 10, 20, 0.96);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
@@ -72,8 +72,8 @@
   display: flex;
   align-items: center;
   justify-content: space-around;
-  height: 52px;
-  padding: 4px 10px 0;
+  height: 48px;
+  padding: 2px 10px 0;
 }
 
 .nav-tab-btn {
