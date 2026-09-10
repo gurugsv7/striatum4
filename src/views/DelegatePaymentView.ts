@@ -1,8 +1,8 @@
 import { appStore } from '../state/appStore.ts';
 import * as registration from '../services/registrationService.ts';
 
-/** ⚠ UNVERIFIED — confirm the official UPI ID with the organisers before launch. Money goes here. */
-const UPI_ID = 'striatum4.igmcri@upi';
+/** Official symposium UPI ID for delegate pass registration payments. */
+const UPI_ID = 'sigmapy@iob';
 
 export function renderDelegatePaymentView(): string {
   const state = appStore.getState();
@@ -66,7 +66,15 @@ export function renderDelegatePaymentView(): string {
               <div class="pay-qr-frame-box">
                 <img src="/art_delegate_qr.png" alt="UPI QR Code" />
               </div>
-              <div class="pay-qr-caption">Scan using any UPI app · ${escapeHtml(UPI_ID)}</div>
+              <div class="pay-qr-caption" style="display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
+                <span>Scan using any UPI app · <strong style="color: var(--cyan-glow);">${escapeHtml(UPI_ID)}</strong></span>
+                <button class="copy-icon-btn" id="btn-copy-delegate-upi" title="Copy UPI ID" style="padding: 2px; vertical-align: middle;">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/>
+                    <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
+                  </svg>
+                </button>
+              </div>
 
               <div class="pay-apps-pills-row">
                 <span class="pay-app-item">
@@ -216,6 +224,14 @@ export function attachDelegatePaymentEvents(): void {
 
   btnBack?.addEventListener('click', () => {
     appStore.setScreen('delegate-registration');
+  });
+
+  const btnCopyUpi = document.getElementById('btn-copy-delegate-upi');
+
+  btnCopyUpi?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    navigator.clipboard?.writeText(UPI_ID);
+    appStore.showToast(`UPI ID ${UPI_ID} copied to clipboard!`);
   });
 
   btnCopyOrder?.addEventListener('click', () => {

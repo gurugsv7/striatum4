@@ -10,6 +10,7 @@ import './styles/delegate.css';
 import './styles/programme.css';
 import './styles/admin.css';
 import './styles/legal.css';
+import './styles/profile.css';
 
 import { appStore, AppState, ScreenType } from './state/appStore.ts';
 import { initAuth, onAuthChange } from './services/authService.ts';

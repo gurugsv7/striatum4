@@ -10,8 +10,8 @@ import { Order, OrderLine } from '../services/registrationService.ts';
  * rewiring of the visual design onto the single pricing/registration authority.
  */
 
-/** ⚠ UNVERIFIED — confirm the official UPI ID with the organisers before launch. Money goes here. */
-const UPI_ID = 'striatum.igmcri@okhdfcbank';
+/** Official symposium UPI ID for event registrations checkout payments. */
+const UPI_ID = 'sigmapy@iob';
 
 /** No per-event artwork exists for checkout thumbnails — every line uses the same static art. */
 const ITEM_THUMB_SRC = '/assets/card_reef.jpg';
