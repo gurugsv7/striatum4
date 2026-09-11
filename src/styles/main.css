@@ -571,18 +571,37 @@ html, body, #app {
 
 /* Mobile Screen Breakpoint: Fold sidebar on phones */
 @media (max-width: 768px) {
+  html, body, #app {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    height: 100dvh !important;
+    overflow: hidden !important;
+  }
+
   .desktop-workbench-root {
-    flex-direction: column !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
     width: 100% !important;
     height: 100% !important;
     height: 100dvh !important;
     min-height: 100dvh !important;
     max-height: 100dvh !important;
     overflow: hidden !important;
+    flex-direction: column !important;
   }
+
   .workbench-left-sidebar {
     display: none !important;
   }
+
   .workbench-right-stage {
     padding: 0 !important;
     width: 100% !important;
@@ -596,6 +615,7 @@ html, body, #app {
     justify-content: flex-start !important;
     overflow: hidden !important;
   }
+
   .phone-viewport-container {
     transform: none !important;
     width: 100% !important;
@@ -609,7 +629,9 @@ html, body, #app {
     justify-content: flex-start !important;
     overflow: hidden !important;
   }
+
   .mobile-canvas-frame {
+    position: relative !important;
     width: 100% !important;
     min-width: 100% !important;
     max-width: 100% !important;
@@ -626,15 +648,35 @@ html, body, #app {
     overflow: hidden !important;
   }
 
+  /* Constrained scroller so inner scroll happens smoothly inside the viewport */
   .app-viewport-wrapper {
-    flex: 1 1 auto !important;
+    flex: 1 1 0 !important;
     min-height: 0 !important;
-    height: auto !important;
+    height: 100% !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding-bottom: calc(70px + max(16px, env(safe-area-inset-bottom, 16px))) !important;
   }
 
-  /* The nav is the last flex child, so it must never be shrunk away either. */
-  .bottom-nav-container,
+  /* Bottom nav stays permanently fixed/stuck at the bottom of the physical viewport */
+  .bottom-nav-container {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    z-index: 100 !important;
+    flex-shrink: 0 !important;
+  }
+
   .ios-bottom-bar-container {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    z-index: 100 !important;
     flex-shrink: 0 !important;
   }
 

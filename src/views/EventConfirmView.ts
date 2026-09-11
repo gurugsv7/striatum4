@@ -331,7 +331,9 @@ export function renderEventConfirmView(): string {
               </svg>
             </button>
           </div>
-            <!-- Action Buttons -->
+        </div>
+
+        <!-- Action Buttons (Next line with full width and generous spacing) -->
         <div class="confirm-actions-wrap">
           <!-- Primary Button: Explore More Events -->
           <button class="confirm-btn-primary-chamfer" id="btn-confirm-explore-more">

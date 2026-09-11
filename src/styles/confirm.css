@@ -10,7 +10,10 @@
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
-  padding: max(14px, env(safe-area-inset-top, 14px)) max(14px, env(safe-area-inset-right, 14px)) max(28px, env(safe-area-inset-bottom, 28px)) max(14px, env(safe-area-inset-left, 14px));
+  padding-top: max(14px, env(safe-area-inset-top, 14px));
+  padding-right: max(14px, env(safe-area-inset-right, 14px));
+  padding-bottom: calc(84px + max(16px, env(safe-area-inset-bottom, 16px)));
+  padding-left: max(14px, env(safe-area-inset-left, 14px));
   display: flex;
   flex-direction: column;
   overflow-x: hidden;
@@ -23,7 +26,7 @@
   top: 0;
   right: 0;
   width: 90%;
-  max-width: 420px;
+  max-width: 440px;
   height: 280px;
   pointer-events: none;
   z-index: 1;
@@ -45,7 +48,7 @@
   justify-content: space-between;
   width: 100%;
   box-sizing: border-box;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
   gap: 8px;
 }
 
@@ -82,7 +85,7 @@
 
 .confirm-brand-title {
   font-family: var(--font-sans-ui);
-  font-size: 14.5px;
+  font-size: 15px;
   font-weight: 800;
   letter-spacing: 1.8px;
   color: #ffffff;
@@ -92,7 +95,7 @@
 
 .confirm-brand-sub {
   font-family: var(--font-mono-meta);
-  font-size: 7.5px;
+  font-size: 8px;
   letter-spacing: 1.6px;
   color: var(--text-dim);
   margin-top: 2px;
@@ -143,7 +146,7 @@
 .confirm-hero-section {
   position: relative;
   z-index: 5;
-  margin-bottom: 18px;
+  margin-bottom: 20px;
   padding-left: 18px;
   width: 100%;
   box-sizing: border-box;
@@ -191,7 +194,7 @@
 
 .confirm-hero-title {
   font-family: var(--font-serif-display);
-  font-size: 30px;
+  font-size: 32px;
   font-weight: 500;
   color: #ffffff;
   line-height: 1.15;
@@ -206,18 +209,18 @@
 
 .confirm-hero-sub {
   font-family: var(--font-sans-ui);
-  font-size: 11.5px;
+  font-size: 12px;
   line-height: 1.5;
   color: var(--text-muted);
   margin: 0;
-  max-width: 250px;
+  max-width: 270px;
 }
 
 /* Secondary Editorial Accent: NEW JOURNEYS AWAIT. */
 .confirm-hero-editorial-aside {
   position: absolute;
   right: 0;
-  top: 48px;
+  top: 50px;
   display: flex;
   align-items: flex-start;
   gap: 6px;
@@ -227,7 +230,7 @@
 
 .confirm-hero-editorial-pipe {
   width: 1px;
-  height: 30px;
+  height: 32px;
   background: rgba(42, 241, 250, 0.45);
 }
 
@@ -267,8 +270,8 @@
   background: rgba(2, 13, 23, 0.88);
   border: 1px solid rgba(42, 241, 250, 0.35);
   box-shadow: 0 14px 40px -10px rgba(0, 0, 0, 0.9), 0 0 20px rgba(42, 241, 250, 0.08);
-  margin-bottom: 14px;
-  padding: 14px 12px 16px 12px;
+  margin-bottom: 18px;
+  padding: 16px 14px 18px 14px;
   clip-path: polygon(
     12px 0,
     calc(100% - 12px) 0,
@@ -320,27 +323,27 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-bottom: 9px;
+  padding-bottom: 10px;
   border-bottom: 1px solid rgba(42, 241, 250, 0.18);
-  margin-bottom: 12px;
+  margin-bottom: 14px;
   width: 100%;
   box-sizing: border-box;
 }
 
 .manifest-title-tag {
   font-family: var(--font-mono-meta);
-  font-size: 9.5px;
+  font-size: 10px;
   font-weight: 700;
-  letter-spacing: 1.8px;
+  letter-spacing: 2px;
   color: #ffffff;
   text-transform: uppercase;
 }
 
 .manifest-order-code {
   font-family: var(--font-mono-meta);
-  font-size: 9px;
+  font-size: 9.5px;
   font-weight: 600;
-  letter-spacing: 1.4px;
+  letter-spacing: 1.6px;
   color: var(--text-muted);
   text-transform: uppercase;
 }
@@ -357,9 +360,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-bottom: 12px;
+  padding-bottom: 14px;
   border-bottom: 1px solid rgba(42, 241, 250, 0.18);
-  margin-bottom: 14px;
+  margin-bottom: 16px;
   width: 100%;
   box-sizing: border-box;
   gap: 4px;
@@ -370,20 +373,20 @@
   min-width: 0;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   padding: 0 2px;
 }
 
 .manifest-metric-divider {
   width: 1px;
-  height: 24px;
+  height: 26px;
   background: rgba(42, 241, 250, 0.18);
   flex-shrink: 0;
 }
 
 .manifest-metric-icon-wrap {
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -399,7 +402,7 @@
 
 .manifest-metric-val {
   font-family: var(--font-mono-meta);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   color: #ffffff;
   letter-spacing: 0.3px;
@@ -423,11 +426,11 @@
    ========================================================================== */
 .manifest-events-timeline {
   position: relative;
-  padding-left: 18px;
+  padding-left: 20px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-bottom: 14px;
+  gap: 13px;
+  margin-bottom: 16px;
   width: 100%;
   box-sizing: border-box;
 }
@@ -436,7 +439,7 @@
   position: absolute;
   left: 4px;
   top: 12px;
-  bottom: 20px;
+  bottom: 24px;
   width: 1px;
   background: linear-gradient(180deg, rgba(42, 241, 250, 0.7) 0%, rgba(42, 241, 250, 0.25) 100%);
   pointer-events: none;
@@ -451,11 +454,11 @@
 /* Timeline Bead Node */
 .manifest-event-bead {
   position: absolute;
-  left: -17.5px;
+  left: -19.5px;
   top: 50%;
   transform: translateY(-50%);
-  width: 7px;
-  height: 7px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: var(--cyan-glow);
   box-shadow: 0 0 8px var(--cyan-glow), 0 0 14px rgba(42, 241, 250, 0.9);
@@ -467,8 +470,8 @@
   position: absolute;
   top: -5px;
   left: -5px;
-  width: 17px;
-  height: 17px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   background: radial-gradient(circle, rgba(42, 241, 250, 0.3) 0%, transparent 70%);
   pointer-events: none;
@@ -482,10 +485,10 @@
   background: rgba(2, 15, 27, 0.65);
   border: 1px solid rgba(42, 241, 250, 0.22);
   border-radius: 10px;
-  padding: 8px 10px;
+  padding: 9px 11px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   position: relative;
   transition: border-color 0.2s ease, background 0.2s ease;
 }
@@ -499,13 +502,13 @@
 .manifest-event-card-left {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   flex-shrink: 0;
 }
 
 .manifest-event-index {
   font-family: var(--font-mono-meta);
-  font-size: 11.5px;
+  font-size: 12px;
   font-weight: 700;
   color: var(--cyan-glow);
   letter-spacing: 0.5px;
@@ -514,8 +517,8 @@
 
 /* Square Art Thumbnail Frame */
 .manifest-event-thumb-frame {
-  width: 44px;
-  height: 44px;
+  width: 46px;
+  height: 46px;
   border-radius: 8px;
   border: 1px solid rgba(42, 241, 250, 0.45);
   background: #010811;
@@ -554,7 +557,7 @@
 
 .manifest-event-name {
   font-family: var(--font-serif-display);
-  font-size: 13.5px;
+  font-size: 14px;
   font-weight: 700;
   letter-spacing: 0.4px;
   color: #ffffff;
@@ -569,7 +572,7 @@
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  padding: 2px 7px;
+  padding: 2.5px 8px;
   border-radius: var(--radius-pill);
   border: 1px solid rgba(42, 241, 250, 0.65);
   background: rgba(42, 241, 250, 0.08);
@@ -586,7 +589,7 @@
 
 .manifest-event-context {
   font-family: var(--font-sans-ui);
-  font-size: 9.5px;
+  font-size: 10px;
   color: var(--text-muted);
   margin-bottom: 4px;
   white-space: nowrap;
@@ -598,11 +601,11 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 8px;
   font-family: var(--font-mono-meta);
-  font-size: 8px;
+  font-size: 8.5px;
   color: var(--text-silver);
-  margin-bottom: 2px;
+  margin-bottom: 3px;
 }
 
 .manifest-event-meta-item {
@@ -623,7 +626,7 @@
   align-items: center;
   gap: 3px;
   font-family: var(--font-sans-ui);
-  font-size: 8.5px;
+  font-size: 9px;
   color: var(--text-dim);
   white-space: nowrap;
   overflow: hidden;
@@ -638,16 +641,17 @@
 
 /* ==========================================================================
    NOTICE BANNER BOX (Registrations received / Ref. No.)
+   Full width on its own line
    ========================================================================== */
 .confirm-notice-box {
   background: rgba(2, 13, 23, 0.82);
   border: 1px solid rgba(42, 241, 250, 0.3);
   border-radius: 8px;
-  padding: 9px 10px;
+  padding: 12px 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: 12px;
   margin-bottom: 14px;
   width: 100%;
   box-sizing: border-box;
@@ -656,14 +660,14 @@
 .confirm-notice-left {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   flex: 1 1 auto;
   min-width: 0;
 }
 
 .confirm-notice-shield-wrap {
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -671,9 +675,14 @@
   flex-shrink: 0;
 }
 
+.confirm-notice-shield-wrap svg {
+  width: 20px;
+  height: 20px;
+}
+
 .confirm-notice-pipe {
   width: 1px;
-  height: 24px;
+  height: 28px;
   background: rgba(42, 241, 250, 0.25);
   flex-shrink: 0;
 }
@@ -686,7 +695,7 @@
 
 .confirm-notice-title {
   font-family: var(--font-serif-display);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   color: #ffffff;
   line-height: 1.25;
@@ -697,9 +706,9 @@
 
 .confirm-notice-sub {
   font-family: var(--font-sans-ui);
-  font-size: 9px;
+  font-size: 9.5px;
   color: var(--text-muted);
-  margin-top: 1px;
+  margin-top: 2px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -720,7 +729,7 @@
 
 .confirm-ref-lbl {
   font-family: var(--font-mono-meta);
-  font-size: 7.5px;
+  font-size: 8px;
   letter-spacing: 0.8px;
   color: var(--text-dim);
   text-transform: uppercase;
@@ -728,7 +737,7 @@
 
 .confirm-ref-val {
   font-family: var(--font-mono-meta);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.8px;
   color: #ffffff;
@@ -754,6 +763,7 @@
 
 /* ==========================================================================
    ACTION BUTTONS & LINK
+   Full width on its own line below the notice box
    ========================================================================== */
 .confirm-actions-wrap {
   display: flex;
@@ -764,17 +774,17 @@
   box-sizing: border-box;
 }
 
-/* Primary Chamfered Button with Wave / Contours */
+/* Primary Chamfered Button: Explore More Events */
 .confirm-btn-primary-chamfer {
   position: relative;
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
-  height: 48px;
+  height: 50px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 16px;
+  padding: 0 18px;
   background: linear-gradient(90deg, #b7effb 0%, #a6ecfa 50%, #cef0f7 100%);
   color: #021a24;
   border: none;
@@ -789,7 +799,7 @@
     0 calc(100% - 10px),
     0 10px
   );
-  box-shadow: 0 0 20px rgba(183, 239, 251, 0.45);
+  box-shadow: 0 0 22px rgba(183, 239, 251, 0.45);
   transition: all 0.25s ease;
 }
 
@@ -809,55 +819,15 @@
 .confirm-btn-label-group {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .confirm-btn-primary-chamfer .confirm-btn-text {
   font-family: var(--font-sans-ui);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   color: #021a24;
-  letter-spacing: 0.2px;
-}
-
-/* Secondary Dark Glass Button */
-.confirm-btn-secondary-chamfer {
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
-  height: 46px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 16px;
-  background: rgba(1, 10, 18, 0.88);
-  border: 1px solid rgba(42, 241, 250, 0.35);
-  color: #ffffff;
-  cursor: pointer;
-  clip-path: polygon(
-    10px 0,
-    calc(100% - 10px) 0,
-    100% 10px,
-    100% calc(100% - 10px),
-    calc(100% - 10px) 100%,
-    10px 100%,
-    0 calc(100% - 10px),
-    0 10px
-  );
-  transition: all 0.25s ease;
-}
-
-.confirm-btn-secondary-chamfer:hover {
-  border-color: var(--cyan-glow);
-  background: rgba(2, 18, 32, 0.95);
-  box-shadow: 0 0 16px rgba(42, 241, 250, 0.2);
-}
-
-.confirm-btn-secondary-chamfer .confirm-btn-text {
-  font-family: var(--font-sans-ui);
-  font-size: 12.5px;
-  font-weight: 500;
-  color: #ffffff;
+  letter-spacing: 0.3px;
 }
 
 /* Tertiary Link: View Payment Details */
@@ -874,7 +844,7 @@
   border: none;
   color: var(--text-muted);
   font-family: var(--font-mono-meta);
-  font-size: 10px;
+  font-size: 10.5px;
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -892,9 +862,9 @@
    ========================================================================== */
 .confirm-ocean-footer {
   position: relative;
-  margin-top: 8px;
-  padding-top: 36px;
-  padding-bottom: 20px;
+  margin-top: 10px;
+  padding-top: 40px;
+  padding-bottom: 24px;
   background-image: url('/art_ocean_floor_clean.png');
   background-size: cover;
   background-position: center bottom;
@@ -913,7 +883,7 @@
 
 .confirm-footer-motto-line {
   font-family: var(--font-mono-meta);
-  font-size: 7.5px;
+  font-size: 8px;
   font-weight: 600;
   letter-spacing: 1.6px;
   color: var(--text-silver);
@@ -922,7 +892,7 @@
 }
 
 .confirm-footer-line-accent {
-  width: 24px;
+  width: 26px;
   height: 1.5px;
   background: rgba(42, 241, 250, 0.55);
   margin-top: 5px;
@@ -936,7 +906,7 @@
 
 .confirm-footer-brand {
   font-family: var(--font-mono-meta);
-  font-size: 9.5px;
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: 1.8px;
   color: #ffffff;
@@ -948,16 +918,17 @@
 
 .confirm-footer-sub {
   font-family: var(--font-mono-meta);
-  font-size: 7.5px;
+  font-size: 8px;
   letter-spacing: 1.4px;
   color: var(--text-dim);
   margin-top: 2px;
 }
 
-/* Responsive tweaks for narrow mobile devices */
+/* Responsive tweaks for narrow mobile devices (e.g. 360px - 380px) */
 @media (max-width: 380px) {
   .confirm-manifest-page {
-    padding: 10px 10px 24px 10px;
+    padding-left: 10px;
+    padding-right: 10px;
   }
 
   .confirm-manifest-chassis {
@@ -965,7 +936,7 @@
   }
 
   .manifest-events-timeline {
-    padding-left: 14px;
+    padding-left: 16px;
   }
 
   .manifest-timeline-rail {
@@ -973,11 +944,11 @@
   }
 
   .manifest-event-bead {
-    left: -14px;
+    left: -15px;
   }
 
   .manifest-event-card {
-    padding: 6px 8px;
+    padding: 7px 8px;
     gap: 6px;
   }
 
@@ -987,11 +958,11 @@
   }
 
   .manifest-event-name {
-    font-size: 12.5px;
+    font-size: 13px;
   }
 
   .confirm-hero-title {
-    font-size: 26px;
+    font-size: 27px;
   }
 
   .confirm-hero-editorial-aside {
