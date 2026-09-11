@@ -155,7 +155,7 @@ export function renderDesktopSurround(screenContentHtml: string): string {
             </div>
 
             <!-- 3. Fixed Bottom Navigation Bar or Home Indicator -->
-            ${hasBottomNav ? renderBottomNav(state.currentScreen) : renderHomeIndicatorBar()}
+            ${hasBottomNav ? renderBottomNav((state.currentScreen === 'event-confirm' || state.currentScreen === 'delegate-confirm') ? 'profile' : state.currentScreen) : renderHomeIndicatorBar()}
 
           </main>
 

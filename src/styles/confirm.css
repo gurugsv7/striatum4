@@ -1,13 +1,16 @@
 /* ==========================================================================
    STRIATUM 4.0 — '04 / CONFIRMED' REGISTRATION MANIFEST VIEW
-   Faithfully created from event_confirm_mockup.png specification
+   Faithfully matched with event_confirm_mockup.png & zero mobile overflow
    ========================================================================== */
 
 /* Outer scrollable page container */
 .confirm-manifest-page {
   position: relative;
   min-height: 100%;
-  padding: 12px 16px 36px 16px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: max(14px, env(safe-area-inset-top, 14px)) max(14px, env(safe-area-inset-right, 14px)) max(28px, env(safe-area-inset-bottom, 28px)) max(14px, env(safe-area-inset-left, 14px));
   display: flex;
   flex-direction: column;
   overflow-x: hidden;
@@ -20,7 +23,7 @@
   top: 0;
   right: 0;
   width: 90%;
-  max-width: 440px;
+  max-width: 420px;
   height: 280px;
   pointer-events: none;
   z-index: 1;
@@ -31,20 +34,26 @@
   opacity: 0.88;
 }
 
-/* Top Navigation Bar */
+/* ==========================================================================
+   TOP NAVIGATION BAR
+   ========================================================================== */
 .confirm-top-bar {
   position: relative;
   z-index: 10;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  margin-bottom: 18px;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 14px;
+  gap: 8px;
 }
 
 .confirm-top-bar-left {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+  min-width: 0;
 }
 
 .confirm-back-btn {
@@ -52,10 +61,11 @@
   border: none;
   color: #ffffff;
   cursor: pointer;
-  padding: 6px;
+  padding: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
   transition: transform 0.2s ease, color 0.2s ease;
 }
 
@@ -67,36 +77,40 @@
 .confirm-brand-block {
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .confirm-brand-title {
   font-family: var(--font-sans-ui);
-  font-size: 15px;
+  font-size: 14.5px;
   font-weight: 800;
-  letter-spacing: 2px;
+  letter-spacing: 1.8px;
   color: #ffffff;
   line-height: 1.2;
+  white-space: nowrap;
 }
 
 .confirm-brand-sub {
   font-family: var(--font-mono-meta);
-  font-size: 8px;
-  letter-spacing: 1.8px;
+  font-size: 7.5px;
+  letter-spacing: 1.6px;
   color: var(--text-dim);
-  margin-top: 3px;
+  margin-top: 2px;
+  white-space: nowrap;
 }
 
 /* Top Right Editorial Motto Block */
 .confirm-top-motto {
   display: flex;
   align-items: flex-start;
-  gap: 8px;
+  gap: 6px;
   text-align: left;
+  flex-shrink: 0;
 }
 
 .confirm-motto-pipe {
   width: 1px;
-  height: 38px;
+  height: 36px;
   background: rgba(42, 241, 250, 0.45);
 }
 
@@ -107,44 +121,48 @@
 
 .confirm-motto-line {
   font-family: var(--font-mono-meta);
-  font-size: 7.5px;
+  font-size: 7px;
   font-weight: 500;
   line-height: 1.35;
-  letter-spacing: 1.6px;
+  letter-spacing: 1.4px;
   color: var(--text-silver);
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .confirm-motto-underline {
-  width: 22px;
+  width: 18px;
   height: 1px;
   background: rgba(42, 241, 250, 0.55);
-  margin-top: 5px;
+  margin-top: 4px;
 }
 
-/* Hero Section */
+/* ==========================================================================
+   HERO SECTION: 04 / CONFIRMED
+   ========================================================================== */
 .confirm-hero-section {
   position: relative;
   z-index: 5;
-  margin-bottom: 22px;
-  padding-left: 20px;
+  margin-bottom: 18px;
+  padding-left: 18px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-/* Glowing Timeline Rail on the hero */
 .confirm-hero-timeline-rail {
   position: absolute;
-  left: 3px;
-  top: 6px;
+  left: 2px;
+  top: 4px;
   bottom: 0;
   width: 1px;
-  background: linear-gradient(180deg, rgba(42, 241, 250, 0.8) 0%, rgba(42, 241, 250, 0.25) 100%);
+  background: linear-gradient(180deg, rgba(42, 241, 250, 0.8) 0%, rgba(42, 241, 250, 0.2) 100%);
   pointer-events: none;
 }
 
 .confirm-hero-bead {
   position: absolute;
-  left: -20px;
-  top: 4px;
+  left: -18px;
+  top: 3px;
   width: 7px;
   height: 7px;
   border-radius: 50%;
@@ -154,11 +172,11 @@
 
 .confirm-step-tag {
   font-family: var(--font-mono-meta);
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: 700;
-  letter-spacing: 2px;
+  letter-spacing: 1.8px;
   color: var(--text-muted);
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   text-transform: uppercase;
 }
 
@@ -173,12 +191,12 @@
 
 .confirm-hero-title {
   font-family: var(--font-serif-display);
-  font-size: 32px;
+  font-size: 30px;
   font-weight: 500;
   color: #ffffff;
   line-height: 1.15;
   letter-spacing: -0.5px;
-  margin: 0 0 8px 0;
+  margin: 0 0 6px 0;
 }
 
 .confirm-cyan-period {
@@ -188,27 +206,28 @@
 
 .confirm-hero-sub {
   font-family: var(--font-sans-ui);
-  font-size: 12.5px;
+  font-size: 11.5px;
   line-height: 1.5;
   color: var(--text-muted);
   margin: 0;
-  max-width: 280px;
+  max-width: 250px;
 }
 
 /* Secondary Editorial Accent: NEW JOURNEYS AWAIT. */
 .confirm-hero-editorial-aside {
   position: absolute;
   right: 0;
-  top: 60px;
+  top: 48px;
   display: flex;
   align-items: flex-start;
-  gap: 8px;
+  gap: 6px;
   text-align: left;
+  pointer-events: none;
 }
 
 .confirm-hero-editorial-pipe {
   width: 1px;
-  height: 32px;
+  height: 30px;
   background: rgba(42, 241, 250, 0.45);
 }
 
@@ -219,16 +238,17 @@
 
 .confirm-hero-editorial-line {
   font-family: var(--font-mono-meta);
-  font-size: 7.5px;
+  font-size: 7px;
   font-weight: 500;
   line-height: 1.35;
-  letter-spacing: 1.6px;
+  letter-spacing: 1.4px;
   color: var(--text-silver);
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .confirm-hero-editorial-underline {
-  width: 20px;
+  width: 18px;
   height: 1px;
   background: rgba(42, 241, 250, 0.55);
   margin-top: 4px;
@@ -236,32 +256,36 @@
 
 /* ==========================================================================
    REGISTRATION MANIFEST CHASSIS CARD
+   Encloses header, metrics, event cards, notice box, and action buttons
    ========================================================================== */
 .confirm-manifest-chassis {
   position: relative;
   z-index: 5;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   background: rgba(2, 13, 23, 0.88);
   border: 1px solid rgba(42, 241, 250, 0.35);
   box-shadow: 0 14px 40px -10px rgba(0, 0, 0, 0.9), 0 0 20px rgba(42, 241, 250, 0.08);
-  margin-bottom: 16px;
-  padding: 16px 14px 18px 14px;
+  margin-bottom: 14px;
+  padding: 14px 12px 16px 12px;
   clip-path: polygon(
-    14px 0,
-    calc(100% - 14px) 0,
-    100% 14px,
-    100% calc(100% - 14px),
-    calc(100% - 14px) 100%,
-    14px 100%,
-    0 calc(100% - 14px),
-    0 14px
+    12px 0,
+    calc(100% - 12px) 0,
+    100% 12px,
+    100% calc(100% - 12px),
+    calc(100% - 12px) 100%,
+    12px 100%,
+    0 calc(100% - 12px),
+    0 12px
   );
 }
 
 /* Corner outer brackets */
 .manifest-outer-bracket {
   position: absolute;
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
   pointer-events: none;
   border-color: var(--cyan-glow);
   border-style: solid;
@@ -279,30 +303,44 @@
   border-width: 1.5px 1.5px 0 0;
 }
 
+.manifest-outer-bracket-bl {
+  bottom: 2px;
+  left: 2px;
+  border-width: 0 0 1.5px 1.5px;
+}
+
+.manifest-outer-bracket-br {
+  bottom: 2px;
+  right: 2px;
+  border-width: 0 1.5px 1.5px 0;
+}
+
 /* Header Row inside Manifest */
 .manifest-chassis-header-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-bottom: 10px;
+  padding-bottom: 9px;
   border-bottom: 1px solid rgba(42, 241, 250, 0.18);
-  margin-bottom: 14px;
+  margin-bottom: 12px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .manifest-title-tag {
   font-family: var(--font-mono-meta);
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: 700;
-  letter-spacing: 2.2px;
+  letter-spacing: 1.8px;
   color: #ffffff;
   text-transform: uppercase;
 }
 
 .manifest-order-code {
   font-family: var(--font-mono-meta);
-  font-size: 9.5px;
+  font-size: 9px;
   font-weight: 600;
-  letter-spacing: 1.6px;
+  letter-spacing: 1.4px;
   color: var(--text-muted);
   text-transform: uppercase;
 }
@@ -312,34 +350,40 @@
   font-weight: 700;
 }
 
-/* Tri-Metric Summary Row */
+/* ==========================================================================
+   TRI-METRIC SUMMARY ROW (Events, Paid, Your Events)
+   ========================================================================== */
 .manifest-tri-metric-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-bottom: 14px;
+  padding-bottom: 12px;
   border-bottom: 1px solid rgba(42, 241, 250, 0.18);
-  margin-bottom: 16px;
+  margin-bottom: 14px;
+  width: 100%;
+  box-sizing: border-box;
+  gap: 4px;
 }
 
 .manifest-metric-col {
-  flex: 1;
+  flex: 1 1 0;
+  min-width: 0;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 0 4px;
+  gap: 6px;
+  padding: 0 2px;
 }
 
 .manifest-metric-divider {
   width: 1px;
-  height: 28px;
+  height: 24px;
   background: rgba(42, 241, 250, 0.18);
   flex-shrink: 0;
 }
 
 .manifest-metric-icon-wrap {
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -350,25 +394,28 @@
 .manifest-metric-content {
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .manifest-metric-val {
   font-family: var(--font-mono-meta);
-  font-size: 12.5px;
+  font-size: 11px;
   font-weight: 700;
   color: #ffffff;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.3px;
   line-height: 1.2;
+  white-space: nowrap;
 }
 
 .manifest-metric-lbl {
   font-family: var(--font-mono-meta);
-  font-size: 8px;
+  font-size: 7.5px;
   font-weight: 600;
   color: var(--text-dim);
-  letter-spacing: 1.2px;
+  letter-spacing: 1px;
   text-transform: uppercase;
-  margin-top: 2px;
+  margin-top: 1px;
+  white-space: nowrap;
 }
 
 /* ==========================================================================
@@ -376,76 +423,69 @@
    ========================================================================== */
 .manifest-events-timeline {
   position: relative;
-  padding-left: 24px;
+  padding-left: 18px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
+  margin-bottom: 14px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .manifest-timeline-rail {
   position: absolute;
-  left: 5px;
-  top: 14px;
-  bottom: 24px;
+  left: 4px;
+  top: 12px;
+  bottom: 20px;
   width: 1px;
-  background: linear-gradient(180deg, rgba(42, 241, 250, 0.7) 0%, rgba(42, 241, 250, 0.3) 100%);
+  background: linear-gradient(180deg, rgba(42, 241, 250, 0.7) 0%, rgba(42, 241, 250, 0.25) 100%);
   pointer-events: none;
 }
 
 .manifest-event-row {
   position: relative;
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* Timeline Bead Node */
 .manifest-event-bead {
   position: absolute;
-  left: -22.5px;
-  top: 16px;
-  width: 8px;
-  height: 8px;
+  left: -17.5px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: var(--cyan-glow);
-  box-shadow: 0 0 8px var(--cyan-glow), 0 0 16px rgba(42, 241, 250, 0.9);
+  box-shadow: 0 0 8px var(--cyan-glow), 0 0 14px rgba(42, 241, 250, 0.9);
   z-index: 2;
 }
 
-/* Subtle background glowing tendrils at node */
 .manifest-event-bead::before {
   content: '';
   position: absolute;
-  top: -6px;
-  left: -6px;
-  width: 20px;
-  height: 20px;
+  top: -5px;
+  left: -5px;
+  width: 17px;
+  height: 17px;
   border-radius: 50%;
   background: radial-gradient(circle, rgba(42, 241, 250, 0.3) 0%, transparent 70%);
   pointer-events: none;
 }
 
-.manifest-event-index {
-  font-family: var(--font-mono-meta);
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--cyan-glow);
-  letter-spacing: 1px;
-  width: 22px;
-  padding-top: 10px;
-  flex-shrink: 0;
-}
-
 /* Event Content Card */
 .manifest-event-card {
-  flex: 1;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   background: rgba(2, 15, 27, 0.65);
   border: 1px solid rgba(42, 241, 250, 0.22);
   border-radius: 10px;
-  padding: 10px 12px;
+  padding: 8px 10px;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   position: relative;
   transition: border-color 0.2s ease, background 0.2s ease;
 }
@@ -455,16 +495,33 @@
   background: rgba(3, 20, 35, 0.75);
 }
 
-/* Square Art Thumbnail */
+/* Left Group: Index + Thumbnail */
+.manifest-event-card-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.manifest-event-index {
+  font-family: var(--font-mono-meta);
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--cyan-glow);
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+
+/* Square Art Thumbnail Frame */
 .manifest-event-thumb-frame {
-  width: 52px;
-  height: 52px;
+  width: 44px;
+  height: 44px;
   border-radius: 8px;
   border: 1px solid rgba(42, 241, 250, 0.45);
   background: #010811;
   overflow: hidden;
   flex-shrink: 0;
-  box-shadow: 0 0 12px rgba(42, 241, 250, 0.15);
+  box-shadow: 0 0 10px rgba(42, 241, 250, 0.15);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -479,27 +536,59 @@
 
 /* Event Info Column */
 .manifest-event-info {
-  flex: 1;
+  flex: 1 1 auto;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header line inside card: Title + Registered Badge */
+.manifest-event-header-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  width: 100%;
+  margin-bottom: 2px;
 }
 
 .manifest-event-name {
   font-family: var(--font-serif-display);
-  font-size: 14.5px;
+  font-size: 13.5px;
   font-weight: 700;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.4px;
   color: #ffffff;
-  margin-bottom: 2px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  min-width: 0;
+}
+
+/* Registered Status Pill Badge */
+.manifest-registered-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 7px;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(42, 241, 250, 0.65);
+  background: rgba(42, 241, 250, 0.08);
+  color: var(--cyan-glow);
+  font-family: var(--font-mono-meta);
+  font-size: 7.5px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  flex-shrink: 0;
+  white-space: nowrap;
+  box-shadow: 0 0 8px rgba(42, 241, 250, 0.2);
 }
 
 .manifest-event-context {
   font-family: var(--font-sans-ui);
-  font-size: 10.5px;
+  font-size: 9.5px;
   color: var(--text-muted);
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -509,55 +598,42 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 6px;
   font-family: var(--font-mono-meta);
-  font-size: 9px;
+  font-size: 8px;
   color: var(--text-silver);
-  margin-bottom: 3px;
+  margin-bottom: 2px;
 }
 
 .manifest-event-meta-item {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
+  white-space: nowrap;
 }
 
 .manifest-event-meta-item svg {
   color: var(--cyan-glow);
   opacity: 0.85;
+  flex-shrink: 0;
 }
 
 .manifest-event-venue-row {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
   font-family: var(--font-sans-ui);
-  font-size: 9.5px;
+  font-size: 8.5px;
   color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .manifest-event-venue-row svg {
   color: var(--cyan-glow);
   opacity: 0.75;
-}
-
-/* Registered Status Pill Badge */
-.manifest-registered-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
-  border-radius: var(--radius-pill);
-  border: 1px solid rgba(42, 241, 250, 0.65);
-  background: rgba(42, 241, 250, 0.08);
-  color: var(--cyan-glow);
-  font-family: var(--font-mono-meta);
-  font-size: 8.5px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  text-transform: uppercase;
   flex-shrink: 0;
-  box-shadow: 0 0 10px rgba(42, 241, 250, 0.2);
 }
 
 /* ==========================================================================
@@ -566,25 +642,28 @@
 .confirm-notice-box {
   background: rgba(2, 13, 23, 0.82);
   border: 1px solid rgba(42, 241, 250, 0.3);
-  border-radius: 10px;
-  padding: 12px 14px;
+  border-radius: 8px;
+  padding: 9px 10px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 18px;
+  gap: 8px;
+  margin-bottom: 14px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .confirm-notice-left {
   display: flex;
   align-items: center;
-  gap: 12px;
-  flex: 1;
+  gap: 8px;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .confirm-notice-shield-wrap {
-  width: 30px;
-  height: 30px;
+  width: 24px;
+  height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -594,7 +673,7 @@
 
 .confirm-notice-pipe {
   width: 1px;
-  height: 28px;
+  height: 24px;
   background: rgba(42, 241, 250, 0.25);
   flex-shrink: 0;
 }
@@ -602,27 +681,34 @@
 .confirm-notice-text-col {
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .confirm-notice-title {
   font-family: var(--font-serif-display);
-  font-size: 13.5px;
+  font-size: 12px;
   font-weight: 600;
   color: #ffffff;
   line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .confirm-notice-sub {
   font-family: var(--font-sans-ui);
-  font-size: 10px;
+  font-size: 9px;
   color: var(--text-muted);
-  margin-top: 2px;
+  margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .confirm-notice-right {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   flex-shrink: 0;
 }
 
@@ -634,19 +720,19 @@
 
 .confirm-ref-lbl {
   font-family: var(--font-mono-meta);
-  font-size: 8.5px;
-  letter-spacing: 1px;
+  font-size: 7.5px;
+  letter-spacing: 0.8px;
   color: var(--text-dim);
   text-transform: uppercase;
 }
 
 .confirm-ref-val {
   font-family: var(--font-mono-meta);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
-  letter-spacing: 1px;
+  letter-spacing: 0.8px;
   color: #ffffff;
-  margin-top: 2px;
+  margin-top: 1px;
 }
 
 .confirm-copy-ref-btn {
@@ -654,7 +740,7 @@
   border: none;
   color: var(--text-muted);
   cursor: pointer;
-  padding: 4px;
+  padding: 3px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -672,40 +758,44 @@
 .confirm-actions-wrap {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-bottom: 24px;
+  gap: 10px;
+  margin-bottom: 6px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* Primary Chamfered Button with Wave / Contours */
 .confirm-btn-primary-chamfer {
   position: relative;
   width: 100%;
-  height: 52px;
+  max-width: 100%;
+  box-sizing: border-box;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 18px;
+  padding: 0 16px;
   background: linear-gradient(90deg, #b7effb 0%, #a6ecfa 50%, #cef0f7 100%);
   color: #021a24;
   border: none;
   cursor: pointer;
   clip-path: polygon(
-    12px 0,
-    calc(100% - 12px) 0,
-    100% 12px,
-    100% calc(100% - 12px),
-    calc(100% - 12px) 100%,
-    12px 100%,
-    0 calc(100% - 12px),
-    0 12px
+    10px 0,
+    calc(100% - 10px) 0,
+    100% 10px,
+    100% calc(100% - 10px),
+    calc(100% - 10px) 100%,
+    10px 100%,
+    0 calc(100% - 10px),
+    0 10px
   );
-  box-shadow: 0 0 24px rgba(183, 239, 251, 0.45);
+  box-shadow: 0 0 20px rgba(183, 239, 251, 0.45);
   transition: all 0.25s ease;
 }
 
 .confirm-btn-primary-chamfer:hover {
   filter: brightness(1.06);
-  box-shadow: 0 0 32px rgba(183, 239, 251, 0.7);
+  box-shadow: 0 0 28px rgba(183, 239, 251, 0.7);
 }
 
 .confirm-btn-primary-chamfer::before {
@@ -719,38 +809,40 @@
 .confirm-btn-label-group {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .confirm-btn-primary-chamfer .confirm-btn-text {
   font-family: var(--font-sans-ui);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   color: #021a24;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.2px;
 }
 
 /* Secondary Dark Glass Button */
 .confirm-btn-secondary-chamfer {
   width: 100%;
-  height: 50px;
+  max-width: 100%;
+  box-sizing: border-box;
+  height: 46px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 18px;
+  padding: 0 16px;
   background: rgba(1, 10, 18, 0.88);
   border: 1px solid rgba(42, 241, 250, 0.35);
   color: #ffffff;
   cursor: pointer;
   clip-path: polygon(
-    12px 0,
-    calc(100% - 12px) 0,
-    100% 12px,
-    100% calc(100% - 12px),
-    calc(100% - 12px) 100%,
-    12px 100%,
-    0 calc(100% - 12px),
-    0 12px
+    10px 0,
+    calc(100% - 10px) 0,
+    100% 10px,
+    100% calc(100% - 10px),
+    calc(100% - 10px) 100%,
+    10px 100%,
+    0 calc(100% - 10px),
+    0 10px
   );
   transition: all 0.25s ease;
 }
@@ -758,12 +850,12 @@
 .confirm-btn-secondary-chamfer:hover {
   border-color: var(--cyan-glow);
   background: rgba(2, 18, 32, 0.95);
-  box-shadow: 0 0 18px rgba(42, 241, 250, 0.2);
+  box-shadow: 0 0 16px rgba(42, 241, 250, 0.2);
 }
 
 .confirm-btn-secondary-chamfer .confirm-btn-text {
   font-family: var(--font-sans-ui);
-  font-size: 13.5px;
+  font-size: 12.5px;
   font-weight: 500;
   color: #ffffff;
 }
@@ -773,7 +865,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
   margin-top: 4px;
 }
 
@@ -782,7 +874,7 @@
   border: none;
   color: var(--text-muted);
   font-family: var(--font-mono-meta);
-  font-size: 11px;
+  font-size: 10px;
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -800,9 +892,9 @@
    ========================================================================== */
 .confirm-ocean-footer {
   position: relative;
-  margin-top: auto;
-  padding-top: 50px;
-  padding-bottom: 24px;
+  margin-top: 8px;
+  padding-top: 36px;
+  padding-bottom: 20px;
   background-image: url('/art_ocean_floor_clean.png');
   background-size: cover;
   background-position: center bottom;
@@ -810,6 +902,8 @@
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .confirm-footer-left {
@@ -819,19 +913,19 @@
 
 .confirm-footer-motto-line {
   font-family: var(--font-mono-meta);
-  font-size: 8px;
+  font-size: 7.5px;
   font-weight: 600;
-  letter-spacing: 1.8px;
+  letter-spacing: 1.6px;
   color: var(--text-silver);
   text-transform: uppercase;
   line-height: 1.4;
 }
 
 .confirm-footer-line-accent {
-  width: 28px;
+  width: 24px;
   height: 1.5px;
   background: rgba(42, 241, 250, 0.55);
-  margin-top: 6px;
+  margin-top: 5px;
 }
 
 .confirm-footer-right {
@@ -842,9 +936,9 @@
 
 .confirm-footer-brand {
   font-family: var(--font-mono-meta);
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: 700;
-  letter-spacing: 2px;
+  letter-spacing: 1.8px;
   color: #ffffff;
 }
 
@@ -854,8 +948,53 @@
 
 .confirm-footer-sub {
   font-family: var(--font-mono-meta);
-  font-size: 8px;
-  letter-spacing: 1.6px;
+  font-size: 7.5px;
+  letter-spacing: 1.4px;
   color: var(--text-dim);
-  margin-top: 3px;
+  margin-top: 2px;
+}
+
+/* Responsive tweaks for narrow mobile devices */
+@media (max-width: 380px) {
+  .confirm-manifest-page {
+    padding: 10px 10px 24px 10px;
+  }
+
+  .confirm-manifest-chassis {
+    padding: 12px 8px 14px 8px;
+  }
+
+  .manifest-events-timeline {
+    padding-left: 14px;
+  }
+
+  .manifest-timeline-rail {
+    left: 2px;
+  }
+
+  .manifest-event-bead {
+    left: -14px;
+  }
+
+  .manifest-event-card {
+    padding: 6px 8px;
+    gap: 6px;
+  }
+
+  .manifest-event-thumb-frame {
+    width: 40px;
+    height: 40px;
+  }
+
+  .manifest-event-name {
+    font-size: 12.5px;
+  }
+
+  .confirm-hero-title {
+    font-size: 26px;
+  }
+
+  .confirm-hero-editorial-aside {
+    display: none;
+  }
 }
