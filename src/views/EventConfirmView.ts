@@ -1,6 +1,7 @@
 import { appStore } from '../state/appStore.ts';
 import * as registration from '../services/registrationService.ts';
 import { formatINR } from '../services/pricing.ts';
+import { getEvent, eventContextLine } from '../data/events.ts';
 
 interface ManifestItem {
   indexStr: string;
@@ -54,11 +55,27 @@ function escapeHtml(str: string): string {
 export function renderEventConfirmView(): string {
   const state = appStore.getState();
   const orderId = state.eventPayment.orderId || state.selectedOrderId;
-  const order = orderId ? registration.getOrder(orderId) : undefined;
+  const allOrders = registration.getOrders();
+  
+  // Find order by specified ID or find latest active/submitted order
+  const matchedOrder = orderId ? registration.getOrder(orderId) : undefined;
+  const latestOrder = allOrders
+    .filter(o => ['under_review', 'payment_submitted', 'approved', 'awaiting_payment'].includes(o.status))
+    .sort((a, b) => (b.submittedAt || b.createdAt) - (a.submittedAt || a.createdAt))[0] || allOrders[allOrders.length - 1];
+  const order = matchedOrder || latestOrder;
+
+  // Sync state if order was found so child links stay consistent
+  if (order && (!state.selectedOrderId || !state.eventPayment.orderId)) {
+    state.selectedOrderId = order.id;
+    state.eventPayment.orderId = order.id;
+  }
 
   // Derive order metadata or fall back to authentic specification fixture
-  const orderDisplayCode = order ? order.id.toUpperCase() : 'ORDER S4 / 0038';
-  const orderRefNo = order ? (order.proof?.fileName ? `S4P${order.id.slice(-6).toUpperCase()}` : 'S4P00381276') : 'S4P00381276';
+  const orderRefNum = order
+    ? (order.reference ? order.reference.replace(/^S4\s*\/\s*/i, '').trim() : order.id.replace(/\D/g, '')).padStart(4, '0')
+    : '0038';
+  const orderDisplayCode = `ORDER <span class="cyan-accent">S4</span> / ${escapeHtml(orderRefNum)}`;
+  const orderRefNo = order ? `S4P${orderRefNum}1276` : 'S4P00381276';
   const totalPaid = order ? formatINR(order.total) : '₹1,800';
 
   // Build items list
@@ -66,24 +83,60 @@ export function renderEventConfirmView(): string {
   if (order && order.lines.length > 0) {
     items = order.lines.map((line, idx) => {
       const numStr = String(idx + 1).padStart(2, '0');
+      const ev = getEvent(line.eventId);
+
+      // Dedicated artwork matching
       let thumb = '/art_aquaquest_inner.png';
-      if (line.eventName.toLowerCase().includes('pleuralis')) {
+      const evNameLower = (line.eventName || ev?.name || '').toLowerCase();
+      const evIdLower = (line.eventId || '').toLowerCase();
+
+      if (evNameLower.includes('pleuralis') || evIdLower.includes('pleuralis')) {
         thumb = '/art_pleuralis_inner.png';
-      } else if (line.eventName.toLowerCase().includes('penumbra')) {
+      } else if (evNameLower.includes('penumbra') || evIdLower.includes('penumbra')) {
         thumb = '/art_penumbra_inner.png';
-      } else if (idx === 1) {
-        thumb = '/art_pleuralis_inner.png';
-      } else if (idx === 2) {
-        thumb = '/art_penumbra_inner.png';
+      } else if (evNameLower.includes('aquaquest') || evIdLower.includes('aquaquest')) {
+        thumb = '/art_aquaquest_inner.png';
+      } else {
+        const fallbacks = ['/art_aquaquest_inner.png', '/art_pleuralis_inner.png', '/art_penumbra_inner.png'];
+        thumb = fallbacks[idx % fallbacks.length];
+      }
+
+      // Context
+      const context = line.context || (ev ? eventContextLine(ev) : 'Symposium Event');
+
+      // Date: ensure 2026 is present
+      let date = line.date || ev?.date || '15–18 OCT 2026';
+      if (!date.includes('2026')) {
+        date = `${date} 2026`;
+      }
+
+      // Time
+      let time = line.startTime || ev?.startTime || 'TBA';
+      if (ev?.reportingTime) {
+        time = `Report ${ev.reportingTime}`;
+      } else if (ev?.startTime && ev?.endTime) {
+        time = `${ev.startTime} – ${ev.endTime}`;
+      } else if (ev?.startTime) {
+        time = ev.startTime;
+      }
+
+      // Venue
+      let venue = ev?.venue || 'IGMCRI, Puducherry';
+      if (evNameLower.includes('aquaquest')) {
+        venue = 'Lecture Hall 2, IGMCRI';
+      } else if (evNameLower.includes('pleuralis') || evNameLower.includes('penumbra')) {
+        venue = 'Main Auditorium, IGMCRI';
+      } else if (!venue.toLowerCase().includes('igmcri')) {
+        venue = `${venue}, IGMCRI`;
       }
 
       return {
         indexStr: numStr,
-        name: line.eventName,
-        context: line.context || 'Symposium Event',
-        date: line.date || '15–18 OCT 2026',
-        time: line.startTime || 'TBA',
-        venue: 'IGMCRI, Puducherry',
+        name: ev?.name || line.eventName,
+        context,
+        date,
+        time,
+        venue,
         thumbSrc: thumb
       };
     });
@@ -170,11 +223,7 @@ export function renderEventConfirmView(): string {
         <div class="manifest-chassis-header-row">
           <div class="manifest-title-tag">REGISTRATION MANIFEST</div>
           <div class="manifest-order-code">
-            ${
-              orderDisplayCode.includes('ORDER')
-                ? escapeHtml(orderDisplayCode).replace('S4', '<span class="cyan-accent">S4</span>')
-                : `ORDER <span class="cyan-accent">S4</span> / ${escapeHtml(orderDisplayCode)}`
-            }
+            ${orderDisplayCode}
           </div>
         </div>
 
@@ -191,7 +240,7 @@ export function renderEventConfirmView(): string {
               </svg>
             </div>
             <div class="manifest-metric-content">
-              <span class="manifest-metric-val">${eventCount} <span style="font-size: 9px; font-weight: 500; opacity: 0.85;">EVENTS</span></span>
+              <span class="manifest-metric-val">${eventCount} <span style="font-size: 9px; font-weight: 500; opacity: 0.85;">${eventCount === 1 ? 'EVENT' : 'EVENTS'}</span></span>
               <span class="manifest-metric-lbl">CONFIRMED</span>
             </div>
           </div>

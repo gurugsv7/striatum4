@@ -218,7 +218,13 @@ export function attachMyEventsEvents(): void {
     el.addEventListener('click', e => {
       e.stopPropagation();
       const orderId = el.getAttribute('data-view-order-id');
-      if (orderId) appStore.openPayment(orderId);
+      if (!orderId) return;
+      const order = registration.getOrder(orderId);
+      if (order && (order.status === 'under_review' || order.status === 'payment_submitted' || order.status === 'approved')) {
+        appStore.openOrderConfirmation(orderId);
+      } else {
+        appStore.openPayment(orderId);
+      }
     });
   });
 

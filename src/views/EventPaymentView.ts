@@ -316,7 +316,8 @@ function renderStatusSection(order: Order): string {
             : ''
         }
 
-        <button class="action-link-cyan" id="btn-event-view-my-events" style="margin-top: 18px;">VIEW MY EVENTS →</button>
+        <button class="action-link-cyan" id="btn-event-view-manifest" style="margin-top: 18px; font-weight: 700;">VIEW CONFIRMATION MANIFEST →</button>
+        <button class="action-link-cyan" id="btn-event-view-my-events" style="margin-top: 10px; opacity: 0.8;">VIEW MY EVENTS →</button>
       </div>
     `;
   }
@@ -333,7 +334,8 @@ function renderStatusSection(order: Order): string {
         <h1 class="hero-display-title" style="font-size: 26px;">Payment verified<span class="cyan-dot">.</span></h1>
         <p class="hero-display-sub">Your registrations are confirmed.</p>
 
-        <button class="action-link-cyan" id="btn-event-view-my-events" style="margin-top: 18px;">VIEW MY EVENTS →</button>
+        <button class="action-link-cyan" id="btn-event-view-manifest" style="margin-top: 18px; font-weight: 700;">VIEW CONFIRMATION MANIFEST →</button>
+        <button class="action-link-cyan" id="btn-event-view-my-events" style="margin-top: 10px; opacity: 0.8;">VIEW MY EVENTS →</button>
       </div>
     `;
   }
@@ -448,6 +450,13 @@ export function attachEventPaymentEvents(): void {
 
   btnEdit?.addEventListener('click', () => {
     appStore.setScreen('cart');
+  });
+
+  document.querySelectorAll<HTMLElement>('#btn-event-view-manifest').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (order) appStore.openOrderConfirmation(order.id);
+      else appStore.setScreen('event-confirm');
+    });
   });
 
   document.querySelectorAll<HTMLElement>('#btn-event-view-my-events').forEach(btn => {
