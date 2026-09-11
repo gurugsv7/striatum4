@@ -498,7 +498,7 @@ export function attachEventPaymentEvents(): void {
 
     appStore.showToast(res.message);
     if (res.ok) {
-      appStore.setScreen('my-events');
+      appStore.openOrderConfirmation(order.id);
     } else {
       btnSubmit.disabled = false;
       btnSubmit.classList.remove('is-submitting');

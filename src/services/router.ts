@@ -25,6 +25,8 @@ const STATIC_ROUTES: Record<string, ScreenType> = {
   '/programme': 'programme',
   '/cart': 'cart',
   '/payment': 'event-payment',
+  '/confirmed': 'event-confirm',
+  '/order/confirm': 'event-confirm',
   '/delegate': 'delegate-registration',
   '/delegate/payment': 'delegate-payment',
   '/delegate/pass': 'delegate-confirm',
@@ -83,6 +85,8 @@ export function titleFor(screen: ScreenType, eventName?: string): string {
       return 'Your selection' + suffix;
     case 'event-payment':
       return 'Payment' + suffix;
+    case 'event-confirm':
+      return 'Registration Confirmed' + suffix;
     case 'delegate-registration':
       return 'Delegate registration' + suffix;
     case 'delegate-payment':

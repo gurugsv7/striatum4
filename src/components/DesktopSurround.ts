@@ -15,13 +15,14 @@ export function renderDesktopSurround(screenContentHtml: string): string {
     { id: 'delegate-confirm', num: '06', label: 'Delegate Pass Ready', desc: 'Holographic Pass' },
     { id: 'cart', num: '07', label: 'Cart', desc: 'Selected Events' },
     { id: 'event-payment', num: '08', label: 'Event Payment', desc: 'Checkout & Proof' },
-    { id: 'my-events', num: '09', label: 'My Events', desc: 'Registration Status' },
-    { id: 'programme', num: '10', label: 'Programme', desc: 'Day Timeline' },
-    { id: 'profile', num: '11', label: 'Delegate Profile', desc: 'Credential & Pass' },
-    { id: 'admin', num: '12', label: 'Verification', desc: 'Manual Payment Review' }
+    { id: 'event-confirm', num: '09', label: 'Registration Manifest', desc: 'Confirmed Order' },
+    { id: 'my-events', num: '10', label: 'My Events', desc: 'Registration Status' },
+    { id: 'programme', num: '11', label: 'Programme', desc: 'Day Timeline' },
+    { id: 'profile', num: '12', label: 'Delegate Profile', desc: 'Credential & Pass' },
+    { id: 'admin', num: '13', label: 'Verification', desc: 'Manual Payment Review' }
   ];
 
-  const hasBottomNav = ['home', 'explore', 'my-events', 'profile', 'delegate-confirm'].includes(state.currentScreen);
+  const hasBottomNav = ['home', 'explore', 'my-events', 'profile', 'delegate-confirm', 'event-confirm'].includes(state.currentScreen);
 
   const delegate = registration.getDelegate();
   const delegateApproved = delegate?.status === 'approved';

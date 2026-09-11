@@ -11,6 +11,7 @@ export type ScreenType =
   | 'delegate-payment'
   | 'delegate-confirm'
   | 'event-payment'
+  | 'event-confirm'
   | 'cart'
   | 'my-events'
   | 'programme'
@@ -239,6 +240,14 @@ class AppStore {
     this.state.eventPayment.screenshotUrl = null;
     this.state.eventPayment.screenshotName = null;
     this.setScreen('event-payment');
+  }
+
+  openOrderConfirmation(orderId?: string): void {
+    if (orderId) {
+      this.state.selectedOrderId = orderId;
+      this.state.eventPayment.orderId = orderId;
+    }
+    this.setScreen('event-confirm');
   }
 
   setDelegateForm(updates: Partial<DelegateFormData>): void {

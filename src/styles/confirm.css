@@ -1,0 +1,861 @@
+/* ==========================================================================
+   STRIATUM 4.0 — '04 / CONFIRMED' REGISTRATION MANIFEST VIEW
+   Faithfully created from event_confirm_mockup.png specification
+   ========================================================================== */
+
+/* Outer scrollable page container */
+.confirm-manifest-page {
+  position: relative;
+  min-height: 100%;
+  padding: 12px 16px 36px 16px;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  background-color: var(--bg-abyss-deep);
+}
+
+/* Background ambient whale hero artwork */
+.confirm-whale-backdrop {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 90%;
+  max-width: 440px;
+  height: 280px;
+  pointer-events: none;
+  z-index: 1;
+  background-image: url('/art_whale_hero_alpha.png');
+  background-size: contain;
+  background-position: top right;
+  background-repeat: no-repeat;
+  opacity: 0.88;
+}
+
+/* Top Navigation Bar */
+.confirm-top-bar {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.confirm-top-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.confirm-back-btn {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  cursor: pointer;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.confirm-back-btn:hover {
+  color: var(--cyan-glow);
+  transform: translateX(-2px);
+}
+
+.confirm-brand-block {
+  display: flex;
+  flex-direction: column;
+}
+
+.confirm-brand-title {
+  font-family: var(--font-sans-ui);
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
+.confirm-brand-sub {
+  font-family: var(--font-mono-meta);
+  font-size: 8px;
+  letter-spacing: 1.8px;
+  color: var(--text-dim);
+  margin-top: 3px;
+}
+
+/* Top Right Editorial Motto Block */
+.confirm-top-motto {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  text-align: left;
+}
+
+.confirm-motto-pipe {
+  width: 1px;
+  height: 38px;
+  background: rgba(42, 241, 250, 0.45);
+}
+
+.confirm-motto-text-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.confirm-motto-line {
+  font-family: var(--font-mono-meta);
+  font-size: 7.5px;
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: 1.6px;
+  color: var(--text-silver);
+  text-transform: uppercase;
+}
+
+.confirm-motto-underline {
+  width: 22px;
+  height: 1px;
+  background: rgba(42, 241, 250, 0.55);
+  margin-top: 5px;
+}
+
+/* Hero Section */
+.confirm-hero-section {
+  position: relative;
+  z-index: 5;
+  margin-bottom: 22px;
+  padding-left: 20px;
+}
+
+/* Glowing Timeline Rail on the hero */
+.confirm-hero-timeline-rail {
+  position: absolute;
+  left: 3px;
+  top: 6px;
+  bottom: 0;
+  width: 1px;
+  background: linear-gradient(180deg, rgba(42, 241, 250, 0.8) 0%, rgba(42, 241, 250, 0.25) 100%);
+  pointer-events: none;
+}
+
+.confirm-hero-bead {
+  position: absolute;
+  left: -20px;
+  top: 4px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--cyan-glow);
+  box-shadow: 0 0 8px var(--cyan-glow), 0 0 14px rgba(42, 241, 250, 0.9);
+}
+
+.confirm-step-tag {
+  font-family: var(--font-mono-meta);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+.confirm-step-num {
+  color: var(--cyan-glow);
+}
+
+.confirm-step-slash {
+  color: rgba(42, 241, 250, 0.4);
+  margin: 0 4px;
+}
+
+.confirm-hero-title {
+  font-family: var(--font-serif-display);
+  font-size: 32px;
+  font-weight: 500;
+  color: #ffffff;
+  line-height: 1.15;
+  letter-spacing: -0.5px;
+  margin: 0 0 8px 0;
+}
+
+.confirm-cyan-period {
+  color: var(--cyan-glow);
+  font-weight: 700;
+}
+
+.confirm-hero-sub {
+  font-family: var(--font-sans-ui);
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--text-muted);
+  margin: 0;
+  max-width: 280px;
+}
+
+/* Secondary Editorial Accent: NEW JOURNEYS AWAIT. */
+.confirm-hero-editorial-aside {
+  position: absolute;
+  right: 0;
+  top: 60px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  text-align: left;
+}
+
+.confirm-hero-editorial-pipe {
+  width: 1px;
+  height: 32px;
+  background: rgba(42, 241, 250, 0.45);
+}
+
+.confirm-hero-editorial-text-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.confirm-hero-editorial-line {
+  font-family: var(--font-mono-meta);
+  font-size: 7.5px;
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: 1.6px;
+  color: var(--text-silver);
+  text-transform: uppercase;
+}
+
+.confirm-hero-editorial-underline {
+  width: 20px;
+  height: 1px;
+  background: rgba(42, 241, 250, 0.55);
+  margin-top: 4px;
+}
+
+/* ==========================================================================
+   REGISTRATION MANIFEST CHASSIS CARD
+   ========================================================================== */
+.confirm-manifest-chassis {
+  position: relative;
+  z-index: 5;
+  background: rgba(2, 13, 23, 0.88);
+  border: 1px solid rgba(42, 241, 250, 0.35);
+  box-shadow: 0 14px 40px -10px rgba(0, 0, 0, 0.9), 0 0 20px rgba(42, 241, 250, 0.08);
+  margin-bottom: 16px;
+  padding: 16px 14px 18px 14px;
+  clip-path: polygon(
+    14px 0,
+    calc(100% - 14px) 0,
+    100% 14px,
+    100% calc(100% - 14px),
+    calc(100% - 14px) 100%,
+    14px 100%,
+    0 calc(100% - 14px),
+    0 14px
+  );
+}
+
+/* Corner outer brackets */
+.manifest-outer-bracket {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  pointer-events: none;
+  border-color: var(--cyan-glow);
+  border-style: solid;
+}
+
+.manifest-outer-bracket-tl {
+  top: 2px;
+  left: 2px;
+  border-width: 1.5px 0 0 1.5px;
+}
+
+.manifest-outer-bracket-tr {
+  top: 2px;
+  right: 2px;
+  border-width: 1.5px 1.5px 0 0;
+}
+
+/* Header Row inside Manifest */
+.manifest-chassis-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(42, 241, 250, 0.18);
+  margin-bottom: 14px;
+}
+
+.manifest-title-tag {
+  font-family: var(--font-mono-meta);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2.2px;
+  color: #ffffff;
+  text-transform: uppercase;
+}
+
+.manifest-order-code {
+  font-family: var(--font-mono-meta);
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 1.6px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.manifest-order-code .cyan-accent {
+  color: var(--cyan-glow);
+  font-weight: 700;
+}
+
+/* Tri-Metric Summary Row */
+.manifest-tri-metric-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(42, 241, 250, 0.18);
+  margin-bottom: 16px;
+}
+
+.manifest-metric-col {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 4px;
+}
+
+.manifest-metric-divider {
+  width: 1px;
+  height: 28px;
+  background: rgba(42, 241, 250, 0.18);
+  flex-shrink: 0;
+}
+
+.manifest-metric-icon-wrap {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--cyan-glow);
+  flex-shrink: 0;
+}
+
+.manifest-metric-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.manifest-metric-val {
+  font-family: var(--font-mono-meta);
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.5px;
+  line-height: 1.2;
+}
+
+.manifest-metric-lbl {
+  font-family: var(--font-mono-meta);
+  font-size: 8px;
+  font-weight: 600;
+  color: var(--text-dim);
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+/* ==========================================================================
+   EVENT ROWS TIMELINE INSIDE MANIFEST
+   ========================================================================== */
+.manifest-events-timeline {
+  position: relative;
+  padding-left: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.manifest-timeline-rail {
+  position: absolute;
+  left: 5px;
+  top: 14px;
+  bottom: 24px;
+  width: 1px;
+  background: linear-gradient(180deg, rgba(42, 241, 250, 0.7) 0%, rgba(42, 241, 250, 0.3) 100%);
+  pointer-events: none;
+}
+
+.manifest-event-row {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+/* Timeline Bead Node */
+.manifest-event-bead {
+  position: absolute;
+  left: -22.5px;
+  top: 16px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--cyan-glow);
+  box-shadow: 0 0 8px var(--cyan-glow), 0 0 16px rgba(42, 241, 250, 0.9);
+  z-index: 2;
+}
+
+/* Subtle background glowing tendrils at node */
+.manifest-event-bead::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(42, 241, 250, 0.3) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.manifest-event-index {
+  font-family: var(--font-mono-meta);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--cyan-glow);
+  letter-spacing: 1px;
+  width: 22px;
+  padding-top: 10px;
+  flex-shrink: 0;
+}
+
+/* Event Content Card */
+.manifest-event-card {
+  flex: 1;
+  background: rgba(2, 15, 27, 0.65);
+  border: 1px solid rgba(42, 241, 250, 0.22);
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.manifest-event-card:hover {
+  border-color: rgba(42, 241, 250, 0.45);
+  background: rgba(3, 20, 35, 0.75);
+}
+
+/* Square Art Thumbnail */
+.manifest-event-thumb-frame {
+  width: 52px;
+  height: 52px;
+  border-radius: 8px;
+  border: 1px solid rgba(42, 241, 250, 0.45);
+  background: #010811;
+  overflow: hidden;
+  flex-shrink: 0;
+  box-shadow: 0 0 12px rgba(42, 241, 250, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.manifest-event-thumb-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Event Info Column */
+.manifest-event-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.manifest-event-name {
+  font-family: var(--font-serif-display);
+  font-size: 14.5px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #ffffff;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.manifest-event-context {
+  font-family: var(--font-sans-ui);
+  font-size: 10.5px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.manifest-event-meta-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-family: var(--font-mono-meta);
+  font-size: 9px;
+  color: var(--text-silver);
+  margin-bottom: 3px;
+}
+
+.manifest-event-meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.manifest-event-meta-item svg {
+  color: var(--cyan-glow);
+  opacity: 0.85;
+}
+
+.manifest-event-venue-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-sans-ui);
+  font-size: 9.5px;
+  color: var(--text-dim);
+}
+
+.manifest-event-venue-row svg {
+  color: var(--cyan-glow);
+  opacity: 0.75;
+}
+
+/* Registered Status Pill Badge */
+.manifest-registered-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(42, 241, 250, 0.65);
+  background: rgba(42, 241, 250, 0.08);
+  color: var(--cyan-glow);
+  font-family: var(--font-mono-meta);
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  flex-shrink: 0;
+  box-shadow: 0 0 10px rgba(42, 241, 250, 0.2);
+}
+
+/* ==========================================================================
+   NOTICE BANNER BOX (Registrations received / Ref. No.)
+   ========================================================================== */
+.confirm-notice-box {
+  background: rgba(2, 13, 23, 0.82);
+  border: 1px solid rgba(42, 241, 250, 0.3);
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.confirm-notice-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.confirm-notice-shield-wrap {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--cyan-glow);
+  flex-shrink: 0;
+}
+
+.confirm-notice-pipe {
+  width: 1px;
+  height: 28px;
+  background: rgba(42, 241, 250, 0.25);
+  flex-shrink: 0;
+}
+
+.confirm-notice-text-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.confirm-notice-title {
+  font-family: var(--font-serif-display);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: 1.25;
+}
+
+.confirm-notice-sub {
+  font-family: var(--font-sans-ui);
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.confirm-notice-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.confirm-ref-col {
+  display: flex;
+  flex-direction: column;
+  text-align: right;
+}
+
+.confirm-ref-lbl {
+  font-family: var(--font-mono-meta);
+  font-size: 8.5px;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+
+.confirm-ref-val {
+  font-family: var(--font-mono-meta);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: #ffffff;
+  margin-top: 2px;
+}
+
+.confirm-copy-ref-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease, transform 0.15s ease;
+}
+
+.confirm-copy-ref-btn:hover {
+  color: var(--cyan-glow);
+  transform: scale(1.1);
+}
+
+/* ==========================================================================
+   ACTION BUTTONS & LINK
+   ========================================================================== */
+.confirm-actions-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+/* Primary Chamfered Button with Wave / Contours */
+.confirm-btn-primary-chamfer {
+  position: relative;
+  width: 100%;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 18px;
+  background: linear-gradient(90deg, #b7effb 0%, #a6ecfa 50%, #cef0f7 100%);
+  color: #021a24;
+  border: none;
+  cursor: pointer;
+  clip-path: polygon(
+    12px 0,
+    calc(100% - 12px) 0,
+    100% 12px,
+    100% calc(100% - 12px),
+    calc(100% - 12px) 100%,
+    12px 100%,
+    0 calc(100% - 12px),
+    0 12px
+  );
+  box-shadow: 0 0 24px rgba(183, 239, 251, 0.45);
+  transition: all 0.25s ease;
+}
+
+.confirm-btn-primary-chamfer:hover {
+  filter: brightness(1.06);
+  box-shadow: 0 0 32px rgba(183, 239, 251, 0.7);
+}
+
+.confirm-btn-primary-chamfer::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(ellipse at 50% 50%, rgba(42, 241, 250, 0.15) 0%, transparent 80%);
+  pointer-events: none;
+}
+
+.confirm-btn-label-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.confirm-btn-primary-chamfer .confirm-btn-text {
+  font-family: var(--font-sans-ui);
+  font-size: 14px;
+  font-weight: 600;
+  color: #021a24;
+  letter-spacing: 0.3px;
+}
+
+/* Secondary Dark Glass Button */
+.confirm-btn-secondary-chamfer {
+  width: 100%;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 18px;
+  background: rgba(1, 10, 18, 0.88);
+  border: 1px solid rgba(42, 241, 250, 0.35);
+  color: #ffffff;
+  cursor: pointer;
+  clip-path: polygon(
+    12px 0,
+    calc(100% - 12px) 0,
+    100% 12px,
+    100% calc(100% - 12px),
+    calc(100% - 12px) 100%,
+    12px 100%,
+    0 calc(100% - 12px),
+    0 12px
+  );
+  transition: all 0.25s ease;
+}
+
+.confirm-btn-secondary-chamfer:hover {
+  border-color: var(--cyan-glow);
+  background: rgba(2, 18, 32, 0.95);
+  box-shadow: 0 0 18px rgba(42, 241, 250, 0.2);
+}
+
+.confirm-btn-secondary-chamfer .confirm-btn-text {
+  font-family: var(--font-sans-ui);
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+/* Tertiary Link: View Payment Details */
+.confirm-link-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.confirm-link-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-family: var(--font-mono-meta);
+  font-size: 11px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.confirm-link-btn:hover {
+  color: var(--cyan-glow);
+}
+
+/* ==========================================================================
+   ATMOSPHERIC OCEAN FLOOR FOOTER
+   ========================================================================== */
+.confirm-ocean-footer {
+  position: relative;
+  margin-top: auto;
+  padding-top: 50px;
+  padding-bottom: 24px;
+  background-image: url('/art_ocean_floor_clean.png');
+  background-size: cover;
+  background-position: center bottom;
+  background-repeat: no-repeat;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.confirm-footer-left {
+  display: flex;
+  flex-direction: column;
+}
+
+.confirm-footer-motto-line {
+  font-family: var(--font-mono-meta);
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 1.8px;
+  color: var(--text-silver);
+  text-transform: uppercase;
+  line-height: 1.4;
+}
+
+.confirm-footer-line-accent {
+  width: 28px;
+  height: 1.5px;
+  background: rgba(42, 241, 250, 0.55);
+  margin-top: 6px;
+}
+
+.confirm-footer-right {
+  display: flex;
+  flex-direction: column;
+  text-align: right;
+}
+
+.confirm-footer-brand {
+  font-family: var(--font-mono-meta);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #ffffff;
+}
+
+.confirm-footer-brand .cyan-text {
+  color: var(--cyan-glow);
+}
+
+.confirm-footer-sub {
+  font-family: var(--font-mono-meta);
+  font-size: 8px;
+  letter-spacing: 1.6px;
+  color: var(--text-dim);
+  margin-top: 3px;
+}

@@ -11,6 +11,7 @@ import './styles/programme.css';
 import './styles/admin.css';
 import './styles/legal.css';
 import './styles/profile.css';
+import './styles/confirm.css';
 
 import { appStore, AppState, ScreenType } from './state/appStore.ts';
 import { initAuth, onAuthChange } from './services/authService.ts';
@@ -32,6 +33,7 @@ import { renderDelegateRegistrationView, attachDelegateRegistrationEvents } from
 import { renderDelegatePaymentView, attachDelegatePaymentEvents } from './views/DelegatePaymentView.ts';
 import { renderDelegateConfirmView, attachDelegateConfirmEvents } from './views/DelegateConfirmView.ts';
 import { renderEventPaymentView, attachEventPaymentEvents } from './views/EventPaymentView.ts';
+import { renderEventConfirmView, attachEventConfirmEvents } from './views/EventConfirmView.ts';
 import {
   renderPrivacyView,
   attachPrivacyEvents,
@@ -53,6 +55,7 @@ const VIEWS: Record<ScreenType, { render: () => string; attach: () => void }> = 
   'delegate-payment': { render: renderDelegatePaymentView, attach: attachDelegatePaymentEvents },
   'delegate-confirm': { render: renderDelegateConfirmView, attach: attachDelegateConfirmEvents },
   'event-payment': { render: renderEventPaymentView, attach: attachEventPaymentEvents },
+  'event-confirm': { render: renderEventConfirmView, attach: attachEventConfirmEvents },
   privacy: { render: renderPrivacyView, attach: attachPrivacyEvents },
   terms: { render: renderTermsView, attach: attachTermsEvents }
 };
