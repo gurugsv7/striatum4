@@ -300,7 +300,7 @@ class AppStore {
     return result.ok;
   }
 
-  login(email: string, fullName?: string): void {
+  login(email: string, fullName?: string, navigateHome = true): void {
     this.state.isAuthenticated = true;
     this.state.userEmail = email;
     // Prefill the delegate form from the verified identity, but never overwrite
@@ -311,7 +311,10 @@ class AppStore {
     if (!this.state.delegateForm.email) {
       this.state.delegateForm = { ...this.state.delegateForm, email };
     }
-    this.state.currentScreen = 'home';
+    // Only an intentional sign-in from onboarding should enter Home. Session
+    // restoration must preserve direct public routes such as /credits, and
+    // profile edits must not unexpectedly navigate away from Profile.
+    if (navigateHome) this.state.currentScreen = 'home';
     this.showToast('Signed in as ' + email);
   }
 

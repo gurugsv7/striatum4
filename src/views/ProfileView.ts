@@ -477,7 +477,7 @@ export function attachProfileEvents(): void {
     }
 
     if (fullName) {
-      appStore.login(email || appStore.getState().userEmail || '', fullName);
+      appStore.login(email || appStore.getState().userEmail || '', fullName, false);
       appStore.showToast('Profile updated successfully');
       modalPersonal?.classList.remove('open');
     }

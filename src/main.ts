@@ -235,7 +235,7 @@ appStore.subscribe(renderApp);
 // sign in again, and reflect sign-out that happened in another tab.
 onAuthChange(user => {
   if (user) {
-    if (!appStore.getState().isAuthenticated) appStore.login(user.email, user.fullName);
+    if (!appStore.getState().isAuthenticated) appStore.login(user.email, user.fullName, false);
     if (pendingRoute) {
       const route = pendingRoute;
       pendingRoute = null;
