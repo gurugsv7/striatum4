@@ -209,6 +209,9 @@ export async function renderGoogleButton(
     googleInitialized = true;
   }
 
+  // Auth restoration can re-render onboarding while GIS is loading. Never
+  // mount a button into a screen that has already been replaced.
+  if (!container.isConnected) return false;
   container.innerHTML = '';
   window.google.accounts.id.renderButton(container, {
     type: 'standard',
@@ -217,7 +220,7 @@ export async function renderGoogleButton(
     text: 'continue_with',
     shape: 'pill',
     logo_alignment: 'left',
-    width: container.clientWidth || 320
+    width: Math.max(240, Math.round(container.getBoundingClientRect().width || 320))
   });
 
   return true;

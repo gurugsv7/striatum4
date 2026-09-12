@@ -148,6 +148,7 @@ function announce(message: string): void {
 function renderApp(state: AppState): void {
   const appContainer = document.getElementById('app');
   if (!appContainer) return;
+  appContainer.style.visibility = 'visible';
 
   const scroller = document.getElementById('viewport-scroller');
   if (scroller && lastScreen) scrollMemory[lastScreen] = scroller.scrollTop;
