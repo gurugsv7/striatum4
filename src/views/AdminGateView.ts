@@ -2,6 +2,10 @@ import { appStore } from '../state/appStore.ts';
 import * as registration from '../services/registrationService.ts';
 import { getCurrentUser } from '../services/authService.ts';
 
+// Hydration notifies the app store. Guarding it by account prevents the gate
+// from starting a new request every time that notification re-renders it.
+let hydratedUserId: string | null = null;
+
 /**
  * Access screen for the verification console.
  *
@@ -94,5 +98,11 @@ export function attachAdminGateEvents(): void {
   });
 
   // An organiser may land here a moment before the admin check has returned.
-  void registration.hydrate();
+  // Only start one refresh for the current account; otherwise the gate's own
+  // store notification would create an endless render/hydrate loop.
+  const userId = getCurrentUser()?.id ?? null;
+  if (userId && hydratedUserId !== userId) {
+    hydratedUserId = userId;
+    void registration.hydrate();
+  }
 }
