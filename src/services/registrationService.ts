@@ -186,11 +186,13 @@ export function isRemote(): boolean {
 }
 
 let isAdminUser = false;
+let remoteCapacities: Record<string, Capacity> = {};
 export function isAdmin(): boolean {
   return isAdminUser;
 }
 
 function adoptSnapshot(snapshot: remote.RemoteSnapshot): void {
+  remoteCapacities = snapshot.capacities;
   state.orders = snapshot.orders.map(order => ({
     id: order.id,
     reference: order.reference,
@@ -442,6 +444,10 @@ export interface Capacity {
 export function getCapacity(eventId: string): Capacity {
   const event = getEvent(eventId);
   const slots = event?.slots ?? null;
+
+  if (isRemote() && remoteCapacities[eventId]) {
+    return remoteCapacities[eventId];
+  }
 
   const confirmed = state.registrations.filter(r => r.eventId === eventId).length;
   const pending = state.orders.filter(

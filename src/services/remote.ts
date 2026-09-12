@@ -75,6 +75,7 @@ export interface RemoteSnapshot {
   /** Every delegate application, for the verification console. Admins only. */
   allDelegates: RemoteDelegate[];
   isAdmin: boolean;
+  capacities: Record<string, { slots: number | null; confirmed: number; pending: number; available: number | null }>;
 }
 
 export const EMPTY_SNAPSHOT: RemoteSnapshot = {
@@ -83,6 +84,7 @@ export const EMPTY_SNAPSHOT: RemoteSnapshot = {
   registrations: [],
   allDelegates: [],
   isAdmin: false
+  ,capacities: {}
 };
 
 const PROOF_BUCKET = 'payment-proofs';
@@ -149,16 +151,33 @@ function mapOrder(row: any): RemoteOrder {
  */
 export async function fetchSnapshot(): Promise<RemoteSnapshot> {
   if (!supabase || !getCurrentUser()) return { ...EMPTY_SNAPSHOT };
+  const client = supabase;
 
-  const [delegatesRes, ordersRes, registrationsRes, adminRes] = await Promise.all([
+  const [delegatesRes, ordersRes, registrationsRes, adminRes, eventsRes] = await Promise.all([
     supabase.from('delegate_applications').select('*').order('submitted_at', { ascending: false }),
     supabase
       .from('orders')
       .select('*, order_lines(*)')
       .order('created_at', { ascending: false }),
     supabase.from('registrations').select('*'),
-    supabase.rpc('is_admin')
+    supabase.rpc('is_admin'),
+    supabase.from('events').select('id, slots')
   ]);
+
+  const capacityEntries = await Promise.all((eventsRes.data ?? []).map(async event => {
+    const [takenRes, availableRes] = await Promise.all([
+      client.rpc('event_seats_taken', { p_event_id: event.id }),
+      client.rpc('event_seats_available', { p_event_id: event.id })
+    ]);
+    const taken = typeof takenRes.data === 'number' ? takenRes.data : 0;
+    const available = typeof availableRes.data === 'number' ? availableRes.data : null;
+    return [event.id, {
+      slots: typeof event.slots === 'number' ? event.slots : null,
+      confirmed: taken,
+      pending: 0,
+      available
+    }] as const;
+  }));
 
   const userId = getCurrentUser()?.id;
   const allDelegates = (delegatesRes.data ?? []).map(mapDelegate);
@@ -181,7 +200,8 @@ export async function fetchSnapshot(): Promise<RemoteSnapshot> {
       lunchChoice: row.lunch_choice ?? undefined
     })),
     allDelegates,
-    isAdmin: adminRes.data === true
+    isAdmin: adminRes.data === true,
+    capacities: Object.fromEntries(capacityEntries)
   };
 }
 
