@@ -1,0 +1,68 @@
+/* STRIATUM motion language: measured, editorial, underwater precision. */
+#app.s4-route-enter .screen-content > * {
+  animation: s4-content-arrive 420ms cubic-bezier(.22, .75, .25, 1) both;
+}
+#app.s4-route-enter .screen-content > *:nth-child(2) { animation-delay: 45ms; }
+#app.s4-route-enter .screen-content > *:nth-child(3) { animation-delay: 90ms; }
+#app.s4-route-enter .screen-content > *:nth-child(4) { animation-delay: 135ms; }
+
+#app.s4-route-enter .explore-event-entry,
+#app.s4-route-enter .profile-action-card,
+#app.s4-route-enter .timeline-step-block,
+#app.s4-route-enter .event-detail-section,
+#app.s4-route-enter .programme-day-block {
+  animation: s4-content-arrive 420ms cubic-bezier(.22, .75, .25, 1) both;
+}
+#app.s4-route-enter .explore-event-entry:nth-child(2),
+#app.s4-route-enter .profile-action-card:nth-child(2),
+#app.s4-route-enter .timeline-step-block:nth-child(2) { animation-delay: 55ms; }
+#app.s4-route-enter .explore-event-entry:nth-child(3),
+#app.s4-route-enter .profile-action-card:nth-child(3),
+#app.s4-route-enter .timeline-step-block:nth-child(3) { animation-delay: 100ms; }
+#app.s4-route-enter .explore-event-entry:nth-child(4),
+#app.s4-route-enter .profile-action-card:nth-child(4),
+#app.s4-route-enter .timeline-step-block:nth-child(4) { animation-delay: 145ms; }
+#app.s4-route-enter .explore-event-entry:nth-child(5),
+#app.s4-route-enter .profile-action-card:nth-child(5),
+#app.s4-route-enter .timeline-step-block:nth-child(5) { animation-delay: 190ms; }
+
+#app.s4-route-enter .profile-avatar-ring,
+#app.s4-route-enter .profile-delegate-banner-card,
+#app.s4-route-enter .explore-hero-section,
+#app.s4-route-enter .onboarding-hero-section {
+  animation: s4-focus-arrive 560ms cubic-bezier(.18, .8, .2, 1) both;
+}
+#app.s4-route-enter .profile-delegate-banner-card { animation-delay: 100ms; }
+#app.s4-route-enter .profile-avatar-ring { animation-delay: 70ms; }
+
+/* Profile contains persistent sheets and a composited backdrop. Keep its
+   content visible during route replacement so mobile browsers never present a
+   blank compositing frame. */
+#app.s4-route-enter .profile-screen-container,
+#app.s4-route-enter .profile-screen-container * {
+  animation: none !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+.s4-motion-pulse { animation: s4-status-pulse 2.8s ease-in-out infinite; }
+@keyframes s4-content-arrive { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes s4-focus-arrive { from { opacity: 0; transform: translateY(18px) scale(.985); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes s4-status-pulse { 0%, 100% { opacity: .72; } 50% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  #app.s4-route-enter .screen-content > *,
+#app.s4-route-enter .profile-screen-container > .profile-hero-backdrop,
+#app.s4-route-enter .profile-screen-container > .profile-banner-section,
+#app.s4-route-enter .profile-screen-container > .profile-cards-section,
+#app.s4-route-enter .profile-screen-container > .profile-quote-section,
+  #app.s4-route-enter .explore-event-entry,
+  #app.s4-route-enter .profile-action-card,
+  #app.s4-route-enter .timeline-step-block,
+  #app.s4-route-enter .event-detail-section,
+  #app.s4-route-enter .programme-day-block,
+  #app.s4-route-enter .profile-avatar-ring,
+  #app.s4-route-enter .profile-delegate-banner-card,
+  #app.s4-route-enter .explore-hero-section,
+  #app.s4-route-enter .onboarding-hero-section,
+  .s4-motion-pulse { animation: none !important; }
+}

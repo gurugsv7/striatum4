@@ -42,9 +42,9 @@ export function renderProfileView(): string {
   const cartCount = registration.cartCount();
 
   const gender = getProfileGender();
-  const avatarSrc = gender === 'female'
-    ? '/assets/profile/avatar_doctor_female.jpg'
-    : '/assets/profile/avatar_doctor_male.jpg';
+  const avatarIcon = gender === 'female'
+    ? `<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="23" r="10"/><path d="M14 57c1-12 8-19 18-19s17 7 18 19"/><path d="M22 21c1-8 5-12 10-12 7 0 11 5 11 13-3-4-6-6-11-6-3 3-6 5-10 5Z" fill="currentColor" opacity=".55"/></svg>`
+    : `<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="23" r="10"/><path d="M14 57c1-12 8-19 18-19s17 7 18 19"/><path d="M22 20c2-7 6-11 11-11 6 0 10 4 10 11-6-3-14-3-21 0Z" fill="currentColor" opacity=".55"/></svg>`;
 
   return `
     <div class="profile-screen-container">
@@ -81,15 +81,10 @@ export function renderProfileView(): string {
         <div class="profile-identity-row">
           
           <div class="profile-left-block">
-            <!-- Avatar (No update button, uses young doctor portrait) -->
+            <!-- Neutral profile silhouette; no personal portrait is used. -->
             <div class="profile-avatar-wrapper">
               <div class="profile-avatar-ring">
-                <img 
-                  src="${avatarSrc}" 
-                  alt="${escapeHtml(rawName)}" 
-                  class="profile-avatar-img"
-                  id="profile-avatar-display"
-                />
+                <div class="profile-avatar-img profile-avatar-generic ${gender}" id="profile-avatar-display" role="img" aria-label="${gender} profile icon">${avatarIcon}</div>
               </div>
             </div>
 
@@ -151,29 +146,7 @@ export function renderProfileView(): string {
       <section class="profile-cards-section">
         <div class="profile-cards-grid">
           
-          <!-- Card 1: My Bookings -->
-          <button class="profile-action-card" id="btn-card-bookings">
-            <div class="profile-card-left-col">
-              <div class="profile-card-icon-box">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/>
-                  <line x1="16" y1="2" x2="16" y2="6"/>
-                  <line x1="8" y1="2" x2="8" y2="6"/>
-                  <line x1="3" y1="10" x2="21" y2="10"/>
-                  <path d="m9 16 2 2 4-4"/>
-                </svg>
-              </div>
-              <div class="profile-card-text-col">
-                <div class="profile-card-title">My Bookings</div>
-                <div class="profile-card-desc">Events, workshops, competitions</div>
-              </div>
-            </div>
-            <svg class="profile-card-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="m9 18 6-6-6-6"/>
-            </svg>
-          </button>
-
-          <!-- Card 2: My Registrations -->
+          <!-- My Registrations includes the delegate's event bookings. -->
           <button class="profile-action-card" id="btn-card-registrations">
             <div class="profile-card-left-col">
               <div class="profile-card-icon-box">
@@ -195,25 +168,7 @@ export function renderProfileView(): string {
             </svg>
           </button>
 
-          <!-- Card 3: Certificates -->
-          <button class="profile-action-card" id="btn-card-certificates">
-            <div class="profile-card-left-col">
-              <div class="profile-card-icon-box">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-                </svg>
-              </div>
-              <div class="profile-card-text-col">
-                <div class="profile-card-title">Certificates</div>
-                <div class="profile-card-desc">Download your certificates</div>
-              </div>
-            </div>
-            <svg class="profile-card-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="m9 18 6-6-6-6"/>
-            </svg>
-          </button>
-
-          <!-- Card 4: Schedule -->
+          <!-- Schedule -->
           <button class="profile-action-card" id="btn-card-schedule">
             <div class="profile-card-left-col">
               <div class="profile-card-icon-box">
@@ -465,6 +420,13 @@ export function renderProfileView(): string {
 }
 
 export function attachProfileEvents(): void {
+  // A profile render replaces the whole screen. Always start with sheets
+  // closed so a stale class from a previous interaction can never cover the
+  // profile or make Settings appear on route entry.
+  document.querySelectorAll<HTMLElement>('.profile-modal-overlay').forEach((overlay) => {
+    overlay.classList.remove('open');
+  });
+
   // 1. "View Pass" button navigation
   document.getElementById('btn-profile-view-pass')?.addEventListener('click', () => {
     const status = registration.getDelegateStatus();
@@ -475,12 +437,7 @@ export function attachProfileEvents(): void {
     }
   });
 
-  // 2. Action Card 1: My Bookings -> My Events
-  document.getElementById('btn-card-bookings')?.addEventListener('click', () => {
-    appStore.setScreen('my-events');
-  });
-
-  // 3. Action Card 2: My Registrations -> Delegate Registration or My Events
+  // Registrations includes the delegate's event and workshop bookings.
   document.getElementById('btn-card-registrations')?.addEventListener('click', () => {
     const status = registration.getDelegateStatus();
     if (status === 'approved' || status === 'pending') {
@@ -490,16 +447,7 @@ export function attachProfileEvents(): void {
     }
   });
 
-  // 4. Action Card 3: Certificates -> Open Certificates Sheet
-  const modalCertificates = document.getElementById('modal-certificates');
-  document.getElementById('btn-card-certificates')?.addEventListener('click', () => {
-    modalCertificates?.classList.add('open');
-  });
-  document.getElementById('btn-close-certificates')?.addEventListener('click', () => {
-    modalCertificates?.classList.remove('open');
-  });
-
-  // 5. Action Card 4: Schedule -> Programme timeline
+  // Schedule -> Programme timeline
   document.getElementById('btn-card-schedule')?.addEventListener('click', () => {
     appStore.setScreen('programme');
   });

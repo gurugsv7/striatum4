@@ -12,6 +12,7 @@ import './styles/admin.css';
 import './styles/legal.css';
 import './styles/profile.css';
 import './styles/confirm.css';
+import './styles/motion.css';
 import { mountStartupLoader } from './components/StartupLoader.ts';
 
 import { appStore, AppState, ScreenType } from './state/appStore.ts';
@@ -42,6 +43,7 @@ import {
   attachTermsEvents
 } from './views/LegalView.ts';
 import { renderCreditsView, attachCreditsEvents } from './views/CreditsView.ts';
+import { mountStriatumAssistant } from './components/StriatumAssistant.ts';
 
 const VIEWS: Record<ScreenType, { render: () => string; attach: () => void }> = {
   onboarding: { render: renderOnboardingView, attach: attachOnboardingEvents },
@@ -170,6 +172,15 @@ function renderApp(state: AppState): void {
   syncUrlAndTitle(state);
 
   appContainer.innerHTML = renderDesktopSurround(view.render());
+  appContainer.classList.remove('s4-route-enter');
+  // Re-trigger the entry choreography after each wholesale screen render.
+  void appContainer.offsetWidth;
+  // Profile has a fixed atmospheric backdrop and bottom sheets. Avoid applying
+  // the global composited entry animation to it; mobile WebViews can otherwise
+  // briefly paint the route as a black surface.
+  if (state.currentScreen !== 'profile') {
+    appContainer.classList.add('s4-route-enter');
+  }
 
   attachDesktopSurroundEvents();
   view.attach();
@@ -217,6 +228,7 @@ window.history.replaceState(
 
 const finishStartupLoader = mountStartupLoader();
 renderApp(appStore.getState());
+mountStriatumAssistant();
 appStore.subscribe(renderApp);
 
 // Restore a persisted Supabase session, so a returning delegate is not asked to
