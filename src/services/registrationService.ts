@@ -11,6 +11,7 @@ import {
 import * as remote from './remote.ts';
 import { isSupabaseConfigured } from './supabaseClient.ts';
 import { getCurrentUser } from './authService.ts';
+import { isFullDayWorkshop, LunchChoice } from './workshop.ts';
 
 /* ============================================================================
  * STRIATUM 4.0 — registration & payment domain service.
@@ -49,6 +50,7 @@ export interface CartItem {
   eventId: string;
   participation: Participation;
   addedAt: number;
+  lunchChoice?: LunchChoice;
 }
 
 export interface OrderLine {
@@ -63,6 +65,7 @@ export interface OrderLine {
   participation: Participation;
   unitPrice: number;
   priceBasis: string;
+  lunchChoice?: LunchChoice;
 }
 
 export interface PaymentProof {
@@ -97,6 +100,7 @@ export interface Registration {
   eventId: string;
   participation: Participation;
   confirmedAt: number;
+  lunchChoice?: LunchChoice;
 }
 
 export interface DelegateApplication {
@@ -200,7 +204,8 @@ function adoptSnapshot(snapshot: remote.RemoteSnapshot): void {
       startTime: line.startTime,
       participation: line.participation,
       unitPrice: line.unitPrice,
-      priceBasis: line.priceBasis
+      priceBasis: line.priceBasis,
+      lunchChoice: line.lunchChoice
     })),
     subtotal: order.subtotal,
     discountAmount: order.discountAmount,
@@ -228,7 +233,8 @@ function adoptSnapshot(snapshot: remote.RemoteSnapshot): void {
     orderId: r.orderId,
     eventId: r.eventId,
     participation: r.participation,
-    confirmedAt: r.confirmedAt
+    confirmedAt: r.confirmedAt,
+    lunchChoice: r.lunchChoice
   }));
 
   const d = snapshot.delegate;
@@ -378,7 +384,7 @@ export interface CartMutationResult {
   message: string;
 }
 
-export function addToCart(eventId: string, participation?: Participation): CartMutationResult {
+export function addToCart(eventId: string, participation?: Participation, lunchChoice?: LunchChoice): CartMutationResult {
   const event = getEvent(eventId);
   if (!event) return { ok: false, message: 'Unknown event.' };
   if (!event.registerable) return { ok: false, message: event.name + ' is not open for registration.' };
@@ -388,11 +394,15 @@ export function addToCart(eventId: string, participation?: Participation): CartM
   }
   if (isInCart(eventId)) return { ok: false, message: event.name + ' is already in your cart.' };
   if (isFull(eventId)) return { ok: false, message: event.name + ' is full.' };
+  if (isFullDayWorkshop(event) && !lunchChoice) {
+    return { ok: false, message: 'Please choose a vegetarian or non-vegetarian lunch.' };
+  }
 
   state.cart.push({
     eventId,
     participation: participation ?? defaultParticipation(event),
-    addedAt: Date.now()
+    addedAt: Date.now(),
+    lunchChoice
   });
   save();
   return { ok: true, message: event.name + ' added to cart' };
@@ -611,6 +621,7 @@ function buildLine(item: CartItem): { line: PricedLine; unpriced: boolean } {
       participation: item.participation,
       unitPrice: price.amount ?? 0,
       priceBasis: price.basis,
+      lunchChoice: item.lunchChoice,
       issues: checkEligibility(event.id)
     }
   };
@@ -690,7 +701,7 @@ export async function createOrder(): Promise<CreateOrderResult> {
   if (isRemote()) {
     // The server recomputes every price; we send only what was chosen.
     const result = await remote.createOrderRemote(
-      state.cart.map(item => ({ eventId: item.eventId, participation: item.participation }))
+      state.cart.map(item => ({ eventId: item.eventId, participation: item.participation, lunchChoice: item.lunchChoice }))
     );
     if (!result.ok) return { ok: false, message: result.message };
     state.cart = [];
@@ -714,7 +725,8 @@ export async function createOrder(): Promise<CreateOrderResult> {
         startTime: line.startTime,
         participation: line.participation,
         unitPrice: line.unitPrice,
-        priceBasis: line.priceBasis
+        priceBasis: line.priceBasis,
+        lunchChoice: line.lunchChoice
       };
       return copy;
     }),
@@ -996,7 +1008,8 @@ function approveOrderLocal(orderId: string): AdminActionResult {
     orderId: order.id,
     eventId: line.eventId,
     participation: line.participation,
-    confirmedAt: now
+    confirmedAt: now,
+    lunchChoice: line.lunchChoice
   }));
 
   // Applied as one commit so approval can never half-succeed.

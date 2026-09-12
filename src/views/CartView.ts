@@ -48,6 +48,7 @@ function renderLine(line: registration.PricedLine): string {
 
         <div class="cart-line-context">${line.context}</div>
         ${dateRow}
+        ${line.lunchChoice ? `<div class="cart-line-meta-row"><span>LUNCH</span><span>${line.lunchChoice === 'veg' ? 'Vegetarian' : 'Non-vegetarian'}</span></div>` : ''}
 
         <div class="cart-line-price-row">
           <span class="cart-line-price">${formatINR(line.unitPrice)}</span>

@@ -3,6 +3,7 @@ import { SymposiumEvent, EventSection, CATEGORY_LABELS } from '../data/eventType
 import { eventContextLine } from '../data/events.ts';
 import { resolvePrice, defaultParticipation, formatINR, Participation } from '../services/pricing.ts';
 import * as registration from '../services/registrationService.ts';
+import { isFullDayWorkshop, LunchChoice } from '../services/workshop.ts';
 
 /**
  * Participation shape chosen on this screen for events that accept either an
@@ -10,6 +11,7 @@ import * as registration from '../services/registrationService.ts';
  * reaches the cart, which then owns the choice.
  */
 const chosenParticipation: Record<string, Participation> = {};
+const chosenLunch: Record<string, LunchChoice> = {};
 
 function participationFor(event: SymposiumEvent): Participation {
   return chosenParticipation[event.id] ?? defaultParticipation(event);
@@ -244,6 +246,23 @@ function renderParticipationChoice(event: SymposiumEvent): string {
   `;
 }
 
+function renderLunchChoice(event: SymposiumEvent): string {
+  if (!isFullDayWorkshop(event)) return '';
+  const current = chosenLunch[event.id];
+  return `
+    <div class="participation-switch lunch-choice-block">
+      <div class="participation-label">LUNCH PREFERENCE</div>
+      <div class="participation-options">
+        <button class="participation-option ${current === 'veg' ? 'active' : ''}" data-lunch-choice="veg">
+          <span>Vegetarian</span><span class="participation-price">LUNCH</span>
+        </button>
+        <button class="participation-option ${current === 'non_veg' ? 'active' : ''}" data-lunch-choice="non_veg">
+          <span>Non-vegetarian</span><span class="participation-price">LUNCH</span>
+        </button>
+      </div>
+    </div>`;
+}
+
 function renderPrimaryAction(event: SymposiumEvent): string {
   const cta = registration.getCtaState(event.id);
   const label = registration.CTA_LABELS[cta];
@@ -274,6 +293,7 @@ function renderPrimaryAction(event: SymposiumEvent): string {
   return `
     <div class="details-action-block">
       ${renderParticipationChoice(event)}
+      ${renderLunchChoice(event)}
       <button class="btn-chamfer-primary btn-register-event-slot state-${cta}" id="btn-event-primary-action" ${disabled ? 'disabled' : ''}>
         <span>${label}</span>
       </button>
@@ -404,6 +424,14 @@ export function attachEventDetailsEvents(): void {
     });
   });
 
+  document.querySelectorAll<HTMLButtonElement>('[data-lunch-choice]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const value = btn.getAttribute('data-lunch-choice') as LunchChoice;
+      chosenLunch[event.id] = value;
+      appStore.refresh();
+    });
+  });
+
   document.getElementById('btn-event-primary-action')?.addEventListener('click', () => {
     const cta = registration.getCtaState(event.id);
 
@@ -417,7 +445,7 @@ export function attachEventDetailsEvents(): void {
     }
     if (cta !== 'add_to_cart') return;
 
-    const result = registration.addToCart(event.id, participationFor(event));
+    const result = registration.addToCart(event.id, participationFor(event), chosenLunch[event.id]);
     appStore.showToast(result.message);
   });
 

@@ -39,6 +39,7 @@ export interface RemoteOrderLine {
   participation: 'individual' | 'team';
   unitPrice: number;
   priceBasis: string;
+  lunchChoice?: 'veg' | 'non_veg';
 }
 
 export interface RemoteOrder {
@@ -64,6 +65,7 @@ export interface RemoteRegistration {
   eventId: string;
   participation: 'individual' | 'team';
   confirmedAt: number;
+  lunchChoice?: 'veg' | 'non_veg';
 }
 
 export interface RemoteSnapshot {
@@ -122,7 +124,8 @@ function mapOrder(row: any): RemoteOrder {
         startTime: line.start_time ?? undefined,
         participation: line.participation,
         unitPrice: line.unit_price,
-        priceBasis: line.price_basis ?? ''
+        priceBasis: line.price_basis ?? '',
+        lunchChoice: line.lunch_choice ?? undefined
       })
     ),
     subtotal: row.subtotal,
@@ -174,7 +177,8 @@ export async function fetchSnapshot(): Promise<RemoteSnapshot> {
       orderId: row.order_id,
       eventId: row.event_id,
       participation: row.participation,
-      confirmedAt: ms(row.confirmed_at)
+      confirmedAt: ms(row.confirmed_at),
+      lunchChoice: row.lunch_choice ?? undefined
     })),
     allDelegates,
     isAdmin: adminRes.data === true
@@ -222,7 +226,7 @@ export async function applyForDelegateRemote(input: {
  * every price, re-checks eligibility and capacity, and computes the total.
  */
 export async function createOrderRemote(
-  items: { eventId: string; participation: 'individual' | 'team' }[]
+  items: { eventId: string; participation: 'individual' | 'team'; lunchChoice?: 'veg' | 'non_veg' }[]
 ): Promise<RemoteResult<RemoteOrder>> {
   if (!supabase || !getCurrentUser()) return { ok: false, message: 'Please sign in first.' };
 
@@ -234,6 +238,16 @@ export async function createOrderRemote(
 
   const row = Array.isArray(data) ? data[0] : data;
   if (!row) return { ok: false, message: 'The order could not be created.' };
+  const lunchChoices = items
+    .filter(item => item.lunchChoice)
+    .map(item => ({ event_id: item.eventId, lunch_choice: item.lunchChoice }));
+  if (lunchChoices.length) {
+    const { error: lunchError } = await supabase.rpc('set_order_lunch_choices', {
+      p_order_id: row.id,
+      p_choices: lunchChoices
+    });
+    if (lunchError) return { ok: false, message: lunchError.message };
+  }
   return { ok: true, message: 'Order created', data: mapOrder({ ...row, order_lines: [] }) };
 }
 
