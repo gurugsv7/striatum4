@@ -868,9 +868,27 @@
 }
 
 .accordion-item.open .accordion-content {
-  max-height: 250px;
+  /* Keep long skill lists inside the event page instead of clipping them. */
+  max-height: min(340px, 44vh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--cyan-deep) transparent;
+  padding-top: 0;
   padding-bottom: 14px;
   padding-left: 24px;
+  padding-right: 8px;
+  box-sizing: border-box;
+}
+
+.accordion-item.open .accordion-content::-webkit-scrollbar {
+  width: 4px;
+}
+
+.accordion-item.open .accordion-content::-webkit-scrollbar-thumb {
+  background: var(--cyan-deep);
+  border-radius: 999px;
 }
 
 /* 10. Orbit HUD Graphic in Event Details */
