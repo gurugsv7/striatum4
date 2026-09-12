@@ -109,6 +109,7 @@ interface GoogleAccountsId {
   initialize(config: {
     client_id: string;
     callback: (response: GoogleCredentialResponse) => void;
+    nonce?: string;
     auto_select?: boolean;
     cancel_on_tap_outside?: boolean;
     use_fedcm_for_prompt?: boolean;
@@ -128,6 +129,20 @@ const GSI_SRC = 'https://accounts.google.com/gsi/client';
 let gsiPromise: Promise<boolean> | null = null;
 let googleResultHandler: ((result: GoogleSignInResult) => void) | null = null;
 let googleInitialized = false;
+let googleNonce = '';
+
+function createGoogleNonce(): string {
+  if (window.crypto?.randomUUID) return window.crypto.randomUUID();
+  const bytes = new Uint8Array(24);
+  window.crypto.getRandomValues(bytes);
+  return Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('');
+}
+
+async function hashGoogleNonce(nonce: string): Promise<string> {
+  const encoded = new TextEncoder().encode(nonce);
+  const digest = await window.crypto.subtle.digest('SHA-256', encoded);
+  return Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('');
+}
 
 /** Loads Google Identity Services once. Resolves false when unavailable. */
 export function loadGoogleIdentity(): Promise<boolean> {
@@ -184,8 +199,13 @@ export async function renderGoogleButton(
   googleResultHandler = onResult;
 
   if (!googleInitialized) {
+    // Google signs the hashed nonce into the ID token. Supabase receives the
+    // original nonce below and verifies the pair, preventing token replay.
+    googleNonce = createGoogleNonce();
+    const hashedNonce = await hashGoogleNonce(googleNonce);
     window.google.accounts.id.initialize({
       client_id: GOOGLE_CLIENT_ID,
+      nonce: hashedNonce,
       cancel_on_tap_outside: true,
       callback: async (response: GoogleCredentialResponse) => {
         const report = googleResultHandler ?? (() => undefined);
@@ -195,7 +215,8 @@ export async function renderGoogleButton(
         }
         const { data, error } = await client.auth.signInWithIdToken({
           provider: 'google',
-          token: response.credential
+          token: response.credential,
+          nonce: googleNonce
         });
         if (error) {
           report({ ok: false, message: error.message });
