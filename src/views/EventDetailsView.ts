@@ -167,7 +167,7 @@ function renderSections(event: SymposiumEvent): string {
           .map(
             (section, index) => `
           <div class="accordion-item ${section.defaultOpen ? 'open' : ''}" id="accordion-item-${index}">
-            <button class="accordion-trigger" data-accordion-index="${index}">
+            <button class="accordion-trigger" data-accordion-index="${index}" aria-expanded="${section.defaultOpen ? 'true' : 'false'}" aria-controls="accordion-content-${index}">
               <div class="accordion-title-row">
                 <span class="accordion-ring-icon"></span>
                 <span>${section.title}</span>
@@ -176,7 +176,7 @@ function renderSections(event: SymposiumEvent): string {
                 <path d="m6 9 6 6 6-6"/>
               </svg>
             </button>
-            <div class="accordion-content">
+            <div class="accordion-content" id="accordion-content-${index}" role="region">
               ${renderSectionBody(section)}
             </div>
           </div>`
@@ -455,8 +455,8 @@ export function attachEventDetailsEvents(): void {
       const item = trigger.closest('.accordion-item');
       if (!item) return;
       const wasOpen = item.classList.contains('open');
-      document.querySelectorAll('.accordion-item').forEach(el => el.classList.remove('open'));
-      if (!wasOpen) item.classList.add('open');
+      item.classList.toggle('open', !wasOpen);
+      trigger.setAttribute('aria-expanded', String(!wasOpen));
     });
   });
 }
