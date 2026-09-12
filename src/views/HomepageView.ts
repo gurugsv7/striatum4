@@ -166,6 +166,7 @@ export function renderHomepageView(): string {
           <span class="symp-name">STRIATUM 4.0</span>
           <span class="symp-sub">MEDICAL SYMPOSIUM · 2026</span>
           <span class="footer-dash-line"></span>
+          <a class="footer-credits-link" href="/credits">Website by Built by GSV</a>
         </div>
       </footer>
 

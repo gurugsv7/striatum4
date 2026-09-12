@@ -23,6 +23,9 @@ export function renderDesktopSurround(screenContentHtml: string): string {
   ];
 
   const hasBottomNav = ['home', 'explore', 'my-events', 'profile', 'delegate-confirm', 'event-confirm'].includes(state.currentScreen);
+  const homepageVariant = ['home', 'event-details', 'my-events', 'delegate-confirm', 'event-confirm'].includes(state.currentScreen)
+    ? 'one'
+    : 'two';
 
   const delegate = registration.getDelegate();
   const delegateApproved = delegate?.status === 'approved';
@@ -144,9 +147,8 @@ export function renderDesktopSurround(screenContentHtml: string): string {
             
             <!-- 1. Fixed Background Layer (Canvas Backdrop) -->
             <div class="screen-bg-container">
-              <div class="screen-bg-base"></div>
-              <div class="screen-bg-onboarding-layer"></div>
-              <div class="screen-bg-onboarding-overlay"></div>
+              <div class="screen-bg-homepage-layer variant-${homepageVariant}"></div>
+              <div class="screen-bg-homepage-overlay"></div>
             </div>
 
             <!-- 2. Independent Scrollable Viewport Wrapper -->
@@ -199,6 +201,14 @@ export function attachDesktopSurroundEvents(): void {
   
   function applyScale(scaleVal: string) {
     if (!phoneWrapper) return;
+
+    // The desktop experience is a full application surface, not a device mockup.
+    // Keep the scale controls for the mobile preview only.
+    if (window.matchMedia('(min-width: 769px)').matches) {
+      phoneWrapper.style.transform = 'none';
+      return;
+    }
+
     scaleButtons.forEach(b => b.classList.remove('active'));
     
     if (scaleVal === 'fit') {

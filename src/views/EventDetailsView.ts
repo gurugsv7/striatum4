@@ -274,9 +274,8 @@ function renderPrimaryAction(event: SymposiumEvent): string {
   return `
     <div class="details-action-block">
       ${renderParticipationChoice(event)}
-      <button class="btn-register-event-slot state-${cta}" id="btn-event-primary-action" ${disabled ? 'disabled' : ''}>
-        <span class="btn-register-label">${label}</span>
-        ${disabled ? '' : arrow}
+      <button class="btn-chamfer-primary btn-register-event-slot state-${cta}" id="btn-event-primary-action" ${disabled ? 'disabled' : ''}>
+        <span>${label}</span>
       </button>
       ${renderDelegateNotice(event)}
     </div>

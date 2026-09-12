@@ -96,10 +96,7 @@ export function renderDelegateRegistrationView(): string {
                 </div>
               </div>
 
-              <!-- Bioluminescent Jellyfish Artwork -->
-              <div class="pass-card-art-bg">
-                <img src="/art_jellyfish_card.png" alt="Aqualume Jellyfish" />
-              </div>
+              <div class="pass-card-art-bg" aria-hidden="true"></div>
             </div>
 
             <!-- Synexa Pass Card -->
@@ -124,10 +121,7 @@ export function renderDelegateRegistrationView(): string {
                 </ul>
               </div>
 
-              <!-- Bioluminescent Manta Ray Artwork -->
-              <div class="pass-card-art-bg">
-                <img src="/art_manta_card.png" alt="Synexa Manta" />
-              </div>
+              <div class="pass-card-art-bg" aria-hidden="true"></div>
             </div>
 
           </div>

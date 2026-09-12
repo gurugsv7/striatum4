@@ -28,13 +28,14 @@ const listeners = new Set<AuthListener>();
 
 let currentUser: AuthUser | null = null;
 let initialised = false;
+let activeEmail = '';
 
 function toAuthUser(user: User | null): AuthUser | null {
   if (!user) return null;
   const meta = (user.user_metadata ?? {}) as Record<string, unknown>;
   return {
     id: user.id,
-    email: user.email ?? '',
+    email: user.email ?? activeEmail,
     fullName: typeof meta.full_name === 'string' ? meta.full_name : undefined,
     avatarUrl: typeof meta.avatar_url === 'string' ? meta.avatar_url : undefined
   };
@@ -67,13 +68,31 @@ export function setMockUser(user: AuthUser | null): void {
 export async function initAuth(): Promise<AuthUser | null> {
   if (!supabase || initialised) return currentUser;
   initialised = true;
+  const client = supabase;
+
+  try {
+    activeEmail = localStorage.getItem('striatum-active-email') ?? '';
+  } catch {
+    activeEmail = '';
+  }
 
   const { data } = await supabase.auth.getSession();
-  currentUser = toAuthUser(data.session?.user ?? null);
+  const sessionUser = data.session?.user ?? null;
+  if (isAnonymousUser(sessionUser)) {
+    await client.auth.signOut({ scope: 'local' });
+    currentUser = null;
+  } else {
+    currentUser = toAuthUser(sessionUser);
+  }
   emit();
 
   supabase.auth.onAuthStateChange((_event, session: Session | null) => {
-    currentUser = toAuthUser(session?.user ?? null);
+    if (isAnonymousUser(session?.user ?? null)) {
+      currentUser = null;
+      void client.auth.signOut({ scope: 'local' });
+    } else {
+      currentUser = toAuthUser(session?.user ?? null);
+    }
     emit();
   });
 
@@ -107,6 +126,8 @@ declare global {
 
 const GSI_SRC = 'https://accounts.google.com/gsi/client';
 let gsiPromise: Promise<boolean> | null = null;
+let googleResultHandler: ((result: GoogleSignInResult) => void) | null = null;
+let googleInitialized = false;
 
 /** Loads Google Identity Services once. Resolves false when unavailable. */
 export function loadGoogleIdentity(): Promise<boolean> {
@@ -160,28 +181,33 @@ export async function renderGoogleButton(
 
   // Local non-null ref so the async callback below does not re-narrow.
   const client = supabase;
+  googleResultHandler = onResult;
 
-  window.google.accounts.id.initialize({
-    client_id: GOOGLE_CLIENT_ID,
-    cancel_on_tap_outside: true,
-    callback: async (response: GoogleCredentialResponse) => {
-      if (!response.credential) {
-        onResult({ ok: false, message: 'Google sign-in was cancelled.' });
-        return;
+  if (!googleInitialized) {
+    window.google.accounts.id.initialize({
+      client_id: GOOGLE_CLIENT_ID,
+      cancel_on_tap_outside: true,
+      callback: async (response: GoogleCredentialResponse) => {
+        const report = googleResultHandler ?? (() => undefined);
+        if (!response.credential) {
+          report({ ok: false, message: 'Google sign-in was cancelled.' });
+          return;
+        }
+        const { data, error } = await client.auth.signInWithIdToken({
+          provider: 'google',
+          token: response.credential
+        });
+        if (error) {
+          report({ ok: false, message: error.message });
+          return;
+        }
+        currentUser = toAuthUser(data.user);
+        emit();
+        report({ ok: true, user: currentUser ?? undefined });
       }
-      const { data, error } = await client.auth.signInWithIdToken({
-        provider: 'google',
-        token: response.credential
-      });
-      if (error) {
-        onResult({ ok: false, message: error.message });
-        return;
-      }
-      currentUser = toAuthUser(data.user);
-      emit();
-      onResult({ ok: true, user: currentUser ?? undefined });
-    }
-  });
+    });
+    googleInitialized = true;
+  }
 
   container.innerHTML = '';
   window.google.accounts.id.renderButton(container, {
@@ -208,26 +234,65 @@ export interface EmailSignInResult {
  * Sends a one-time sign-in link. No password is ever collected or stored — the
  * delegate proves control of the address they registered with.
  */
-export async function signInWithEmail(email: string): Promise<EmailSignInResult> {
-  if (!supabase) return { ok: false, message: 'Sign-in is not configured on this deployment.' };
-
+export async function signInWithEmail(email: string, password: string): Promise<EmailSignInResult> {
   const trimmed = email.trim();
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(trimmed)) {
     return { ok: false, message: 'That email address does not look right.' };
   }
+  if (password.length < 8) {
+    return { ok: false, message: 'Use a password with at least 8 characters.' };
+  }
 
-  const { error } = await supabase.auth.signInWithOtp({
-    email: trimmed,
-    options: { emailRedirectTo: window.location.origin }
-  });
+  activeEmail = trimmed;
+  try {
+    localStorage.setItem('striatum-active-email', trimmed);
+  } catch {
+    /* Email persistence is best effort; the active session remains usable. */
+  }
 
-  if (error) return { ok: false, message: error.message };
-  return { ok: true, message: 'Check ' + trimmed + ' for your sign-in link.' };
+  if (!supabase) {
+    currentUser = { id: 'local-' + encodeURIComponent(trimmed.toLowerCase()), email: trimmed };
+    emit();
+    return { ok: true, message: 'Welcome back, ' + trimmed + '.' };
+  }
+
+  const signIn = await supabase.auth.signInWithPassword({ email: trimmed, password });
+  let user = signIn.data.user;
+  let session = signIn.data.session;
+
+  // First-time visitors are created automatically. Existing accounts use the
+  // password path above, so the same credentials work on any device.
+  if (signIn.error) {
+    const created = await supabase.auth.signUp({ email: trimmed, password });
+    if (created.error || !created.data.session || !created.data.user) {
+      return { ok: false, message: signIn.error.message };
+    }
+    user = created.data.user;
+    session = created.data.session;
+  }
+
+  if (!session || !user) {
+    return { ok: false, message: 'Unable to start your session.' };
+  }
+
+  currentUser = { id: user.id, email: trimmed };
+  emit();
+  return { ok: true, message: 'Welcome back, ' + trimmed + '.' };
+}
+
+function isAnonymousUser(user: User | null): boolean {
+  return Boolean(user && (user as User & { is_anonymous?: boolean }).is_anonymous);
 }
 
 export async function signOut(): Promise<void> {
   window.google?.accounts.id.disableAutoSelect();
   if (supabase) await supabase.auth.signOut();
   currentUser = null;
+  activeEmail = '';
+  try {
+    localStorage.removeItem('striatum-active-email');
+  } catch {
+    /* Ignore unavailable storage. */
+  }
   emit();
 }

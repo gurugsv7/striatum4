@@ -16,6 +16,7 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.116.0",
     "@types/qrcode": "^1.5.6",
+    "lottie-web": "^5.13.0",
     "qrcode": "^1.5.4"
   }
 }

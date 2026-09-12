@@ -18,7 +18,8 @@ export type ScreenType =
   | 'profile'
   | 'admin'
   | 'privacy'
-  | 'terms';
+  | 'terms'
+  | 'credits';
 
 export type PassTier = 'AQUALUME' | 'SYNEXA';
 
@@ -183,8 +184,8 @@ class AppStore {
     if (screen === 'event-details' && this.state.currentScreen !== 'event-details') {
       this.state.returnScreen = this.state.currentScreen;
     }
-    const leavingLegal = this.state.currentScreen === 'privacy' || this.state.currentScreen === 'terms';
-    if ((screen === 'privacy' || screen === 'terms') && !leavingLegal) {
+    const leavingLegal = this.state.currentScreen === 'privacy' || this.state.currentScreen === 'terms' || this.state.currentScreen === 'credits';
+    if ((screen === 'privacy' || screen === 'terms' || screen === 'credits') && !leavingLegal) {
       this.state.legalReturnScreen = this.state.currentScreen;
     }
     this.state.currentScreen = screen;
@@ -198,7 +199,9 @@ class AppStore {
    * dead end.
    */
   goBackFromLegal(): void {
-    const target = this.state.legalReturnScreen;
+    const target = this.state.legalReturnScreen === 'privacy' || this.state.legalReturnScreen === 'terms' || this.state.legalReturnScreen === 'credits'
+      ? 'home'
+      : this.state.legalReturnScreen;
     this.state.currentScreen = target;
     this.notify();
   }

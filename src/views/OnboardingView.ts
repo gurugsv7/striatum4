@@ -1,6 +1,5 @@
 import { appStore } from '../state/appStore.ts';
 import { renderGoogleButton, signInWithEmail } from '../services/authService.ts';
-import { isSupabaseConfigured } from '../services/supabaseClient.ts';
 
 export function renderOnboardingView(): string {
   return `
@@ -53,7 +52,7 @@ export function renderOnboardingView(): string {
       <!-- Welcome Sign-In Card -->
       <section class="onboarding-signin-card">
         <h2 class="welcome-heading">Welcome</h2>
-        <p class="welcome-subtext">Sign in to access STRIATUM 4.0</p>
+        <p class="welcome-subtext">Sign in or create your account to access STRIATUM 4.0</p>
 
         <form id="onboarding-form" class="signin-form" onsubmit="return false;">
           <div class="form-field-group">
@@ -72,6 +71,19 @@ export function renderOnboardingView(): string {
                 placeholder="you@example.com" 
                 required 
               />
+            </div>
+          </div>
+
+          <div class="form-field-group">
+            <label class="input-field-label" for="password-input">Password</label>
+            <div class="input-control-box">
+              <span class="input-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <rect width="16" height="11" x="4" y="10" rx="2"/>
+                  <path d="M8 10V7a4 4 0 0 1 8 0v3"/>
+                </svg>
+              </span>
+              <input type="password" id="password-input" class="text-input-field" placeholder="At least 8 characters" minlength="8" required />
             </div>
           </div>
 
@@ -135,6 +147,7 @@ export function renderOnboardingView(): string {
           <div class="footer-sub-row">
             <span class="footer-year">SIGMA 2026</span>
             <span class="footer-dash"></span>
+          <a class="footer-credits-link" href="/credits">Website by Built by GSV</a>
           </div>
         </div>
       </footer>
@@ -146,6 +159,7 @@ export function renderOnboardingView(): string {
 export function attachOnboardingEvents(): void {
   const form = document.getElementById('onboarding-form');
   const emailInput = document.getElementById('email-input') as HTMLInputElement;
+  const passwordInput = document.getElementById('password-input') as HTMLInputElement;
   const btnGoogle = document.getElementById('btn-continue-google') as HTMLButtonElement | null;
   const linkTerms = document.getElementById('link-terms');
   const linkPrivacy = document.getElementById('link-privacy');
@@ -155,16 +169,13 @@ export function attachOnboardingEvents(): void {
       e.preventDefault();
       const submitBtn = document.getElementById('btn-continue-email') as HTMLButtonElement | null;
       const value = emailInput?.value ?? '';
+      const password = passwordInput?.value ?? '';
 
-      if (!isSupabaseConfigured()) {
-        appStore.showToast('Sign-in is not configured on this deployment.');
-        return;
-      }
       if (submitBtn) submitBtn.disabled = true;
 
-      // A magic link, so no password is ever collected or stored.
-      const result = await signInWithEmail(value);
+      const result = await signInWithEmail(value, password);
       appStore.showToast(result.message);
+      if (result.ok) appStore.login(value.trim());
       if (submitBtn) submitBtn.disabled = false;
     });
   }

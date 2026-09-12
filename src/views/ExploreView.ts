@@ -53,7 +53,7 @@ function commercialLine(event: SymposiumEvent): string {
   return parts.join(' · ');
 }
 
-function renderEventCard(event: SymposiumEvent): string {
+function renderEventCard(event: SymposiumEvent, index: number = 0): string {
   const schedule = scheduleLine(event);
   const commercial = commercialLine(event);
   const cta = registration.getCtaState(event.id);
@@ -66,11 +66,15 @@ function renderEventCard(event: SymposiumEvent): string {
       ? '<span class="card-state-pill is-cart">IN CART</span>'
       : '';
 
+  // Mix and match background artwork between explore_events1 (jellyfish) and explore_events2 (Asclepius staff)
+  const bgVariant = (index % 4) + 1;
+
   return `
     <div class="explore-event-entry" data-open-event-id="${event.id}">
       <div class="explore-timeline-bead"></div>
 
       <div class="event-card" id="card-${event.id}">
+        <div class="event-card-art-bg bg-variant-${bgVariant}" aria-hidden="true"></div>
         <div class="event-card-reef-bg"></div>
 
         <div class="event-card-top-row">
@@ -325,7 +329,7 @@ export function renderExploreView(): string {
       <div class="explore-cards-timeline">
         <div class="explore-timeline-rail"></div>
 
-        ${filtered.map(renderEventCard).join('')}
+        ${filtered.map((event, index) => renderEventCard(event, index)).join('')}
 
         ${
           filtered.length === 0

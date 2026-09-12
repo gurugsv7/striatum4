@@ -6,6 +6,10 @@
       "destination": "/index.html"
     },
     {
+      "source": "/events",
+      "destination": "/index.html"
+    },
+    {
       "source": "/explore",
       "destination": "/index.html"
     },
@@ -51,6 +55,10 @@
     },
     {
       "source": "/terms",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/credits",
       "destination": "/index.html"
     },
     {

@@ -515,7 +515,55 @@
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.5), 0 0 16px rgba(42, 241, 250, 0.18);
 }
 
-/* Subtle clean dark gradient on right half of card (Zero Text) */
+/* Event Card Dynamic Art Background (Mixed from explore_events1.png & explore_events2.png) */
+.event-card-art-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background-size: cover;
+  background-repeat: no-repeat;
+  border-radius: inherit;
+  opacity: 0.58;
+  transition: opacity 0.35s ease, transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), filter 0.35s ease;
+  will-change: transform, opacity;
+}
+
+.event-card:hover .event-card-art-bg {
+  opacity: 0.82;
+  transform: scale(1.03);
+  filter: brightness(1.08) saturate(1.06);
+}
+
+.event-card-art-bg.bg-variant-1 {
+  background-image:
+    linear-gradient(90deg, rgba(0, 10, 18, 0.96) 0%, rgba(0, 12, 20, 0.82) 46%, rgba(0, 12, 20, 0.28) 78%, rgba(0, 12, 20, 0.1) 100%),
+    url('/explore_events1.webp');
+  background-position: center, right 30%;
+}
+
+.event-card-art-bg.bg-variant-2 {
+  background-image:
+    linear-gradient(90deg, rgba(0, 10, 18, 0.96) 0%, rgba(0, 12, 20, 0.82) 46%, rgba(0, 12, 20, 0.28) 78%, rgba(0, 12, 20, 0.1) 100%),
+    url('/explore_events2.webp');
+  background-position: center, right 30%;
+}
+
+.event-card-art-bg.bg-variant-3 {
+  background-image:
+    linear-gradient(90deg, rgba(0, 10, 18, 0.96) 0%, rgba(0, 12, 20, 0.82) 46%, rgba(0, 12, 20, 0.28) 78%, rgba(0, 12, 20, 0.1) 100%),
+    url('/explore_events1.webp');
+  background-position: center, right 15%;
+}
+
+.event-card-art-bg.bg-variant-4 {
+  background-image:
+    linear-gradient(90deg, rgba(0, 10, 18, 0.96) 0%, rgba(0, 12, 20, 0.82) 46%, rgba(0, 12, 20, 0.28) 78%, rgba(0, 12, 20, 0.1) 100%),
+    url('/explore_events2.webp');
+  background-position: center, right 45%;
+}
+
+/* Subtle clean dark gradient on right half of card */
 .event-card-reef-bg {
   position: absolute;
   top: 0;
@@ -524,6 +572,7 @@
   height: 100%;
   background: radial-gradient(ellipse at 100% 50%, rgba(14, 91, 114, 0.2) 0%, transparent 70%);
   pointer-events: none;
+  z-index: 1;
 }
 
 .event-card-top-row {

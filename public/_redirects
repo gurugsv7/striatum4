@@ -3,6 +3,7 @@
 # Vercel uses vercel.json; this covers Netlify / Cloudflare Pages.
 
 /home                 /index.html   200
+/events               /index.html   200
 /explore              /index.html   200
 /programme            /index.html   200
 /cart                 /index.html   200
@@ -15,4 +16,5 @@
 /admin                /index.html   200
 /privacy              /index.html   200
 /terms                /index.html   200
+/credits              /index.html   200
 /event/*              /index.html   200

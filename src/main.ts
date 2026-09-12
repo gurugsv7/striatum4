@@ -12,10 +12,11 @@ import './styles/admin.css';
 import './styles/legal.css';
 import './styles/profile.css';
 import './styles/confirm.css';
+import { mountStartupLoader } from './components/StartupLoader.ts';
 
 import { appStore, AppState, ScreenType } from './state/appStore.ts';
 import { initAuth, onAuthChange } from './services/authService.ts';
-import { pathFor, routeFromPath, titleFor } from './services/router.ts';
+import { pathFor, routeFromPath, routeRequiresAuth, titleFor, Route } from './services/router.ts';
 import * as registrationService from './services/registrationService.ts';
 const hydrateRegistrations = registrationService.hydrate;
 import { renderDesktopSurround, attachDesktopSurroundEvents } from './components/DesktopSurround.ts';
@@ -40,6 +41,7 @@ import {
   renderTermsView,
   attachTermsEvents
 } from './views/LegalView.ts';
+import { renderCreditsView, attachCreditsEvents } from './views/CreditsView.ts';
 
 const VIEWS: Record<ScreenType, { render: () => string; attach: () => void }> = {
   onboarding: { render: renderOnboardingView, attach: attachOnboardingEvents },
@@ -57,7 +59,8 @@ const VIEWS: Record<ScreenType, { render: () => string; attach: () => void }> = 
   'event-payment': { render: renderEventPaymentView, attach: attachEventPaymentEvents },
   'event-confirm': { render: renderEventConfirmView, attach: attachEventConfirmEvents },
   privacy: { render: renderPrivacyView, attach: attachPrivacyEvents },
-  terms: { render: renderTermsView, attach: attachTermsEvents }
+  terms: { render: renderTermsView, attach: attachTermsEvents },
+  credits: { render: renderCreditsView, attach: attachCreditsEvents }
 };
 
 /** Scroll position per screen, so returning to Explore does not lose the user's place. */
@@ -74,12 +77,33 @@ let lastScreen: ScreenType | null = null;
 
 /** Set while handling popstate so the render does not push a duplicate entry. */
 let restoringFromHistory = false;
+let pendingRoute: Route | null = null;
+const DEFAULT_SITE_DESCRIPTION =
+  'STRIATUM 4.0, presented by SIGMA 2026 at IGMCRI, Puducherry — a medical symposium with workshops, quizzes and paper presentations, 14–18 October 2026.';
+
+function navigateToRoute(route: Route): void {
+  if (routeRequiresAuth(route) && !appStore.getState().isAuthenticated) {
+    pendingRoute = route;
+    appStore.setScreen('onboarding');
+    return;
+  }
+  if (route.eventId) appStore.setSelectedEvent(route.eventId);
+  appStore.setScreen(route.screen);
+}
 
 function syncUrlAndTitle(state: AppState): void {
   const eventName = state.currentScreen === 'event-details' ? appStore.getSelectedEvent()?.name : undefined;
   document.title = titleFor(state.currentScreen, eventName);
 
   const target = pathFor(state.currentScreen, state.selectedEventId) + window.location.search;
+  const canonical = document.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+  if (canonical) canonical.href = 'https://www.igmcrisigma.com' + pathFor(state.currentScreen, state.selectedEventId);
+  const description = document.querySelector<HTMLMetaElement>('meta[name="description"]');
+  if (description) {
+    description.content = state.currentScreen === 'credits'
+      ? 'Website credits for STRIATUM 4.0. The IGMCRI medical symposium website was designed and developed by Built by GSV.'
+      : DEFAULT_SITE_DESCRIPTION;
+  }
   const current = window.location.pathname + window.location.search;
   if (current === target) return;
 
@@ -94,8 +118,7 @@ window.addEventListener('popstate', () => {
   const route = routeFromPath(window.location.pathname);
   restoringFromHistory = true;
   if (route) {
-    if (route.eventId) appStore.setSelectedEvent(route.eventId);
-    appStore.setScreen(route.screen);
+    navigateToRoute(route);
   } else {
     appStore.setScreen('home');
   }
@@ -182,8 +205,7 @@ function renderApp(state: AppState): void {
 // where it should instead of bouncing to sign-in.
 const initialRoute = routeFromPath(window.location.pathname);
 if (initialRoute) {
-  if (initialRoute.eventId) appStore.setSelectedEvent(initialRoute.eventId);
-  appStore.setScreen(initialRoute.screen);
+  navigateToRoute(initialRoute);
 }
 // Seed the first history entry so the very first Back has somewhere to return to.
 window.history.replaceState(
@@ -192,6 +214,7 @@ window.history.replaceState(
   window.location.pathname + window.location.search
 );
 
+const finishStartupLoader = mountStartupLoader();
 renderApp(appStore.getState());
 appStore.subscribe(renderApp);
 
@@ -200,10 +223,16 @@ appStore.subscribe(renderApp);
 onAuthChange(user => {
   if (user) {
     if (!appStore.getState().isAuthenticated) appStore.login(user.email, user.fullName);
+    if (pendingRoute) {
+      const route = pendingRoute;
+      pendingRoute = null;
+      if (route.eventId) appStore.setSelectedEvent(route.eventId);
+      appStore.setScreen(route.screen);
+    }
     // Pull this delegate's real orders, registrations and pass status down.
     void hydrateRegistrations();
   } else if (appStore.getState().isAuthenticated) {
     appStore.signOut();
   }
 });
-void initAuth();
+void initAuth().finally(() => finishStartupLoader());

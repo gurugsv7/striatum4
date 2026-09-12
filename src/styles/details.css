@@ -382,6 +382,27 @@
   box-shadow: none;
 }
 
+/* Match the event-details action to the checkout's primary CTA. */
+.btn-register-event-slot.btn-chamfer-primary {
+  height: 52px;
+  margin: 16px 0 10px;
+  padding: 0 16px;
+  justify-content: center;
+  background: linear-gradient(90deg, #b7effb 0%, #cef0f7 100%);
+  border: none;
+  color: #03202e;
+  box-shadow: 0 0 20px rgba(183, 239, 251, 0.4);
+}
+
+.btn-register-event-slot.btn-chamfer-primary:hover {
+  border-color: transparent;
+  box-shadow: 0 0 26px rgba(183, 239, 251, 0.6);
+}
+
+.btn-register-event-slot.btn-chamfer-primary[disabled] {
+  box-shadow: none;
+}
+
 .btn-register-event-slot.state-registered,
 .btn-register-event-slot.state-in_cart {
   border-color: var(--cyan-border-strong);

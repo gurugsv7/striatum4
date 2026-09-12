@@ -362,6 +362,41 @@ html, body, #app {
   padding: 16px;
 }
 
+/* On desktop the app occupies the stage directly. The phone frame is only a
+   mobile-preview treatment and should not constrain the desktop interface. */
+@media (min-width: 769px) {
+  /* The screen selector is an internal mockup tool, not part of the public
+     desktop experience. Desktop visitors should enter the app on the current
+     route without seeing the complete screen inventory. */
+  .workbench-left-sidebar {
+    display: none;
+  }
+
+  .workbench-right-stage {
+    padding: 0;
+    align-items: stretch;
+    justify-content: stretch;
+    width: 100%;
+  }
+
+  .phone-viewport-container {
+    width: 100%;
+    height: 100%;
+    transform: none !important;
+  }
+
+  .mobile-canvas-frame {
+    width: min(100%, 720px);
+    min-width: 0;
+    max-width: none;
+    height: 100%;
+    min-height: 0;
+    max-height: none;
+    border-radius: 0;
+    box-shadow: none;
+  }
+}
+
 /* Phone Scaler Container */
 .phone-viewport-container {
   display: flex;
@@ -458,29 +493,6 @@ html, body, #app {
   overflow: hidden;
 }
 
-.screen-bg-base {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: 
-    radial-gradient(ellipse at 50% -5%, rgba(42, 241, 250, 0.22) 0%, rgba(14, 91, 114, 0.15) 35%, transparent 65%),
-    radial-gradient(circle at 85% 15%, rgba(42, 241, 250, 0.1) 0%, transparent 40%),
-    linear-gradient(180deg, #031424 0%, #010813 25%, #00040a 70%, #020c16 100%);
-  opacity: 1;
-}
-
-.screen-bg-veil {
-  position: absolute;
-  top: 60px;
-  right: -20px;
-  width: 65%;
-  height: 55%;
-  background: radial-gradient(ellipse at 70% 40%, rgba(42, 241, 250, 0.08) 0%, rgba(14, 91, 114, 0.04) 50%, transparent 75%);
-  pointer-events: none;
-}
-
 /* Custom Homepage Background Artwork for all pages */
 .screen-bg-homepage-layer {
   position: absolute;
@@ -488,11 +500,15 @@ html, body, #app {
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: url('/assets/homepage.jpg');
+  background-image: url('/onboarding_bg.webp');
   background-size: cover;
   background-position: center top;
   background-repeat: no-repeat;
   z-index: 1;
+}
+
+.screen-bg-homepage-layer.variant-two {
+  background-image: url('/homepage2.webp');
 }
 
 .screen-bg-homepage-overlay {
@@ -507,38 +523,6 @@ html, body, #app {
     rgba(1, 6, 15, 0.25) 20%, 
     rgba(1, 6, 15, 0.55) 60%, 
     rgba(1, 6, 15, 0.85) 100%
-  );
-  pointer-events: none;
-  z-index: 2;
-}
-
-/* Custom Onboarding Abyss Background Artwork */
-.screen-bg-onboarding-layer {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: url('/onboarding_bg.png');
-  background-size: cover;
-  background-position: 70% top;
-  background-repeat: no-repeat;
-  z-index: 1;
-}
-
-.screen-bg-onboarding-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    180deg, 
-    transparent 0%, 
-    rgba(1, 6, 15, 0.08) 16%, 
-    rgba(1, 6, 15, 0.42) 45%, 
-    rgba(1, 6, 15, 0.76) 72%, 
-    rgba(1, 6, 15, 0.48) 100%
   );
   pointer-events: none;
   z-index: 2;

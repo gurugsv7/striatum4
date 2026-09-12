@@ -35,7 +35,7 @@ const PRIVACY: Clause[] = [
     paragraphs: ['We collect only what registration and verification actually require.'],
     bullets: [
       'When you sign in with Google: your name, email address and profile picture, taken from your Google account. We never see or receive your Google password.',
-      'When you sign in by email: your email address. We send a one-time sign-in link. No password is created or stored.',
+      'When you create an account with email: your email address and a password managed securely by Supabase Auth. This site never sees or stores your password, and email confirmation is disabled for immediate access.',
       'When you apply for a Delegate Pass: your full name, phone number, email address, college or institution, course and year of study.',
       'When you register for events: the events you select, the fee for each, and the total.',
       'When you pay: the payment screenshot you upload. We do not collect card numbers, UPI PINs, bank credentials or any payment instrument details &mdash; the payment happens entirely in your own UPI app, outside this website.'

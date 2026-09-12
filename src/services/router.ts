@@ -18,8 +18,15 @@ export interface Route {
   eventId?: string;
 }
 
+export function routeRequiresAuth(route: Route): boolean {
+  return !['onboarding', 'privacy', 'terms', 'credits'].includes(route.screen);
+}
+
 const STATIC_ROUTES: Record<string, ScreenType> = {
   '/': 'onboarding',
+  // Public event-directory links intentionally land on the access screen.
+  // Visitors enter Explore only after starting a session.
+  '/events': 'onboarding',
   '/home': 'home',
   '/explore': 'explore',
   '/programme': 'programme',
@@ -34,7 +41,8 @@ const STATIC_ROUTES: Record<string, ScreenType> = {
   '/profile': 'profile',
   '/admin': 'admin',
   '/privacy': 'privacy',
-  '/terms': 'terms'
+  '/terms': 'terms',
+  '/credits': 'credits'
 };
 
 const SCREEN_TO_PATH: Partial<Record<ScreenType, string>> = Object.fromEntries(
@@ -103,5 +111,7 @@ export function titleFor(screen: ScreenType, eventName?: string): string {
       return 'Privacy policy' + suffix;
     case 'terms':
       return 'Registration terms' + suffix;
+    case 'credits':
+      return 'Website credits | Built by GSV' + suffix;
   }
 }

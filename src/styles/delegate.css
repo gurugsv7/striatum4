@@ -206,7 +206,7 @@
 
 .pass-tier-card {
   position: relative;
-  background: rgba(1, 14, 24, 0.75);
+  background-color: rgba(1, 14, 24, 0.75);
   border: 1px solid rgba(42, 241, 250, 0.22);
   border-radius: 12px;
   clip-path: polygon(
@@ -227,6 +227,22 @@
   transition: all 0.25s ease;
 }
 
+.pass-tier-card:first-child {
+  background-image:
+    linear-gradient(90deg, rgba(1, 10, 18, 0.82) 0%, rgba(1, 10, 18, 0.54) 42%, rgba(1, 10, 18, 0.16) 100%),
+    url('/explore_events1.webp');
+  background-size: cover;
+  background-position: right center;
+}
+
+.pass-tier-card:nth-child(2) {
+  background-image:
+    linear-gradient(90deg, rgba(1, 10, 18, 0.9) 0%, rgba(1, 10, 18, 0.74) 42%, rgba(1, 10, 18, 0.34) 100%),
+    url('/explore_events2.webp');
+  background-size: cover;
+  background-position: center;
+}
+
 .pass-tier-card:hover {
   border-color: rgba(42, 241, 250, 0.5);
   box-shadow: 0 0 16px rgba(42, 241, 250, 0.25);
@@ -235,7 +251,7 @@
 
 .pass-tier-card.active {
   border: 1.5px solid var(--cyan-glow);
-  background: rgba(1, 20, 36, 0.92);
+  background-color: rgba(1, 20, 36, 0.72);
   box-shadow: 0 0 20px rgba(42, 241, 250, 0.4), inset 0 0 14px rgba(42, 241, 250, 0.12);
 }
 
@@ -348,18 +364,7 @@
   width: 72px;
   height: calc(100% - 8px);
   pointer-events: none;
-  opacity: 0.9;
-  mix-blend-mode: screen;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-}
-
-.pass-card-art-bg img {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-  object-position: right center;
+  display: none;
 }
 
 /* ==========================================================================

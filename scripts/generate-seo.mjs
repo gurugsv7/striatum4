@@ -220,7 +220,8 @@ const ROUTES = [
     priority: '0.8'
   })),
   { loc: `${SITE_URL}/privacy`, changefreq: 'yearly', priority: '0.3' },
-  { loc: `${SITE_URL}/terms`, changefreq: 'yearly', priority: '0.3' }
+  { loc: `${SITE_URL}/terms`, changefreq: 'yearly', priority: '0.3' },
+  { loc: `${SITE_URL}/credits`, changefreq: 'yearly', priority: '0.3' }
 ];
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
