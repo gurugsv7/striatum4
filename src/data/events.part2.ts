@@ -864,8 +864,8 @@ export const EVENTS_PART_2: SymposiumEvent[] = [
         facts: [
           { label: 'Registration fee', value: '₹200 per team' },
           { label: 'Team size', value: '3' },
-          { label: 'Prize pool', value: '₹2,000' },
-          { label: 'Delegate Pass', value: 'Not required' }
+          { label: 'Registration tier', value: 'Tier 2 required' },
+          { label: 'Delegate Pass', value: 'Required' }
         ]
       }
     ],
@@ -880,16 +880,16 @@ export const EVENTS_PART_2: SymposiumEvent[] = [
     code: 'S4 / 26',
     name: 'MEDMAZE',
     tagline: 'Find the clues. Claim the treasure.',
-    summary: 'A medical-themed treasure hunt across campus.',
+    summary: 'A medical-themed treasure hunt where every clue leads deeper into the challenge.',
     description:
-      'MEDMAZE is a medical treasure hunt: teams of three solve clues and complete challenges at each stage to reach the final treasure, staying together throughout the hunt.',
+      'MEDMAZE is a medical treasure hunt: teams of three solve clues and complete challenges at each stage to reach the final treasure, staying together throughout the hunt. Tier 2 registration is required. Winners will receive exciting cash prizes and gifts.',
     category: 'game',
     specialties: ['Clinical Reasoning'],
     format: 'Treasure Hunt',
     participation: 'team',
     teamSize: { min: 3, max: 3 },
     pricing: { team: 200, unit: 'per_team' },
-    delegatePassRequirement: 'not_required',
+    delegatePassRequirement: 'required',
     rules: [
       'Teams must follow instructions to proceed to each next clue.',
       'Mobile phones and electronic devices are prohibited.',
@@ -898,7 +898,7 @@ export const EVENTS_PART_2: SymposiumEvent[] = [
       'All team members must remain together throughout the hunt.',
       'The first team to reach the final treasure while following all rules wins.'
     ],
-    prizes: { totalValue: 2000 },
+    prizes: { totalValue: 0 },
     coordinators: [{ name: 'Kabila Barathi', phone: '9042461697' }, { name: 'Atheethi', phone: '9944858040' }],
     sections: [
       {

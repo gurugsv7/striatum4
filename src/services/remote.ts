@@ -16,6 +16,7 @@ import { getCurrentUser } from './authService.ts';
 
 export interface RemoteDelegate {
   id: string;
+  userId: string;
   fullName: string;
   institution: string;
   email: string;
@@ -97,6 +98,7 @@ function ms(value: string | null | undefined): number {
 function mapDelegate(row: any): RemoteDelegate {
   return {
     id: row.id,
+    userId: row.user_id,
     fullName: row.full_name,
     institution: row.institution,
     email: row.email,

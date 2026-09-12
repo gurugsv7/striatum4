@@ -55,10 +55,10 @@ function escapeHtml(str: string): string {
 export function renderEventConfirmView(): string {
   const state = appStore.getState();
   const orderId = state.eventPayment.orderId || state.selectedOrderId;
-  const allOrders = registration.getOrders();
+  const allOrders = registration.getMyOrders();
   
   // Find order by specified ID or find latest active/submitted order
-  const matchedOrder = orderId ? registration.getOrder(orderId) : undefined;
+  const matchedOrder = orderId ? allOrders.find(candidate => candidate.id === orderId) : undefined;
   const latestOrder = allOrders
     .filter(o => ['under_review', 'payment_submitted', 'approved', 'awaiting_payment'].includes(o.status))
     .sort((a, b) => (b.submittedAt || b.createdAt) - (a.submittedAt || a.createdAt))[0] || allOrders[allOrders.length - 1];

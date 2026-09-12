@@ -48,19 +48,30 @@
 
 .cart-line-remove {
   flex-shrink: 0;
-  background: transparent;
-  border: none;
-  color: var(--text-dim);
+  background: rgba(255, 107, 107, 0.08);
+  border: 1px solid rgba(255, 145, 145, 0.52);
+  border-radius: 999px;
+  color: #ffb0b0;
   font-family: var(--font-mono-meta);
-  font-size: 9.5px;
-  letter-spacing: 1.5px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.4px;
   cursor: pointer;
-  padding: 4px 0;
-  transition: color 0.2s ease;
+  min-height: 30px;
+  padding: 6px 11px;
+  transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
 }
 
 .cart-line-remove:hover {
-  color: #ff6b6b;
+  background: rgba(255, 107, 107, 0.18);
+  border-color: #ff8c8c;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.cart-line-remove:focus-visible {
+  outline: 2px solid var(--cyan-glow);
+  outline-offset: 3px;
 }
 
 .cart-line-context {

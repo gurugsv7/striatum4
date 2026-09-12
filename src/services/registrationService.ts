@@ -77,6 +77,8 @@ export interface PaymentProof {
 
 export interface Order {
   id: string;
+  /** Supabase owner; used to keep My Events scoped even for admin accounts. */
+  userId?: string;
   /** Display form, e.g. "S4 / 0007". */
   reference: string;
   lines: OrderLine[];
@@ -195,6 +197,7 @@ function adoptSnapshot(snapshot: remote.RemoteSnapshot): void {
   remoteCapacities = snapshot.capacities;
   state.orders = snapshot.orders.map(order => ({
     id: order.id,
+    userId: order.userId,
     reference: order.reference,
     lines: order.lines.map(line => ({
       eventId: line.eventId,
@@ -756,6 +759,15 @@ export function getOrders(): Order[] {
   return state.orders.map(o => ({ ...o }));
 }
 
+/** Orders safe for user-facing confirmation/history screens. Admin tooling
+ * deliberately uses listAllOrdersForAdmin() instead. */
+export function getMyOrders(): Order[] {
+  const userId = getCurrentUser()?.id;
+  return state.orders
+    .filter(order => !isRemote() || !order.userId || order.userId === userId)
+    .map(order => ({ ...order }));
+}
+
 export function getOrder(orderId: string): Order | undefined {
   const found = state.orders.find(o => o.id === orderId);
   return found ? { ...found } : undefined;
@@ -888,6 +900,16 @@ export function readProofImage(orderId: string): string | null {
   } catch {
     return null;
   }
+}
+
+/**
+ * Preloads signed payment-proof URLs for a verification console. Keeping this
+ * explicit prevents the first admin render from settling on a false
+ * "missing" state while the private Storage URL is being negotiated.
+ */
+export async function warmProofImages(orderIds: string[]): Promise<void> {
+  if (!isRemote()) return;
+  await Promise.all(orderIds.map(orderId => warmProofUrl(orderId)));
 }
 
 const warming = new Set<string>();
@@ -1173,6 +1195,7 @@ export function getMyEvents(): MyEventsGroups {
   const actionRequired: Order[] = [];
 
   state.orders.forEach(order => {
+    if (isRemote() && order.userId && order.userId !== getCurrentUser()?.id) return;
     if (order.status === 'cancelled') return;
     if (order.status === 'rejected') {
       actionRequired.push({ ...order });
@@ -1292,6 +1315,9 @@ export interface RosterEntry {
   events: string[];
   total: number;
   submittedAt?: number;
+  institution: string;
+  yearOfStudy: string;
+  phone: string;
 }
 
 /**
@@ -1304,18 +1330,24 @@ export function getRegistrationRoster(): RosterEntry[] {
   return state.orders
     .filter(o => o.status !== 'cancelled')
     .sort((a, b) => b.createdAt - a.createdAt)
-    .map(order => ({
-      delegateName: delegate?.fullName ?? 'Unknown delegate',
-      email: delegate?.email ?? '',
-      delegateId: delegate?.status === 'approved' ? delegate.delegateId ?? null : null,
-      delegateStatus: delegate?.status ?? 'none',
+    .map(order => {
+      const owner = remoteDelegates.find(d => d.userId === order.userId) ?? delegate;
+      return {
+      delegateName: owner?.fullName ?? 'Unknown delegate',
+      email: owner?.email ?? '',
+      delegateId: owner?.status === 'approved' ? owner.delegateId ?? null : null,
+      delegateStatus: owner?.status ?? 'none',
       orderReference: order.reference,
       orderId: order.id,
       orderStatus: order.status,
       events: order.lines.map(l => l.eventName),
       total: order.total,
-      submittedAt: order.submittedAt
-    }));
+      submittedAt: order.submittedAt,
+      institution: owner?.institution ?? '',
+      yearOfStudy: owner?.yearOfStudy ?? '',
+      phone: owner?.phone ?? ''
+      };
+    });
 }
 
 /* ----------------------------------------------------------------- helpers -- */

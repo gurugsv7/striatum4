@@ -403,10 +403,6 @@ export function renderProfileView(): string {
               <input type="checkbox" checked style="accent-color: var(--cyan-glow); width: 18px; height: 18px; cursor: pointer;" />
             </div>
 
-            <button class="action-link-cyan" id="btn-profile-admin-console" style="margin-top: 6px; text-align: left; background: none; border: none; font-size: 11px; padding: 6px 0; cursor: pointer;">
-              <span>PAYMENT VERIFICATION CONSOLE (ADMIN)</span>
-              <span>→</span>
-            </button>
           </div>
 
           <button class="profile-btn-primary-action" id="btn-profile-sign-out" style="background: rgba(240, 60, 60, 0.15); border: 1px solid rgba(240, 60, 60, 0.4); color: #ff8888;">
@@ -498,12 +494,6 @@ export function attachProfileEvents(): void {
     await signOut();
     appStore.signOut();
     appStore.showToast('Signed out of STRIATUM 4.0');
-  });
-
-  // Admin console link
-  document.getElementById('btn-profile-admin-console')?.addEventListener('click', () => {
-    modalSettings?.classList.remove('open');
-    appStore.setScreen('admin');
   });
 
   // Close modals on overlay backdrop click

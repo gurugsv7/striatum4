@@ -333,6 +333,14 @@ function renderRosterRow(entry: registration.RosterEntry): string {
           </span>
         </div>
         <div class="admin-ledger-row">
+          <span class="admin-ledger-key">PHONE</span>
+          <span class="admin-ledger-val">${escapeHtml(entry.phone || '—')}</span>
+        </div>
+        <div class="admin-ledger-row">
+          <span class="admin-ledger-key">INSTITUTION</span>
+          <span class="admin-ledger-val">${escapeHtml(entry.institution || '—')}</span>
+        </div>
+        <div class="admin-ledger-row">
           <span class="admin-ledger-key">ORDER</span>
           <span class="admin-ledger-val">${escapeHtml(entry.orderReference)}</span>
         </div>
@@ -418,6 +426,7 @@ function renderOrderPanel(order: registration.Order): string {
    * authorised admin only.
    */
   const proofDataUrl = registration.readProofImage(order.id);
+  const hasProofPath = Boolean(order.proof);
   const isEnlarged = enlargedScreenshotOrderId === order.id;
   const isRejectOpen = expandedRejectOrderId === order.id;
   const canAct = order.status === 'payment_submitted' || order.status === 'under_review';
@@ -480,7 +489,7 @@ function renderOrderPanel(order: registration.Order): string {
         <div class="admin-proof-corner-br"></div>
         ${proofDataUrl
           ? `<img src="${proofDataUrl}" alt="Payment screenshot for ${escapeHtml(order.reference)}" class="admin-proof-img" />`
-          : `<div class="admin-proof-empty">No screenshot on file.</div>`}
+          : `<div class="admin-proof-empty">${hasProofPath ? 'Loading secure screenshot…' : 'No screenshot on file.'}</div>`}
       </div>
 
       <div class="admin-ledger" style="margin-top: 10px;">
@@ -605,6 +614,11 @@ export function renderAdminView(): string {
 }
 
 export function attachAdminEvents(): void {
+  // Private Storage proofs resolve asynchronously. Warm every proof currently
+  // visible in the console so the verifier gets the actual image, not a
+  // misleading empty placeholder on the first render.
+  void registration.warmProofImages(registration.listAllOrdersForAdmin().filter(order => order.proof).map(order => order.id));
+
   const btnBack = document.getElementById('btn-admin-back');
   if (btnBack) {
     btnBack.addEventListener('click', () => appStore.setScreen('profile'));
