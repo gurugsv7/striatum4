@@ -18,8 +18,11 @@ export interface Route {
   eventId?: string;
 }
 
+/** Routes that must remain reachable before sign-in for access and SEO. */
+const PUBLIC_ROUTES = new Set<ScreenType>(['onboarding', 'privacy', 'terms', 'credits']);
+
 export function routeRequiresAuth(route: Route): boolean {
-  return !['onboarding', 'privacy', 'terms', 'credits'].includes(route.screen);
+  return !PUBLIC_ROUTES.has(route.screen);
 }
 
 const STATIC_ROUTES: Record<string, ScreenType> = {

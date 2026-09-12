@@ -17,4 +17,5 @@
 /privacy              /index.html   200
 /terms                /index.html   200
 /credits              /index.html   200
+/credits/             /index.html   200
 /event/*              /index.html   200

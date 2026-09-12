@@ -62,6 +62,10 @@
       "destination": "/index.html"
     },
     {
+      "source": "/credits/",
+      "destination": "/index.html"
+    },
+    {
       "source": "/event/:id",
       "destination": "/index.html"
     }
