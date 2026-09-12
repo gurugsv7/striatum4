@@ -802,7 +802,7 @@ export const EVENTS_PART_1: SymposiumEvent[] = [
           { label: 'Team Size', value: '3' },
           { label: 'Entry Fee', value: '₹600 per team' },
           { label: 'Spot Fee', value: '₹750 per team' },
-          { label: 'Prize Pool', value: '₹30,000' }
+          { label: 'Prize Pool', value: '₹40,000' }
         ]
       }
     ],
@@ -841,7 +841,7 @@ export const EVENTS_PART_1: SymposiumEvent[] = [
       'Top 6 teams qualify for the on-stage grand finale.',
       "Quiz master's decision is final."
     ],
-    prizes: { totalValue: 30000 },
+    prizes: { totalValue: 40000 },
     coordinators: [{ name: 'Valentina Sakthi' }],
     sections: [
       {
@@ -909,7 +909,7 @@ export const EVENTS_PART_1: SymposiumEvent[] = [
     mode: 'hybrid',
     participation: 'team',
     teamSize: { min: 2, max: 2 },
-    pricing: { entry: 300, unit: 'per_team' },
+    pricing: { entry: 15000, unit: 'per_team' },
     delegatePassRequirement: 'unspecified',
     eligibility: [
       'MBBS students from 1st year through CRRI are eligible.',
@@ -954,7 +954,7 @@ export const EVENTS_PART_1: SymposiumEvent[] = [
         title: 'IMPORTANT INFORMATION',
         facts: [
           { label: 'Team Size', value: 'Maximum 2' },
-          { label: 'Entry Fee', value: '₹300 per team' }
+          { label: 'Entry Fee', value: '₹15,000 per team' }
         ]
       }
     ],
