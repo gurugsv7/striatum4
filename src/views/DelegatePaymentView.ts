@@ -191,7 +191,7 @@ export function renderDelegatePaymentView(): string {
         <div class="timeline-step-block button-step-block">
           <div class="timeline-bead" style="top: 20px;"></div>
 
-          <button class="beveled-cyan-btn" id="btn-submit-verification">
+          <button class="beveled-cyan-btn" id="btn-submit-verification" ${hasProof ? '' : 'disabled aria-disabled="true"'}>
             <span>Submit for Verification</span>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
               <path d="M5 12h14m-7-7 7 7-7 7"/>

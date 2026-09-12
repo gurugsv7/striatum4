@@ -42,9 +42,7 @@ export function renderProfileView(): string {
   const cartCount = registration.cartCount();
 
   const gender = getProfileGender();
-  const avatarIcon = gender === 'female'
-    ? `<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="23" r="10"/><path d="M14 57c1-12 8-19 18-19s17 7 18 19"/><path d="M22 21c1-8 5-12 10-12 7 0 11 5 11 13-3-4-6-6-11-6-3 3-6 5-10 5Z" fill="currentColor" opacity=".55"/></svg>`
-    : `<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="23" r="10"/><path d="M14 57c1-12 8-19 18-19s17 7 18 19"/><path d="M22 20c2-7 6-11 11-11 6 0 10 4 10 11-6-3-14-3-21 0Z" fill="currentColor" opacity=".55"/></svg>`;
+  const avatarSrc = gender === 'female' ? '/femaleprofile.webp' : '/maleprofile.png';
 
   return `
     <div class="profile-screen-container">
@@ -81,10 +79,10 @@ export function renderProfileView(): string {
         <div class="profile-identity-row">
           
           <div class="profile-left-block">
-            <!-- Neutral profile silhouette; no personal portrait is used. -->
+            <!-- Generic profile icon; no personal portrait is used. -->
             <div class="profile-avatar-wrapper">
               <div class="profile-avatar-ring">
-                <div class="profile-avatar-img profile-avatar-generic ${gender}" id="profile-avatar-display" role="img" aria-label="${gender} profile icon">${avatarIcon}</div>
+                <img src="${avatarSrc}" alt="Generic ${gender} profile icon" class="profile-avatar-img profile-avatar-generic ${gender}" id="profile-avatar-display" />
               </div>
             </div>
 

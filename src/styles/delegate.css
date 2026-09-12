@@ -500,6 +500,14 @@
   transform: translateY(-2px);
 }
 
+.beveled-cyan-btn:disabled {
+  background: rgba(165, 243, 252, 0.16);
+  color: rgba(210, 235, 240, 0.48);
+  box-shadow: none;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .btn-bottom-subtext {
   display: flex;
   align-items: flex-start;

@@ -266,15 +266,22 @@ function adoptSnapshot(snapshot: remote.RemoteSnapshot): void {
 /** Every delegate application, for the verification console. */
 let remoteDelegates: remote.RemoteDelegate[] = [];
 let proofPaths = new Map<string, string>();
+let hydrationPromise: Promise<void> | null = null;
 
 /** Pulls the authoritative state down from the server. */
 export async function hydrate(): Promise<void> {
   if (!isRemote()) return;
-  // Release any holds that lapsed since the last sync before reading capacity.
-  await remote.expireStaleOrders();
-  const snapshot = await remote.fetchSnapshot();
-  adoptSnapshot(snapshot);
-  save();
+  if (hydrationPromise) return hydrationPromise;
+  hydrationPromise = (async () => {
+    // Release any holds that lapsed since the last sync before reading capacity.
+    await remote.expireStaleOrders();
+    const snapshot = await remote.fetchSnapshot();
+    adoptSnapshot(snapshot);
+    save();
+  })().finally(() => {
+    hydrationPromise = null;
+  });
+  return hydrationPromise;
 }
 
 /* ---------------------------------------------------------------- delegate -- */
@@ -880,6 +887,8 @@ function proofKey(orderId: string): string {
 
 /** Reads a stored proof image. Only the owning delegate and an admin reach this. */
 const signedProofUrls = new Map<string, string>();
+const signedProofExpiry = new Map<string, number>();
+const PROOF_URL_CACHE_MS = 4 * 60 * 1000;
 
 /**
  * A displayable link to a stored proof.
@@ -891,7 +900,9 @@ const signedProofUrls = new Map<string, string>();
 export function readProofImage(orderId: string): string | null {
   if (isRemote()) {
     const cached = signedProofUrls.get(orderId);
-    if (cached) return cached;
+    if (cached && (signedProofExpiry.get(orderId) ?? 0) > Date.now()) return cached;
+    signedProofUrls.delete(orderId);
+    signedProofExpiry.delete(orderId);
     void warmProofUrl(orderId);
     return null;
   }
@@ -916,12 +927,17 @@ const warming = new Set<string>();
 
 async function warmProofUrl(orderId: string): Promise<void> {
   const path = proofPaths.get(orderId);
-  if (!path || warming.has(orderId)) return;
+  // A cached signed URL is already displayable. Fetching it again would notify
+  // the app store after every admin render, causing an endless render loop that
+  // repeatedly resets the verification page's scroll position.
+  const cachedIsFresh = signedProofUrls.has(orderId) && (signedProofExpiry.get(orderId) ?? 0) > Date.now();
+  if (!path || cachedIsFresh || warming.has(orderId)) return;
   warming.add(orderId);
   const url = await remote.getProofUrl(path);
   warming.delete(orderId);
   if (url) {
     signedProofUrls.set(orderId, url);
+    signedProofExpiry.set(orderId, Date.now() + PROOF_URL_CACHE_MS);
     listeners.forEach(fn => fn());
   }
 }
@@ -940,16 +956,25 @@ export async function submitPaymentProof(
   orderId: string,
   proof: { fileName: string; mimeType: string; size: number; dataUrl: string; blob?: Blob }
 ): Promise<SubmitProofResult> {
+  if (!PROOF_ACCEPTED.includes(proof.mimeType)) {
+    return { ok: false, message: 'Upload a JPG or PNG payment screenshot.' };
+  }
+  if (!proof.blob && !proof.dataUrl.startsWith(`data:${proof.mimeType};base64,`)) {
+    return { ok: false, message: 'Upload a valid payment screenshot before submitting.' };
+  }
   if (isSupabaseConfigured() && !getCurrentUser()) {
     return { ok: false, message: 'Please sign in before submitting payment proof.' };
   }
   if (isRemote()) {
     const blob = proof.blob ?? dataUrlToBlob(proof.dataUrl, proof.mimeType);
     if (!blob) return { ok: false, message: 'That screenshot could not be read.' };
+    if (blob.size <= 0 || blob.size > PROOF_MAX_BYTES) {
+      return { ok: false, message: 'The payment screenshot must be a non-empty image under 5 MB.' };
+    }
     const result = await remote.submitPaymentProofRemote(orderId, {
       blob,
       mimeType: proof.mimeType,
-      size: proof.size
+      size: blob.size
     });
     if (result.ok) await hydrate();
     return result;
@@ -1029,6 +1054,9 @@ function approveOrderLocal(orderId: string): AdminActionResult {
   const order = state.orders.find(o => o.id === orderId);
   if (!order) return { ok: false, message: 'Order not found.' };
   if (order.status === 'approved') return { ok: false, message: 'Order is already approved.' };
+  if (!['payment_submitted', 'under_review'].includes(order.status) || !order.proof || !readProofImage(order.id)) {
+    return { ok: false, message: 'A valid payment screenshot is required before approval.' };
+  }
 
   const now = Date.now();
   const newRegistrations: Registration[] = order.lines.map((line, index) => ({
