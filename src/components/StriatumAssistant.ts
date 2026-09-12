@@ -18,7 +18,30 @@ function answer(raw: string): string {
   }
   if (/delegate|pass|aqualume|synexa|register/.test(query)) return `<p>A Delegate Pass unlocks the delegate-only workshops and symposium access. Start your application here:</p><a class="s4-assistant-link" href="/delegate">Open delegate registration <b>↗</b></a>`;
   if (/explore|all event|everything|event list|activities/.test(query)) return `<p>There are <b>${EVENTS.length} activities</b> across workshops, quizzes, research, creative work, games and exhibitions.</p><a class="s4-assistant-link" href="/explore">Open the full event directory <b>↗</b></a>`;
-  const matches = EVENTS.filter(event => [event.name, event.format, event.category, ...event.specialties, ...(event.keywords ?? [])].join(' ').toLowerCase().includes(query));
+  const topicAliases: Record<string, string[]> = {
+    ortho: ['orthopaedics', 'orthopedics', 'musculoskeletal'],
+    orthopedic: ['orthopaedics', 'orthopedics', 'musculoskeletal'],
+    orthopaedic: ['orthopaedics', 'orthopedics', 'musculoskeletal'],
+    cardio: ['cardiology', 'cardiovascular'],
+    neuro: ['neurology', 'neuroscience', 'neurosurgery'],
+    paeds: ['paediatrics', 'pediatrics', 'child health'],
+    peds: ['paediatrics', 'pediatrics', 'child health'],
+    ent: ['otorhinolaryngology', 'ent'],
+    skin: ['dermatology'],
+    cancer: ['oncology'],
+    public: ['public health', 'community medicine'],
+    emergency: ['emergency medicine', 'trauma']
+  };
+  const terms = query.split(/[^a-z0-9]+/).filter(term => term.length > 2);
+  const expandedTerms = [...terms, ...terms.flatMap(term => topicAliases[term] ?? [])];
+  const matches = EVENTS.filter(event => {
+    const searchable = [event.name, event.format, event.category, ...event.specialties, ...(event.keywords ?? [])].join(' ').toLowerCase();
+    return expandedTerms.some(term => searchable.includes(term));
+  });
+  if (matches.length && terms.some(term => topicAliases[term])) {
+    const topic = terms.find(term => topicAliases[term]) ?? raw;
+    return `<p>Here are the symposium activities related to <b>${esc(topic)}</b>:</p>${matches.slice(0, 8).map(eventLine).join('')}`;
+  }
   if (matches.length) return `<p>I found ${matches.length === 1 ? 'the activity' : `${matches.length} activities`} matching <b>${esc(raw)}</b>:</p>${matches.slice(0, 5).map(eventLine).join('')}`;
   return `<p>I couldn’t match that to the confirmed symposium catalogue. Try an event name, specialty, “dates”, “delegate pass”, or “explore”.</p><a class="s4-assistant-link" href="/explore">Browse all activities <b>↗</b></a>`;
 }
