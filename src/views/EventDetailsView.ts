@@ -455,6 +455,12 @@ export function attachEventDetailsEvents(): void {
       const item = trigger.closest('.accordion-item');
       if (!item) return;
       const wasOpen = item.classList.contains('open');
+      document.querySelectorAll<HTMLElement>('.accordion-item.open').forEach(openItem => {
+        if (openItem !== item) {
+          openItem.classList.remove('open');
+          openItem.querySelector<HTMLButtonElement>('.accordion-trigger')?.setAttribute('aria-expanded', 'false');
+        }
+      });
       item.classList.toggle('open', !wasOpen);
       trigger.setAttribute('aria-expanded', String(!wasOpen));
     });
