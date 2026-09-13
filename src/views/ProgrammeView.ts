@@ -65,7 +65,12 @@ function dayTimeline(iso: string, committedIds: Set<string>): string {
           return `
         <div class="programme-entry ${isYours ? 'programme-entry--yours' : ''}" data-open-event-id="${event.id}">
           <div class="programme-entry-node ${isYours ? 'programme-entry-node--yours' : ''}"></div>
-          <div class="programme-entry-time">${event.startTime ?? '—'}</div>
+          <div class="programme-entry-time">${
+            event.startTime ??
+            (event.reportingTime
+              ? `<span class="programme-entry-report">REPORT</span>${event.reportingTime}`
+              : '—')
+          }</div>
           <div class="programme-entry-body">
             <div class="programme-entry-title-row">
               <h3 class="programme-entry-title">${event.name}</h3>

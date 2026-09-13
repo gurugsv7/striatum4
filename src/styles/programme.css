@@ -271,6 +271,16 @@
   color: var(--cyan-glow);
 }
 
+/* Some events publish a reporting time but no start time. The gutter says
+   which it is, so 8:00 AM is never mistaken for the moment the event begins. */
+.programme-entry-report {
+  display: block;
+  font-size: 7.5px;
+  letter-spacing: 1.2px;
+  color: var(--text-dim);
+  opacity: 0.85;
+}
+
 .programme-entry-title-row {
   display: flex;
   align-items: baseline;

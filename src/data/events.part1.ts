@@ -107,7 +107,7 @@ export const EVENTS_PART_1: SymposiumEvent[] = [
       'Operation theatre etiquette',
       'Patient preparation',
       'Hand scrubbing',
-      'Gowning',
+      'Gowning and gloving technique',
       'Gloving techniques'
     ],
     coordinators: [{ name: 'Soniya S.' }, { name: 'Karthikeyan T.' }],
@@ -122,7 +122,7 @@ export const EVENTS_PART_1: SymposiumEvent[] = [
           'Operation theatre etiquette',
           'Patient preparation',
           'Hand scrubbing',
-          'Gowning',
+          'Gowning and gloving technique',
           'Gloving techniques'
         ]
       },
@@ -746,28 +746,39 @@ export const EVENTS_PART_1: SymposiumEvent[] = [
     id: 's4-11',
     code: 'S4 / 11',
     name: 'OCEANIC ODYSSEY',
-    summary: 'A junior-category quiz testing Anatomy and Pharmacology knowledge for first- to third-year students.',
+    tagline: 'Unravel the clinical mysteries',
+    summary: 'A junior-category quiz testing Anatomy and Pharmacology knowledge, for teams of three.',
     description:
-      'A team quiz on Anatomy and Pharmacology open to first-year, second-year and eligible third-year medical students, with the top 6 teams advancing to an on-stage grand finale.',
+      'Are you ready to unravel clinical mysteries? Sharpen your medical acumen, challenge your cognitive skills, and prepare to compete in an exhilarating battle of knowledge. Oceanic Odyssey is the STRIATUM 4.0 Junior Quiz, testing participants in Anatomy and Pharmacology. Teams compete in groups of three, with the top six teams progressing to the grand finale.',
     category: 'quiz',
     specialties: ['Anatomy', 'Pharmacology'],
     format: 'Junior Quiz',
+    date: '18 OCT',
+    isoDate: '2026-10-18',
+    // The brochure publishes a reporting time only. The quiz's own start time,
+    // end time and venue are unstated, so no startTime is set — inventing one
+    // would put a fabricated slot on the programme grid.
     reportingTime: '8:00 AM',
     participation: 'team',
     teamSize: { min: 3, max: 3 },
     pricing: { entry: 600, spot: 750, unit: 'per_team' },
-    delegatePassRequirement: 'unspecified',
+    // The brochure's general registration rules state the Delegate Fee is not
+    // necessary for quizzes.
+    delegatePassRequirement: 'not_required',
     eligibility: [
-      'Open to first-year, second-year and eligible third-year medical students.',
-      'Only one 2023-batch third-year student per team is allowed.',
-      'Maximum two second-year students per team.',
-      'All team members must belong to the same college.',
-      'No restriction on number of teams per college.'
+      'Open to first-year, second-year and third-year (2024) medical students.',
+      'Only one third-year student from the 2023 batch is allowed per team.',
+      'Only two second-year students are allowed per team.',
+      'Every team must consist of exactly 3 members.',
+      'All three team members must belong to the same college.',
+      'There is no restriction on the number of teams from a college.'
     ],
     rules: [
-      'All team members must bring ID proof.',
-      'Top 6 teams qualify for finals.',
-      "Quiz master's decision is final."
+      'Teams must report at 8:00 AM on the day of the event.',
+      'Every team member must bring ID proof.',
+      'The top 6 teams will be selected for the finals.',
+      'The grand finale will be an on-stage event.',
+      "In case of any controversy, the Quiz Master's decision is final."
     ],
     prizes: { totalValue: 30000 },
     coordinators: [{ name: 'Velvizhi V.' }, { name: 'Sushama Ghosh I.' }],
@@ -776,38 +787,55 @@ export const EVENTS_PART_1: SymposiumEvent[] = [
         title: 'ELIGIBILITY',
         defaultOpen: true,
         items: [
-          'Open to first-year, second-year and eligible third-year medical students.',
-          'Only one 2023-batch third-year student per team is allowed.',
-          'Maximum two second-year students per team.',
-          'All team members must belong to the same college.',
-          'No restriction on number of teams per college.'
+          'Open to first-year, second-year and third-year (2024) medical students.',
+          'Only one third-year student from the 2023 batch is allowed per team.',
+          'Only two second-year students are allowed per team.',
+          'Every team must consist of exactly 3 members.',
+          'All three team members must belong to the same college.',
+          'There is no restriction on the number of teams from a college.'
         ]
       },
       {
-        title: 'TEAM RULES',
+        title: 'TEAM & EVENT RULES',
         items: [
-          'All team members must bring ID proof.',
-          'Top 6 teams qualify for finals.',
-          "Quiz master's decision is final."
+          'Teams must report at 8:00 AM on the day of the event.',
+          'Every team member must bring ID proof.',
+          'The top 6 teams will be selected for the finals.',
+          'The grand finale will be an on-stage event.',
+          "In case of any controversy, the Quiz Master's decision is final."
         ]
       },
       {
         title: 'QUIZ FORMAT',
-        items: ['Grand finale is an on-stage event.']
+        body:
+          'Teams report at 8:00 AM. The brochure does not publish the start time, end time or venue for this quiz; organisers will confirm them.',
+        facts: [
+          { label: 'Reporting time', value: '8:00 AM' },
+          { label: 'Grand finale', value: 'Top 6 teams · on stage' }
+        ]
       },
       {
-        title: 'IMPORTANT INFORMATION',
+        title: 'REGISTRATION & PRIZES',
         facts: [
-          { label: 'Reporting Time', value: '8:00 AM' },
-          { label: 'Team Size', value: '3' },
-          { label: 'Entry Fee', value: '₹600 per team' },
-          { label: 'Spot Fee', value: '₹750 per team' },
-          { label: 'Prize Pool', value: '₹40,000' }
+          { label: 'Date', value: '18 October 2026' },
+          { label: 'Reporting time', value: '8:00 AM' },
+          { label: 'Team size', value: 'Exactly 3 members' },
+          { label: 'Entry fee', value: '₹600 per team' },
+          { label: 'Spot registration fee', value: '₹750 per team' },
+          { label: 'Prize pool', value: '₹30,000' },
+          { label: 'Delegate Pass', value: 'Not required for quizzes' }
         ]
       }
     ],
     status: 'open',
     registerable: true,
+    // Internal only — never rendered. The brochure's eligibility line names the
+    // third year as the 2024 batch, while the per-team limit refers to a
+    // 2023-batch third year. Both are reproduced above as written rather than
+    // silently reconciled.
+    needsConfirmation: [
+      'Eligibility names "third year (2024)" but the per-team limit refers to a third-year student from the 2023 batch. Organisers to confirm which batch the third-year allowance covers.'
+    ],
     keywords: ['anatomy', 'pharmacology', 'quiz', 'junior quiz']
   },
 
@@ -818,66 +846,83 @@ export const EVENTS_PART_1: SymposiumEvent[] = [
     id: 's4-12',
     code: 'S4 / 12',
     name: 'AQUAQUEST',
-    summary: 'A senior-category Nephrology quiz for second-year students through CRRI.',
+    tagline: 'The stakes are high',
+    summary: 'A senior-category Nephrology quiz for teams of three, from second year through CRRI.',
     description:
-      'A team quiz on Nephrology open to students from second year through CRRI, run in preliminary, semifinal and final rounds, with the top 6 teams advancing to an on-stage grand finale.',
+      'The questions are challenging. The stakes are high. Is your clinical acumen ready? AquaQuest is the STRIATUM 4.0 Senior Quiz, centred on Nephrology. The competition begins with preliminary rounds in the morning, followed by semifinals and finals in the afternoon. The top six teams progress to the on-stage grand finale.',
     category: 'quiz',
     specialties: ['Nephrology'],
     format: 'Senior Quiz',
+    date: '18 OCT',
+    isoDate: '2026-10-18',
+    // Reporting time only; round timings and venue are unpublished.
     reportingTime: '8:00 AM',
     participation: 'team',
     teamSize: { min: 3, max: 3 },
     pricing: { entry: 700, spot: 850, unit: 'per_team' },
-    delegatePassRequirement: 'unspecified',
+    delegatePassRequirement: 'not_required',
     eligibility: [
-      'Open to second-year students through CRRI.',
-      'Only one CRRI from the 2021 batch per team.',
-      'Only one final-year student from the 2022 batch per team.',
-      'All members must belong to the same college.',
-      'No restriction on teams per college.'
+      'Open to students from second year through CRRI.',
+      'Only one CRRI from the 2021 batch is allowed per team.',
+      'Only one final-year student from the 2022 batch is allowed per team.',
+      'Each team must consist of exactly 3 members.',
+      'All team members must belong to the same college.',
+      'There is no restriction on the number of teams from a college.'
     ],
     rules: [
-      'ID proof required.',
-      'Top 6 teams qualify for the on-stage grand finale.',
-      "Quiz master's decision is final."
+      'Teams must report at 8:00 AM on the day of the event.',
+      'All team members must bring ID proof.',
+      'Preliminary rounds will be conducted in the morning.',
+      'Semifinals and finals will follow in the afternoon.',
+      'The top 6 teams qualify for the on-stage grand finale.',
+      "The Quiz Master's decision is final."
     ],
     prizes: { totalValue: 40000 },
-    coordinators: [{ name: 'Valentina Sakthi' }],
+    coordinators: [{ name: 'Valentina J.' }, { name: 'Sakthi S.' }],
     sections: [
       {
         title: 'ELIGIBILITY',
         defaultOpen: true,
         items: [
-          'Open to second-year students through CRRI.',
-          'Only one CRRI from the 2021 batch per team.',
-          'Only one final-year student from the 2022 batch per team.',
-          'All members must belong to the same college.',
-          'No restriction on teams per college.'
+          'Open to students from second year through CRRI.',
+          'Only one CRRI from the 2021 batch is allowed per team.',
+          'Only one final-year student from the 2022 batch is allowed per team.',
+          'Each team must consist of exactly 3 members.',
+          'All team members must belong to the same college.',
+          'There is no restriction on the number of teams from a college.'
         ]
       },
       {
-        title: 'TEAM RULES',
+        title: 'TEAM & EVENT RULES',
         items: [
-          'ID proof required.',
-          'Top 6 teams qualify for the on-stage grand finale.',
-          "Quiz master's decision is final."
+          'Teams must report at 8:00 AM on the day of the event.',
+          'All team members must bring ID proof.',
+          'Preliminary rounds will be conducted in the morning.',
+          'Semifinals and finals will follow in the afternoon.',
+          'The top 6 teams qualify for the on-stage grand finale.',
+          "The Quiz Master's decision is final."
         ]
       },
       {
         title: 'QUIZ FORMAT',
-        items: [
-          'Preliminary rounds are conducted in the morning.',
-          'Semifinals and finals follow in the afternoon.'
+        body:
+          'Teams report at 8:00 AM. The brochure gives the order of the rounds but not their exact timings, end time or venue; organisers will confirm them.',
+        facts: [
+          { label: 'Morning', value: 'Preliminary rounds' },
+          { label: 'Afternoon', value: 'Semifinals, then finals' },
+          { label: 'Grand finale', value: 'Top 6 teams · on stage' }
         ]
       },
       {
-        title: 'IMPORTANT INFORMATION',
+        title: 'REGISTRATION & PRIZES',
         facts: [
-          { label: 'Reporting Time', value: '8:00 AM' },
-          { label: 'Team Size', value: '3' },
-          { label: 'Entry Fee', value: '₹700 per team' },
-          { label: 'Spot Fee', value: '₹850 per team' },
-          { label: 'Prize Pool', value: '₹30,000' }
+          { label: 'Date', value: '18 October 2026' },
+          { label: 'Reporting time', value: '8:00 AM' },
+          { label: 'Team size', value: 'Exactly 3 members' },
+          { label: 'Entry fee', value: '₹700 per team' },
+          { label: 'Spot registration fee', value: '₹850 per team' },
+          { label: 'Prize pool', value: '₹40,000' },
+          { label: 'Delegate Pass', value: 'Not required for quizzes' }
         ]
       }
     ],
@@ -893,73 +938,84 @@ export const EVENTS_PART_1: SymposiumEvent[] = [
     id: 's4-13',
     code: 'S4 / 13',
     name: 'GLANDSWARS',
-    summary: 'An Endocrinology quiz for two-member teams, run online in prelims and offline for semifinals and finals.',
+    tagline: 'Three rounds, online to on-site',
+    summary: 'An Endocrinology quiz for two-member teams: online prelims, then offline semifinals and finals.',
     description:
-      'A team quiz on Endocrinology open to MBBS students from first year through CRRI, with cross-college teams allowed. Online prelims are followed by offline semifinals and finals for the top qualifying teams.',
+      'GlandsWars is a three-round Endocrinology competition, beginning with online preliminaries before progressing to offline semifinals and finals. Cross-college teams are allowed.',
     category: 'quiz',
     specialties: ['Endocrinology'],
     format: 'Quiz',
-    // Prelims open the quiz on 3 October; semifinals and finals are on the
-    // 13th. Both dates are stated in the brochure.
+    // The online prelim on 3 October is the one round with a confirmed exact
+    // time. The semifinals and finals are on 14 October with timings unstated.
     date: '3 OCT',
     isoDate: '2026-10-03',
-    isoEndDate: '2026-10-13',
+    isoEndDate: '2026-10-14',
     startTime: '6:00 PM',
     endTime: '6:45 PM',
     mode: 'hybrid',
     participation: 'team',
     teamSize: { min: 2, max: 2 },
-    pricing: { entry: 15000, unit: 'per_team' },
-    delegatePassRequirement: 'unspecified',
+    pricing: { entry: 300, unit: 'per_team' },
+    delegatePassRequirement: 'not_required',
     eligibility: [
-      'MBBS students from 1st year through CRRI are eligible.',
+      'MBBS students from 1st year to CRRI are eligible.',
+      'Maximum 2 members per team.',
+      'Only one CRRI from the 2021 batch is permitted per team.',
       'Cross-college teams are allowed.'
     ],
     rules: [
-      'Maximum one CRRI from the 2021 batch per team.',
-      'Both members must register using correct name, year, college and contact details.',
-      'Team members cannot be changed without prior permission.',
-      'Camera must remain ON during online prelims.',
-      'Identified malpractice leads to disqualification.'
+      'Both team members must register with their correct name, year of study, college and contact details.',
+      'Once registered, team members cannot be changed without prior permission from the organising committee.',
+      'During the online preliminaries, the camera must always remain ON.',
+      'Any identified malpractice will result in disqualification.'
     ],
+    prizes: { totalValue: 15000 },
     coordinators: [{ name: 'Dikshaya S.' }, { name: 'Dharani M.' }],
     sections: [
       {
         title: 'ELIGIBILITY',
         defaultOpen: true,
         items: [
-          'MBBS students from 1st year through CRRI are eligible.',
+          'MBBS students from 1st year to CRRI are eligible.',
+          'Maximum 2 members per team.',
+          'Only one CRRI from the 2021 batch is permitted per team.',
           'Cross-college teams are allowed.'
         ]
       },
       {
-        title: 'TEAM RULES',
+        title: 'REGISTRATION & TEAM RULES',
         items: [
-          'Maximum one CRRI from the 2021 batch per team.',
-          'Both members must register using correct name, year, college and contact details.',
-          'Team members cannot be changed without prior permission.',
-          'Camera must remain ON during online prelims.',
-          'Identified malpractice leads to disqualification.'
+          'Both team members must register with their correct name, year of study, college and contact details.',
+          'Once registered, team members cannot be changed without prior permission from the organising committee.',
+          'During the online preliminaries, the camera must always remain ON.',
+          'Any identified malpractice will result in disqualification.'
         ]
       },
       {
-        title: 'QUIZ FORMAT',
+        title: 'COMPETITION FORMAT',
+        body:
+          'The brochure publishes an exact time for the online preliminaries only. Semifinal and final timings and the venue are not stated.',
         facts: [
-          { label: 'Prelims', value: 'Online · 3 October 2026 · 6:00 PM – 6:45 PM · 45 questions (45 minutes)' },
-          { label: 'Semifinals', value: 'Offline · 13 October 2026 · Top 12 teams qualify' },
-          { label: 'Finals', value: 'Offline · 13 October 2026 · Top 6 teams qualify' }
+          {
+            label: 'Round 01 · Prelims',
+            value: 'Online · 3 October 2026 · 6:00 PM – 6:45 PM · 45 questions in 45 minutes'
+          },
+          { label: 'Round 02 · Semifinals', value: 'Offline · 14 October 2026 · top 10 teams qualify' },
+          { label: 'Round 03 · Finals', value: 'Offline · 14 October 2026 · top 6 teams qualify' }
         ]
       },
       {
-        title: 'IMPORTANT INFORMATION',
+        title: 'REGISTRATION & PRIZES',
         facts: [
-          { label: 'Team Size', value: 'Maximum 2' },
-          { label: 'Entry Fee', value: '₹15,000 per team' }
+          { label: 'Team size', value: 'Maximum 2 members' },
+          { label: 'Entry fee', value: '₹300 per team' },
+          { label: 'Prize pool', value: '₹15,000' },
+          { label: 'Delegate Pass', value: 'Not required for quizzes' }
         ]
       }
     ],
     status: 'open',
     registerable: true,
-    keywords: ['endocrinology', 'quiz', 'hormones', 'thyroid']
+    keywords: ['endocrinology', 'quiz', 'hormones', 'thyroid', 'glands']
   }
 ];

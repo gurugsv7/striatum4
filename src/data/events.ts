@@ -58,24 +58,9 @@ const LATEST_BROCHURE_OVERRIDES: Record<string, Partial<SymposiumEvent>> = {
     startTime: '8:00 AM',
     endTime: '1:00 PM'
   },
-  'OCEANIC ODYSSEY': {
-    date: '18 OCT',
-    isoDate: '2026-10-18',
-    reportingTime: '8:00 AM'
-  },
-  AQUAQUEST: {
-    date: '18 OCT',
-    isoDate: '2026-10-18',
-    reportingTime: '8:00 AM'
-  },
-  GLANDSWARS: {
-    date: '3 OCT',
-    isoDate: '2026-10-03',
-    isoEndDate: '2026-10-14',
-    startTime: '6:00 PM',
-    endTime: '6:45 PM',
-    mode: 'hybrid'
-  },
+  // The three quiz events are no longer listed here: their definitions in
+  // events.part1.ts were regenerated from the latest brochure, so an override
+  // would only be another place for those facts to drift.
   LUMINARA: {
     date: '17 OCT',
     isoDate: '2026-10-17'
@@ -130,13 +115,6 @@ const LATEST_BROCHURE_OVERRIDES: Record<string, Partial<SymposiumEvent>> = {
 
 /** Exact section facts whose old brochure values would otherwise still render. */
 const SECTION_FACT_OVERRIDES: Record<string, Record<string, Record<string, string>>> = {
-  GLANDSWARS: {
-    'QUIZ FORMAT': {
-      Prelims: 'Online · 3 October 2026 · 6:00 PM – 6:45 PM · 45 questions (45 minutes)',
-      Semifinals: 'Offline · 14 October 2026 · Top 12 teams qualify',
-      Finals: 'Offline · 14 October 2026 · Top 6 teams qualify'
-    }
-  },
   CHIRONEX: {
     'IMPORTANT INFORMATION': {
       'Submission deadline': '13 October 2026',

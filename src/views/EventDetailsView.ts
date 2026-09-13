@@ -44,6 +44,8 @@ function renderKeyFacts(event: SymposiumEvent): string {
   const cells: { label: string; value: string; caption?: string }[] = [];
 
   if (event.date) {
+    // When the brochure publishes only a reporting time, it is labelled as
+    // one. Showing it bare would read as the start time, which is not stated.
     cells.push({
       label: 'DATE',
       value: event.date,
@@ -51,6 +53,8 @@ function renderKeyFacts(event: SymposiumEvent): string {
         ? event.endTime
           ? event.startTime + ' – ' + event.endTime
           : event.startTime
+        : event.reportingTime
+        ? 'Report ' + event.reportingTime
         : undefined
     });
   }
