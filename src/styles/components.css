@@ -999,12 +999,18 @@
   font-family: var(--font-sans-ui);
   font-size: 12.5px;
   padding: 10px 20px;
-  border-radius: 9999px;
+  border-radius: 18px;
   z-index: 999;
   pointer-events: none;
   opacity: 0;
   transition: all 0.3s ease;
-  white-space: nowrap;
+  /* A message longer than the screen used to run off both edges. Single-line
+     toasts still read as a pill; longer ones wrap inside the viewport. */
+  width: max-content;
+  max-width: min(calc(100vw - 32px), 420px);
+  white-space: normal;
+  text-align: center;
+  line-height: 1.45;
 }
 
 .toast-notice.visible {

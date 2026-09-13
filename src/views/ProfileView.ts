@@ -487,11 +487,19 @@ export function attachProfileEvents(): void {
   });
 
   // Sign out button
-  document.getElementById('btn-profile-sign-out')?.addEventListener('click', async () => {
+  document.getElementById('btn-profile-sign-out')?.addEventListener('click', async (e) => {
     modalSettings?.classList.remove('open');
-    await signOut();
-    appStore.signOut();
-    appStore.showToast('Signed out of STRIATUM 4.0');
+    const button = e.currentTarget as HTMLButtonElement;
+    button.disabled = true;
+    let message = 'Signed out of STRIATUM 4.0';
+    try {
+      message = (await signOut()).message;
+    } finally {
+      // Leaving the screen is not conditional on the network. Whatever the
+      // server did, the delegate pressed Sign out and must end up signed out.
+      appStore.signOut();
+      appStore.showToast(message);
+    }
   });
 
   // Close modals on overlay backdrop click

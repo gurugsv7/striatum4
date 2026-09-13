@@ -294,10 +294,18 @@ export function attachDesktopProfile(): void {
     appStore.showToast('Profile updated');
   });
 
-  document.getElementById('btn-profile-sign-out')?.addEventListener('click', async () => {
-    await signOut();
-    appStore.signOut();
-    appStore.showToast('Signed out of STRIATUM 4.0');
+  document.getElementById('btn-profile-sign-out')?.addEventListener('click', async event => {
+    const button = event.currentTarget as HTMLButtonElement;
+    button.disabled = true;
+    let message = 'Signed out of STRIATUM 4.0';
+    try {
+      message = (await signOut()).message;
+    } finally {
+      // Leaving the screen is not conditional on the network. Whatever the
+      // server did, the delegate pressed Sign out and must end up signed out.
+      appStore.signOut();
+      appStore.showToast(message);
+    }
   });
 
   document.getElementById('d-prof-privacy')?.addEventListener('click', () => appStore.setScreen('privacy'));

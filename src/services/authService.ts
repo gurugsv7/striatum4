@@ -326,9 +326,62 @@ function isAnonymousUser(user: User | null): boolean {
   return Boolean(user && (user as User & { is_anonymous?: boolean }).is_anonymous);
 }
 
-export async function signOut(): Promise<void> {
-  window.google?.accounts.id.disableAutoSelect();
-  if (supabase) await supabase.auth.signOut();
+export interface SignOutResult {
+  /** False when the session could not be ended on the server. */
+  ok: boolean;
+  message: string;
+}
+
+/** How long to wait for the server before signing out locally anyway. */
+const SIGN_OUT_TIMEOUT_MS = 4000;
+
+const SIGNED_OUT = 'Signed out of STRIATUM 4.0';
+const LOCAL_ONLY = 'Signed out on this device. The server session could not be ended.';
+
+/**
+ * Ends the session. Never rejects, and never leaves its caller awaiting.
+ *
+ * Two things used to sit in front of the local teardown and could stop it
+ * running at all, which stranded the delegate on the page they pressed Sign
+ * out from until they reloaded:
+ *
+ *  - `window.google?.accounts.id...` only guarded `google`. A partially loaded
+ *    Google Identity script has `accounts` but no `id`, so this threw.
+ *  - `await supabase.auth.signOut()` is a network call. An expired token or a
+ *    dead connection left the promise pending or rejected, and every line
+ *    after it — including the state reset that leaves the screen — never ran.
+ *
+ * Clearing local identity is now unconditional: pressing Sign out must always
+ * sign you out. The remote call is still attempted first, so the server
+ * session genuinely ends, but it is raced against a timeout and its failure is
+ * reported rather than thrown.
+ */
+export async function signOut(): Promise<SignOutResult> {
+  try {
+    window.google?.accounts?.id?.disableAutoSelect?.();
+  } catch {
+    /* Google Identity is a convenience; it must never block signing out. */
+  }
+
+  let result: SignOutResult = { ok: true, message: SIGNED_OUT };
+
+  if (supabase) {
+    let timer = 0;
+    const timeout = new Promise<SignOutResult>(resolve => {
+      timer = window.setTimeout(() => resolve({ ok: false, message: LOCAL_ONLY }), SIGN_OUT_TIMEOUT_MS);
+    });
+
+    result = await Promise.race([
+      supabase.auth
+        .signOut()
+        .then(({ error }) => (error ? { ok: false, message: LOCAL_ONLY } : { ok: true, message: SIGNED_OUT }))
+        .catch(() => ({ ok: false, message: LOCAL_ONLY })),
+      timeout
+    ]);
+
+    window.clearTimeout(timer);
+  }
+
   setCurrentUser(null);
   activeEmail = '';
   try {
@@ -336,4 +389,6 @@ export async function signOut(): Promise<void> {
   } catch {
     /* Ignore unavailable storage. */
   }
+
+  return result;
 }
