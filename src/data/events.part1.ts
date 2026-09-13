@@ -107,8 +107,7 @@ export const EVENTS_PART_1: SymposiumEvent[] = [
       'Operation theatre etiquette',
       'Patient preparation',
       'Hand scrubbing',
-      'Gowning and gloving technique',
-      'Gloving techniques'
+      'Gowning and gloving technique'
     ],
     coordinators: [{ name: 'Soniya S.' }, { name: 'Karthikeyan T.' }],
     sections: [
@@ -122,8 +121,7 @@ export const EVENTS_PART_1: SymposiumEvent[] = [
           'Operation theatre etiquette',
           'Patient preparation',
           'Hand scrubbing',
-          'Gowning and gloving technique',
-          'Gloving techniques'
+          'Gowning and gloving technique'
         ]
       },
       {
