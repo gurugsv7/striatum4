@@ -13,6 +13,7 @@ import './styles/legal.css';
 import './styles/profile.css';
 import './styles/confirm.css';
 import './styles/motion.css';
+import './styles/desktop.css';
 import { mountStartupLoader } from './components/StartupLoader.ts';
 
 import { appStore, AppState, ScreenType } from './state/appStore.ts';
@@ -21,6 +22,12 @@ import { pathFor, routeFromPath, routeRequiresAuth, titleFor, Route } from './se
 import * as registrationService from './services/registrationService.ts';
 const hydrateRegistrations = registrationService.hydrate;
 import { renderDesktopSurround, attachDesktopSurroundEvents } from './components/DesktopSurround.ts';
+import {
+  renderDesktopApp,
+  attachDesktopApp,
+  isDesktopViewport,
+  watchDesktopBreakpoint
+} from './desktop/index.ts';
 import { renderOnboardingView, attachOnboardingEvents } from './views/OnboardingView.ts';
 import { renderHomepageView, attachHomepageEvents } from './views/HomepageView.ts';
 import { renderExploreView, attachExploreEvents } from './views/ExploreView.ts';
@@ -171,19 +178,32 @@ function renderApp(state: AppState): void {
 
   syncUrlAndTitle(state);
 
-  appContainer.innerHTML = renderDesktopSurround(view.render());
+  // Two surfaces, one app. Above the desktop breakpoint src/desktop/ owns the
+  // render outright; below it, the phone layouts render exactly as before.
+  // Neither ever sees the other's DOM.
+  const desktop = isDesktopViewport();
+
+  appContainer.classList.toggle('is-desktop-surface', desktop);
+  // The field-guide orb is mounted on <body>, outside #app, so it needs a
+  // body-level hook to know which surface it is floating over.
+  document.body.classList.toggle('s4-desktop-active', desktop);
+  appContainer.innerHTML = desktop ? renderDesktopApp(state) : renderDesktopSurround(view.render());
   appContainer.classList.remove('s4-route-enter');
   // Re-trigger the entry choreography after each wholesale screen render.
   void appContainer.offsetWidth;
   // Profile has a fixed atmospheric backdrop and bottom sheets. Avoid applying
   // the global composited entry animation to it; mobile WebViews can otherwise
   // briefly paint the route as a black surface.
-  if (state.currentScreen !== 'profile') {
+  if (desktop || (state.currentScreen !== 'profile' && state.currentScreen !== 'admin')) {
     appContainer.classList.add('s4-route-enter');
   }
 
-  attachDesktopSurroundEvents();
-  view.attach();
+  if (desktop) {
+    attachDesktopApp(state);
+  } else {
+    attachDesktopSurroundEvents();
+    view.attach();
+  }
 
   const newScroller = document.getElementById('viewport-scroller');
   if (newScroller) {
@@ -194,7 +214,8 @@ function renderApp(state: AppState): void {
     // The app replaces its entire DOM on navigation, so focus would otherwise
     // fall back to <body> and a screen reader would announce nothing.
     const heading = document.querySelector<HTMLElement>(
-      '.screen-content h1, .screen-content .explore-heading, .screen-content .hero-display-title'
+      '.screen-content h1, .screen-content .explore-heading, .screen-content .hero-display-title, ' +
+        '.s4-desktop h1'
     );
     if (heading) {
       heading.setAttribute('tabindex', '-1');
@@ -229,16 +250,31 @@ window.history.replaceState(
 const finishStartupLoader = mountStartupLoader();
 renderApp(appStore.getState());
 mountStriatumAssistant();
+
+// Crossing the breakpoint (a resize, a rotated tablet, a docked laptop) swaps
+// surfaces. Scroll memory is per-screen, not per-surface, so it survives.
+watchDesktopBreakpoint(() => {
+  lastScreen = null;
+});
 appStore.subscribe(renderApp);
 
 // Restore a persisted Supabase session, so a returning delegate is not asked to
 // sign in again, and reflect sign-out that happened in another tab.
 onAuthChange(user => {
   if (user) {
-    if (!appStore.getState().isAuthenticated) appStore.login(user.email, user.fullName, false);
-    if (pendingRoute) {
-      const route = pendingRoute;
-      pendingRoute = null;
+    const state = appStore.getState();
+    const route = pendingRoute;
+    pendingRoute = null;
+    // A restored session on /signin (or the first SIGNED_IN event from GIS)
+    // must leave onboarding immediately. Public legal/credits routes remain in
+    // place, and protected deep links still win over the homepage fallback.
+    const shouldEnterHome = !route && state.currentScreen === 'onboarding';
+    if (!state.isAuthenticated) {
+      appStore.login(user.email, user.fullName, shouldEnterHome);
+    } else if (shouldEnterHome) {
+      appStore.setScreen('home');
+    }
+    if (route) {
       if (route.eventId) appStore.setSelectedEvent(route.eventId);
       appStore.setScreen(route.screen);
     }
