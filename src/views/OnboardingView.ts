@@ -189,7 +189,11 @@ export function attachOnboardingEvents(): void {
         return;
       }
       const user = result.user;
-      if (user) appStore.login(user.email, user.fullName);
+      // The central auth listener owns navigation. Keep this as a fallback for
+      // an unusually late browser auth event without producing a second render.
+      if (user && !appStore.getState().isAuthenticated) {
+        appStore.login(user.email, user.fullName);
+      }
     }).then(rendered => {
       // Fall back to a visible, honest disabled state if GIS could not load.
       if (!rendered && btnGoogle) {

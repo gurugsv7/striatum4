@@ -6,6 +6,10 @@
       "destination": "/index.html"
     },
     {
+      "source": "/signin",
+      "destination": "/index.html"
+    },
+    {
       "source": "/events",
       "destination": "/index.html"
     },

@@ -30,6 +30,17 @@ let currentUser: AuthUser | null = null;
 let initialised = false;
 let activeEmail = '';
 
+function sameUser(left: AuthUser | null, right: AuthUser | null): boolean {
+  return left?.id === right?.id && left?.email === right?.email;
+}
+
+/** Publishes auth changes once, even when getSession and SIGNED_IN agree. */
+function setCurrentUser(user: AuthUser | null, force = false): void {
+  if (!force && sameUser(currentUser, user)) return;
+  currentUser = user;
+  emit();
+}
+
 function toAuthUser(user: User | null): AuthUser | null {
   if (!user) return null;
   const meta = (user.user_metadata ?? {}) as Record<string, unknown>;
@@ -60,8 +71,7 @@ export function isSignedIn(): boolean {
 
 /** Sets an authenticated user directly for testing and mock environments. */
 export function setMockUser(user: AuthUser | null): void {
-  currentUser = user;
-  emit();
+  setCurrentUser(user, true);
 }
 
 /** Restores any persisted session and subscribes to future auth changes. */
@@ -76,25 +86,25 @@ export async function initAuth(): Promise<AuthUser | null> {
     activeEmail = '';
   }
 
-  const { data } = await supabase.auth.getSession();
+  // Subscribe before reading storage so a sign-in completed during startup
+  // cannot fall into the gap between getSession() and onAuthStateChange().
+  client.auth.onAuthStateChange((_event, session: Session | null) => {
+    if (isAnonymousUser(session?.user ?? null)) {
+      setCurrentUser(null);
+      void client.auth.signOut({ scope: 'local' });
+    } else {
+      setCurrentUser(toAuthUser(session?.user ?? null));
+    }
+  });
+
+  const { data } = await client.auth.getSession();
   const sessionUser = data.session?.user ?? null;
   if (isAnonymousUser(sessionUser)) {
     await client.auth.signOut({ scope: 'local' });
-    currentUser = null;
+    setCurrentUser(null);
   } else {
-    currentUser = toAuthUser(sessionUser);
+    setCurrentUser(toAuthUser(sessionUser));
   }
-  emit();
-
-  supabase.auth.onAuthStateChange((_event, session: Session | null) => {
-    if (isAnonymousUser(session?.user ?? null)) {
-      currentUser = null;
-      void client.auth.signOut({ scope: 'local' });
-    } else {
-      currentUser = toAuthUser(session?.user ?? null);
-    }
-    emit();
-  });
 
   return currentUser;
 }
@@ -130,6 +140,7 @@ let gsiPromise: Promise<boolean> | null = null;
 let googleResultHandler: ((result: GoogleSignInResult) => void) | null = null;
 let googleInitialized = false;
 let googleNonce = '';
+let googleSignInInFlight = false;
 
 function createGoogleNonce(): string {
   if (window.crypto?.randomUUID) return window.crypto.randomUUID();
@@ -209,22 +220,30 @@ export async function renderGoogleButton(
       cancel_on_tap_outside: true,
       callback: async (response: GoogleCredentialResponse) => {
         const report = googleResultHandler ?? (() => undefined);
+        if (googleSignInInFlight) return;
         if (!response.credential) {
           report({ ok: false, message: 'Google sign-in was cancelled.' });
           return;
         }
-        const { data, error } = await client.auth.signInWithIdToken({
-          provider: 'google',
-          token: response.credential,
-          nonce: googleNonce
-        });
-        if (error) {
-          report({ ok: false, message: error.message });
-          return;
+        googleSignInInFlight = true;
+        try {
+          const { data, error } = await client.auth.signInWithIdToken({
+            provider: 'google',
+            token: response.credential,
+            nonce: googleNonce
+          });
+          if (error) {
+            report({ ok: false, message: error.message });
+            return;
+          }
+          const user = toAuthUser(data.user);
+          // SIGNED_IN normally reaches this first. The idempotent setter also
+          // covers browsers where that event is delivered on a later task.
+          setCurrentUser(user);
+          report({ ok: true, user: user ?? undefined });
+        } finally {
+          googleSignInInFlight = false;
         }
-        currentUser = toAuthUser(data.user);
-        emit();
-        report({ ok: true, user: currentUser ?? undefined });
       }
     });
     googleInitialized = true;
@@ -299,8 +318,7 @@ export async function signInWithEmail(email: string, password: string): Promise<
     return { ok: false, message: 'Unable to start your session.' };
   }
 
-  currentUser = { id: user.id, email: trimmed };
-  emit();
+  setCurrentUser({ id: user.id, email: trimmed });
   return { ok: true, message: 'Welcome back, ' + trimmed + '.' };
 }
 
@@ -311,12 +329,11 @@ function isAnonymousUser(user: User | null): boolean {
 export async function signOut(): Promise<void> {
   window.google?.accounts.id.disableAutoSelect();
   if (supabase) await supabase.auth.signOut();
-  currentUser = null;
+  setCurrentUser(null);
   activeEmail = '';
   try {
     localStorage.removeItem('striatum-active-email');
   } catch {
     /* Ignore unavailable storage. */
   }
-  emit();
 }

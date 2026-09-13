@@ -26,12 +26,13 @@ export function routeRequiresAuth(route: Route): boolean {
 }
 
 const STATIC_ROUTES: Record<string, ScreenType> = {
-  '/': 'onboarding',
-  // Public event-directory links intentionally land on the access screen.
-  // Visitors enter Explore only after starting a session.
-  '/events': 'onboarding',
+  // The homepage and event directory are protected destinations. Guests are
+  // shown /signin first and main.ts restores the route after authentication.
+  '/': 'home',
   '/home': 'home',
+  '/events': 'explore',
   '/explore': 'explore',
+  '/signin': 'onboarding',
   '/programme': 'programme',
   '/cart': 'cart',
   '/payment': 'event-payment',
@@ -48,9 +49,28 @@ const STATIC_ROUTES: Record<string, ScreenType> = {
   '/credits': 'credits'
 };
 
-const SCREEN_TO_PATH: Partial<Record<ScreenType, string>> = Object.fromEntries(
-  Object.entries(STATIC_ROUTES).map(([path, screen]) => [screen, path])
-) as Partial<Record<ScreenType, string>>;
+// Keep one stable canonical path per screen. Deriving this by reversing
+// STATIC_ROUTES made aliases such as `/` and `/home` overwrite one another;
+// onboarding consequently resolved to `/events` and returning sessions could
+// remain trapped on the access screen.
+const SCREEN_TO_PATH: Partial<Record<ScreenType, string>> = {
+  onboarding: '/signin',
+  home: '/',
+  explore: '/explore',
+  programme: '/programme',
+  cart: '/cart',
+  'event-payment': '/payment',
+  'event-confirm': '/confirmed',
+  'delegate-registration': '/delegate',
+  'delegate-payment': '/delegate/payment',
+  'delegate-confirm': '/delegate/pass',
+  'my-events': '/my-events',
+  profile: '/profile',
+  admin: '/admin',
+  privacy: '/privacy',
+  terms: '/terms',
+  credits: '/credits'
+};
 
 /** The URL a given screen should show. */
 export function pathFor(screen: ScreenType, eventId?: string): string {
