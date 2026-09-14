@@ -1,6 +1,7 @@
 import QRCode from 'qrcode';
 import { appStore } from '../state/appStore.ts';
 import * as registration from '../services/registrationService.ts';
+import { escapeHtml } from '../services/text.ts';
 
 /**
  * Generates an authentic unique QR Code SVG for the delegate pass,
@@ -629,11 +630,3 @@ export function attachDelegateConfirmEvents(): void {
   });
 }
 
-function escapeHtml(str: string): string {
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
-}

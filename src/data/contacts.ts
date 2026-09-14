@@ -26,27 +26,6 @@ export const REGISTRATION_CONTACT: OrganiserContact = {
   phone: '7806825939'
 };
 
-/**
- * Supplied by the organisers without a confirmed brochure/event mapping.
- * Never rendered. Kept so the numbers are not lost between handovers.
- *
- * Gugan M is NOT Gugan G. Gugan G is the GLOW CODE in-charge and appears in the
- * catalogue; Gugan M has no confirmed event and stays here.
- */
-export const UNMAPPED_ORGANISER_CONTACTS: OrganiserContact[] = [
-  { name: 'Gugan M', phone: '9080120908', note: 'Distinct from Gugan G (GLOW CODE in-charge).' },
-  { name: 'A Nilavan', phone: '9487783783' },
-  { name: 'Mahalakshmi D', phone: '8667589980' },
-  { name: 'Nivetha Devi B', phone: '6382334788' },
-  { name: 'S Deepak', phone: '8508690591' },
-  { name: 'Subiksha', phone: '6380195356' },
-  { name: 'Padhmajaa', phone: '6381308738' },
-  {
-    name: 'Thirumurugan S',
-    note: 'Listed as in-charge for Aurelia Celestia / Gala Night, which is not an event in the current brochure catalogue.'
-  }
-];
-
 /** Digits only, with the Indian country code, for a wa.me link. */
 export function whatsappNumber(phone: string): string {
   const digits = phone.replace(/\D/g, '');

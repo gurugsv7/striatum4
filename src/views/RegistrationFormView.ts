@@ -20,6 +20,7 @@ import {
   ValidationIssue
 } from '../services/registrationForm.ts';
 import { COMBO_OFFERS, comboTitle, comboEvents } from '../data/combos.ts';
+import { escapeHtml as esc } from '../services/text.ts';
 
 /**
  * 05 / REGISTRATION — the one form.
@@ -99,24 +100,11 @@ export function startComboRegistration(comboId: string, editing = false): boolea
   return true;
 }
 
-export function hasActiveDraft(): boolean {
-  return draft !== null;
-}
-
 export function clearDraft(): void {
   draft = null;
 }
 
 /* ------------------------------------------------------------- rendering -- */
-
-function esc(value: string): string {
-  return value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}
 
 const FIELD_LABEL: Record<MemberField, string> = {
   name: 'Full name',

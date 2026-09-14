@@ -21,9 +21,9 @@ import {
 import {
   EventRegistrationIntent,
   validateIntent,
-  toServerTeams,
-  participantCount
+  toServerTeams
 } from './registrationForm.ts';
+import { minutesOf } from './time.ts';
 
 /* ============================================================================
  * STRIATUM 4.0 — registration & payment domain service.
@@ -315,12 +315,6 @@ export function getDelegate(): DelegateApplication | null {
   return state.delegate ? { ...state.delegate } : null;
 }
 
-/** Set delegate state directly for test verification suites. */
-export function setDelegateForTesting(delegate: DelegateApplication | null): void {
-  state.delegate = delegate;
-  save();
-}
-
 export function getDelegateStatus(): DelegateStatus {
   return state.delegate?.status ?? 'none';
 }
@@ -333,11 +327,6 @@ export function getDelegateStatus(): DelegateStatus {
 export function hasActiveDelegatePass(): boolean {
   const status = state.delegate?.status;
   return status === 'pending' || status === 'approved';
-}
-
-/** True only once an organiser has positively verified the pass. */
-export function hasApprovedDelegatePass(): boolean {
-  return state.delegate?.status === 'approved';
 }
 
 /**
@@ -652,11 +641,6 @@ export function replaceRegistration(intent: EventRegistrationIntent): CartMutati
   return { ok: true, message: 'Registration updated' };
 }
 
-/** People named across a cart item's roster. */
-export function itemParticipantCount(item: CartItem): number {
-  return item.intent ? participantCount(item.intent) : 0;
-}
-
 /* ------------------------------------------------------------------ combos -- */
 
 export type ComboState = 'available' | 'in_cart' | 'closed' | 'unavailable';
@@ -697,75 +681,9 @@ export function comboAvailability(comboId: string, now: number = Date.now()): Co
   return { state: 'available' };
 }
 
-/**
- * Adds every event in a combo, or none of them.
- *
- * The whole bundle is validated first so a delegate is never left holding half
- * a combo at full price. Pricing is not decided here: create_order re-reads the
- * catalogue and re-applies the matching rule server-side.
- */
-export function addComboToCart(comboId: string): CartMutationResult {
-  const combo = COMBO_OFFERS.find(offer => offer.id === comboId);
-  if (!combo) return { ok: false, message: 'Unknown combo.' };
-
-  const availability = comboAvailability(comboId);
-  if (availability.state === 'in_cart') {
-    return { ok: false, message: 'That combo is already in your cart.' };
-  }
-  if (availability.state !== 'available') {
-    return { ok: false, message: availability.reason ?? 'That combo is not available.' };
-  }
-
-  const needsLunch = combo.eventIds
-    .map(id => getEvent(id))
-    .filter((event): event is SymposiumEvent => Boolean(event))
-    .filter(event => isFullDayWorkshop(event));
-
-  for (const eventId of combo.eventIds) {
-    const event = getEvent(eventId);
-    if (!event) continue;
-    state.cart.push({
-      eventId,
-      participation: defaultParticipation(event),
-      addedAt: Date.now(),
-      quantity: combo.teamsPerEvent > 1 ? combo.teamsPerEvent : undefined,
-      comboId
-    });
-  }
-  save();
-
-  return {
-    ok: true,
-    message: needsLunch.length
-      ? comboTitle(combo) + ' added — choose a lunch preference in your cart'
-      : comboTitle(combo) + ' added to cart'
-  };
-}
-
-/** Removes every line a combo contributed. */
-export function removeComboFromCart(comboId: string): CartMutationResult {
-  const before = state.cart.length;
-  state.cart = state.cart.filter(item => item.comboId !== comboId);
-  if (state.cart.length === before) return { ok: false, message: 'That combo is not in your cart.' };
-  save();
-  return { ok: true, message: 'Combo removed' };
-}
-
 /** Combo ids currently represented in the cart. */
 export function combosInCart(): string[] {
   return [...new Set(state.cart.map(item => item.comboId).filter((id): id is string => Boolean(id)))];
-}
-
-export function setCartParticipation(eventId: string, participation: Participation): void {
-  const item = state.cart.find(i => i.eventId === eventId);
-  if (!item) return;
-  item.participation = participation;
-  save();
-}
-
-export function clearCart(): void {
-  state.cart = [];
-  save();
 }
 
 /* ---------------------------------------------------------------- capacity -- */
@@ -880,16 +798,6 @@ export const CTA_LABELS: Record<CtaState, string> = {
 };
 
 /* -------------------------------------------------------- schedule conflict -- */
-
-function minutesOf(time?: string): number | null {
-  if (!time) return null;
-  const match = time.trim().match(/^(\d{1,2})(?::(\d{2}))?\s*(AM|PM)$/i);
-  if (!match) return null;
-  let hours = parseInt(match[1], 10) % 12;
-  const mins = match[2] ? parseInt(match[2], 10) : 0;
-  if (/pm/i.test(match[3])) hours += 12;
-  return hours * 60 + mins;
-}
 
 export interface ScheduleConflict {
   a: string;
@@ -1118,24 +1026,6 @@ export function getMyOrders(): Order[] {
 export function getOrder(orderId: string): Order | undefined {
   const found = state.orders.find(o => o.id === orderId);
   return found ? { ...found } : undefined;
-}
-
-/** The order the delegate currently needs to act on, if any. */
-export function getActiveOrder(): Order | undefined {
-  return getOrders()
-    .filter(o => ['awaiting_payment', 'payment_submitted', 'under_review', 'rejected'].includes(o.status))
-    .sort((a, b) => b.createdAt - a.createdAt)[0];
-}
-
-export function cancelOrder(orderId: string): CartMutationResult {
-  const order = state.orders.find(o => o.id === orderId);
-  if (!order) return { ok: false, message: 'Order not found.' };
-  if (order.status === 'approved') {
-    return { ok: false, message: 'An approved order cannot be cancelled here.' };
-  }
-  order.status = 'cancelled';
-  save();
-  return { ok: true, message: 'Order ' + order.reference + ' cancelled' };
 }
 
 /* ---------------------------------------------------------- payment proofs -- */
@@ -1737,19 +1627,6 @@ export function orderStatusLabel(status: OrderStatus): string {
     case 'cancelled':
       return 'CANCELLED';
   }
-}
-
-/** Clears every locally persisted registration artefact, proofs included. */
-export function resetAll(): void {
-  state.orders.forEach(o => {
-    try {
-      localStorage.removeItem(proofKey(o.id));
-    } catch {
-      /* ignore */
-    }
-  });
-  state = { ...EMPTY };
-  save();
 }
 
 export { formatINR, EVENTS };

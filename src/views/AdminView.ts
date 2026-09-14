@@ -1,6 +1,7 @@
 import { appStore } from '../state/appStore.ts';
 import * as registration from '../services/registrationService.ts';
 import { formatINR } from '../services/pricing.ts';
+import { escapeHtml } from '../services/text.ts';
 
 /**
  * Manual verification console. This reads and mutates the same localStorage-backed
@@ -73,14 +74,6 @@ function rosterBlock(order: registration.Order, line: registration.OrderLine): s
         })
         .join('')}
     </div>`;
-}
-
-function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
 }
 
 function formatTimestamp(ts?: number): string {

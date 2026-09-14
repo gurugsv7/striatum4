@@ -3,7 +3,6 @@ import { SymposiumEvent, EventSection, CATEGORY_LABELS } from '../../data/eventT
 import { eventContextLine } from '../../data/events.ts';
 import { resolvePrice, defaultParticipation, formatINR, Participation } from '../../services/pricing.ts';
 import * as registration from '../../services/registrationService.ts';
-import { isFullDayWorkshop, LunchChoice } from '../../services/workshop.ts';
 import { startEventRegistration } from '../../views/RegistrationFormView.ts';
 import { icon, slotButton } from '../shell.ts';
 import { telNumber, whatsappNumber } from '../../data/contacts.ts';
@@ -20,7 +19,6 @@ import { telNumber, whatsappNumber } from '../../data/contacts.ts';
 /** Per-event choices made on this screen. Desktop keeps its own, as the
  *  mobile view does, and hands the result to the cart on add. */
 const chosenParticipation: Record<string, Participation> = {};
-const chosenLunch: Record<string, LunchChoice> = {};
 
 function participationFor(event: SymposiumEvent): Participation {
   return chosenParticipation[event.id] ?? defaultParticipation(event);
@@ -204,23 +202,6 @@ function renderParticipationChoice(event: SymposiumEvent): string {
     </div>`;
 }
 
-function renderLunchChoice(event: SymposiumEvent): string {
-  if (!isFullDayWorkshop(event)) return '';
-  const current = chosenLunch[event.id];
-  return `
-    <div class="d-choice">
-      <span class="d-hud-label">LUNCH PREFERENCE</span>
-      <div class="d-choice-options">
-        <button class="d-choice-btn ${current === 'veg' ? 'is-on' : ''}" data-d-lunch="veg">
-          <strong>Vegetarian</strong><small>LUNCH</small>
-        </button>
-        <button class="d-choice-btn ${current === 'non_veg' ? 'is-on' : ''}" data-d-lunch="non_veg">
-          <strong>Non-vegetarian</strong><small>LUNCH</small>
-        </button>
-      </div>
-    </div>`;
-}
-
 function renderConsole(event: SymposiumEvent): string {
   const price = resolvePrice(event, participationFor(event));
   const capacity = registration.getCapacity(event.id);
@@ -286,7 +267,6 @@ function renderConsole(event: SymposiumEvent): string {
         }
 
         ${renderParticipationChoice(event)}
-        ${renderLunchChoice(event)}
         ${slotButton('btn-event-primary-action', label, disabled)}
         ${renderDelegateNotice(event)}`
         }
@@ -394,13 +374,6 @@ export function attachDesktopEventDetails(): void {
   document.querySelectorAll<HTMLButtonElement>('[data-d-participation]').forEach(button => {
     button.addEventListener('click', () => {
       chosenParticipation[event.id] = button.getAttribute('data-d-participation') as Participation;
-      appStore.refresh();
-    });
-  });
-
-  document.querySelectorAll<HTMLButtonElement>('[data-d-lunch]').forEach(button => {
-    button.addEventListener('click', () => {
-      chosenLunch[event.id] = button.getAttribute('data-d-lunch') as LunchChoice;
       appStore.refresh();
     });
   });

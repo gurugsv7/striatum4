@@ -3,7 +3,6 @@ import { SymposiumEvent, EventSection, CATEGORY_LABELS } from '../data/eventType
 import { eventContextLine } from '../data/events.ts';
 import { resolvePrice, defaultParticipation, formatINR, Participation } from '../services/pricing.ts';
 import * as registration from '../services/registrationService.ts';
-import { isFullDayWorkshop, LunchChoice } from '../services/workshop.ts';
 import { startEventRegistration } from '../views/RegistrationFormView.ts';
 import { telNumber, whatsappNumber } from '../data/contacts.ts';
 
@@ -13,7 +12,6 @@ import { telNumber, whatsappNumber } from '../data/contacts.ts';
  * reaches the cart, which then owns the choice.
  */
 const chosenParticipation: Record<string, Participation> = {};
-const chosenLunch: Record<string, LunchChoice> = {};
 
 function participationFor(event: SymposiumEvent): Participation {
   return chosenParticipation[event.id] ?? defaultParticipation(event);
@@ -252,23 +250,6 @@ function renderParticipationChoice(event: SymposiumEvent): string {
   `;
 }
 
-function renderLunchChoice(event: SymposiumEvent): string {
-  if (!isFullDayWorkshop(event)) return '';
-  const current = chosenLunch[event.id];
-  return `
-    <div class="participation-switch lunch-choice-block">
-      <div class="participation-label">LUNCH PREFERENCE</div>
-      <div class="participation-options">
-        <button class="participation-option ${current === 'veg' ? 'active' : ''}" data-lunch-choice="veg">
-          <span>Vegetarian</span><span class="participation-price">LUNCH</span>
-        </button>
-        <button class="participation-option ${current === 'non_veg' ? 'active' : ''}" data-lunch-choice="non_veg">
-          <span>Non-vegetarian</span><span class="participation-price">LUNCH</span>
-        </button>
-      </div>
-    </div>`;
-}
-
 function renderPrimaryAction(event: SymposiumEvent): string {
   const cta = registration.getCtaState(event.id);
   const label = registration.CTA_LABELS[cta];
@@ -277,14 +258,6 @@ function renderPrimaryAction(event: SymposiumEvent): string {
   // checkout, so the delegate can still assemble their selection while the
   // application is being verified.
   const disabled = cta === 'full' || cta === 'closed' || cta === 'not_registerable';
-
-  const arrow = `
-    <span class="circle-arrow-icon" style="background: rgba(42, 241, 250, 0.1);">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M5 12h14"/>
-        <path d="m12 5 7 7-7 7"/>
-      </svg>
-    </span>`;
 
   if (cta === 'not_registerable') {
     return `
@@ -299,7 +272,6 @@ function renderPrimaryAction(event: SymposiumEvent): string {
   return `
     <div class="details-action-block">
       ${renderParticipationChoice(event)}
-      ${renderLunchChoice(event)}
       <button class="btn-chamfer-primary btn-register-event-slot state-${cta}" id="btn-event-primary-action" ${disabled ? 'disabled' : ''}>
         <span>${label}</span>
       </button>
@@ -434,14 +406,6 @@ export function attachEventDetailsEvents(): void {
     btn.addEventListener('click', () => {
       const value = btn.getAttribute('data-participation') as Participation;
       chosenParticipation[event.id] = value;
-      appStore.refresh();
-    });
-  });
-
-  document.querySelectorAll<HTMLButtonElement>('[data-lunch-choice]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const value = btn.getAttribute('data-lunch-choice') as LunchChoice;
-      chosenLunch[event.id] = value;
       appStore.refresh();
     });
   });

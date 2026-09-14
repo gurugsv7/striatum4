@@ -235,38 +235,6 @@
   text-shadow: 0 0 10px var(--cyan-glow);
   padding-bottom: 4px;
 }
-
-/* Right-aligned Vertical Micro-Annotations */
-.side-annotation-col {
-  position: absolute;
-  right: 0;
-  top: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  text-align: left;
-  pointer-events: none;
-}
-
-.side-annotation-text {
-  font-family: var(--font-mono-meta);
-  font-size: 8.5px;
-  line-height: 1.4;
-  letter-spacing: 1.8px;
-  color: var(--text-dim);
-  text-transform: uppercase;
-  border-left: 1px solid rgba(42, 241, 250, 0.2);
-  padding-left: 8px;
-}
-
-.side-annotation-text .bottom-dash {
-  display: block;
-  width: 14px;
-  height: 1px;
-  background: var(--text-dim);
-  margin-top: 5px;
-}
-
 /* 3. HUD Delegate ID Card */
 .hud-delegate-card {
   position: relative;
@@ -306,23 +274,6 @@
   border-right: 2px solid var(--cyan-glow);
   border-bottom-right-radius: 2px;
 }
-
-.hud-label-top {
-  font-family: var(--font-mono-meta);
-  font-size: 9px;
-  letter-spacing: 2px;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  margin-bottom: 8px;
-}
-
-.hud-id-value-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 14px;
-}
-
 .hud-id-prefix {
   font-family: var(--font-serif-display);
   font-size: 22px;
@@ -335,45 +286,6 @@
   gap: 6px;
   flex: 1;
 }
-
-.track-node-line {
-  height: 1px;
-  background: rgba(42, 241, 250, 0.4);
-  flex: 1;
-}
-
-.track-node-dot {
-  width: 6px;
-  height: 6px;
-  background: var(--cyan-glow);
-  border-radius: 50%;
-  box-shadow: 0 0 8px var(--cyan-glow);
-}
-
-.track-dash {
-  width: 14px;
-  height: 1px;
-  background: rgba(42, 241, 250, 0.3);
-}
-
-.hud-status-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-family: var(--font-mono-meta);
-  font-size: 9px;
-  letter-spacing: 1.5px;
-}
-
-.hud-status-label {
-  color: var(--text-dim);
-}
-
-.hud-status-val {
-  color: var(--text-muted);
-  font-weight: 600;
-}
-
 .hud-status-val.registered {
   color: var(--cyan-glow);
   text-shadow: 0 0 8px var(--cyan-glow);
@@ -614,16 +526,6 @@
   position: relative;
   z-index: 2;
 }
-
-.event-card-subtitle {
-  font-family: var(--font-sans-ui);
-  font-size: 12.5px;
-  color: var(--text-muted);
-  margin-bottom: 18px;
-  position: relative;
-  z-index: 2;
-}
-
 .event-card-footer {
   display: flex;
   justify-content: space-between;
@@ -631,17 +533,6 @@
   position: relative;
   z-index: 2;
 }
-
-.event-date-wrap {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--font-mono-meta);
-  font-size: 11.5px;
-  color: var(--text-silver);
-  letter-spacing: 1.2px;
-}
-
 .btn-view-event {
   display: inline-flex;
   align-items: center;
@@ -744,60 +635,10 @@
   box-shadow: 0 0 24px rgba(42, 241, 250, 0.6), inset 0 0 16px rgba(42, 241, 250, 0.25);
   border-color: #ffffff;
 }
-
-.btn-register-label {
-  font-family: var(--font-mono-meta);
-  font-size: 12.5px;
-  font-weight: 600;
-  letter-spacing: 1.5px;
-  color: var(--cyan-glow);
-  text-transform: uppercase;
-}
-
-/* 8. 4-Column Metric Grid */
-.metrics-grid-4col {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  border-top: 1px solid rgba(42, 241, 250, 0.15);
-  border-bottom: 1px solid rgba(42, 241, 250, 0.15);
-  padding: 16px 0;
-  margin: 18px 0;
-}
-
-.metric-col-item {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  padding: 0 8px;
-  border-right: 1px solid rgba(42, 241, 250, 0.12);
-}
-
-.metric-col-item:last-child {
-  border-right: none;
-}
-
 .metric-icon {
   color: var(--cyan-glow);
   margin-bottom: 6px;
 }
-
-.metric-title {
-  font-family: var(--font-mono-meta);
-  font-size: 8.5px;
-  letter-spacing: 1.5px;
-  color: var(--text-dim);
-  text-transform: uppercase;
-  margin-bottom: 4px;
-}
-
-.metric-value {
-  font-family: var(--font-sans-ui);
-  font-size: 12px;
-  font-weight: 600;
-  color: #ffffff;
-  line-height: 1.2;
-}
-
 /* 9. Accordion Sections */
 .accordion-group {
   display: flex;
@@ -890,61 +731,6 @@
   background: var(--cyan-deep);
   border-radius: 999px;
 }
-
-/* 10. Orbit HUD Graphic in Event Details */
-.orbit-hud-container {
-  position: absolute;
-  top: 50px;
-  right: 12px;
-  width: 140px;
-  height: 160px;
-  pointer-events: none;
-}
-
-.orbit-hud-arc {
-  position: absolute;
-  top: 10px;
-  right: 60px;
-  width: 80px;
-  height: 80px;
-  border-left: 1px solid rgba(42, 241, 250, 0.35);
-  border-radius: 50%;
-}
-
-.orbit-hud-line {
-  position: absolute;
-  top: 10px;
-  right: 60px;
-  width: 1px;
-  height: 80px;
-  background: linear-gradient(180deg, var(--cyan-glow) 0%, rgba(42, 241, 250, 0.1) 100%);
-}
-
-.orbit-hud-node {
-  position: absolute;
-  top: 8px;
-  right: 58px;
-  width: 5px;
-  height: 5px;
-  background: var(--cyan-glow);
-  border-radius: 50%;
-  box-shadow: 0 0 8px var(--cyan-glow);
-}
-
-.orbit-hud-labels {
-  position: absolute;
-  top: 20px;
-  right: 0;
-  font-family: var(--font-mono-meta);
-  font-size: 8px;
-  letter-spacing: 2px;
-  color: var(--text-dim);
-  line-height: 1.7;
-  text-transform: uppercase;
-  border-left: 1px solid rgba(42, 241, 250, 0.25);
-  padding-left: 8px;
-}
-
 /* 11. Modal Dialog for Delegate Registration */
 .modal-overlay {
   position: fixed;
@@ -968,20 +754,6 @@
   opacity: 1;
   pointer-events: auto;
 }
-
-.modal-card {
-  width: 100%;
-  max-width: 360px;
-  background: #020e1c;
-  border: 1px solid rgba(42, 241, 250, 0.35);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8), 0 0 30px rgba(42, 241, 250, 0.2);
-  border-radius: 12px;
-  padding: 24px;
-  position: relative;
-  transform: translateY(20px);
-  transition: transform 0.25s ease;
-}
-
 .modal-overlay.open .modal-card {
   transform: translateY(0);
 }

@@ -63,30 +63,6 @@
   color: var(--text-muted);
   margin-top: 4px;
 }
-
-.profile-pillar-col {
-  text-align: right;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-}
-
-.profile-pillar-text {
-  font-family: var(--font-mono-meta);
-  font-size: 8px;
-  letter-spacing: 1.5px;
-  line-height: 1.45;
-  color: var(--text-muted);
-  text-transform: uppercase;
-}
-
-.profile-pillar-line {
-  width: 32px;
-  height: 1.5px;
-  background: #8ca3b8;
-  margin-top: 5px;
-}
-
 /* Main Identity & Whale Row */
 .profile-identity-row {
   display: flex;
@@ -130,33 +106,6 @@
   border-radius: 50%;
   display: block;
 }
-
-.profile-avatar-edit-btn {
-  position: absolute;
-  bottom: 1px;
-  right: 1px;
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  background: #020f1e;
-  border: 1.4px solid var(--cyan-glow);
-  box-shadow: 0 0 10px rgba(42, 241, 250, 0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  padding: 0;
-  color: #ffffff;
-  transition: all 0.2s ease;
-  z-index: 3;
-}
-
-.profile-avatar-edit-btn:hover {
-  background: var(--cyan-glow);
-  color: #010409;
-  transform: scale(1.08);
-}
-
 /* Identity Typography */
 .profile-identity-info {
   display: flex;
@@ -246,16 +195,6 @@
   letter-spacing: 2px;
   color: #ffffff;
 }
-
-.profile-expedition-sub {
-  font-family: var(--font-mono-meta);
-  font-size: 8px;
-  letter-spacing: 1.3px;
-  line-height: 1.4;
-  color: var(--text-muted);
-  text-transform: uppercase;
-}
-
 /* ==========================================================================
    2. "MY DELEGATE ID" BANNER CARD
    ========================================================================== */
@@ -560,32 +499,6 @@
   line-height: 1.45;
   margin-top: 8px;
 }
-
-.profile-quote-right-pillar {
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  border-left: 1.2px solid rgba(42, 241, 250, 0.32);
-  padding-left: 10px;
-}
-
-.profile-quote-pillar-text {
-  font-family: var(--font-mono-meta);
-  font-size: 8px;
-  letter-spacing: 1.4px;
-  line-height: 1.45;
-  color: var(--text-muted);
-  text-transform: uppercase;
-}
-
-.profile-quote-pillar-line {
-  width: 26px;
-  height: 1.5px;
-  background: #8ca3b8;
-  margin-top: 6px;
-}
-
 /* ==========================================================================
    5. FOOTER SEABED ARTWORK & SIGNOFF (NATURALLY ABUTS BOTTOM NAV)
    ========================================================================== */
@@ -602,29 +515,6 @@
   padding: 10px 20px 24px 20px;
   margin-top: auto; /* Pushes footer seamlessly to bottom of viewport */
 }
-
-.profile-footer-left {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
-
-.profile-footer-ideas-text {
-  font-family: var(--font-mono-meta);
-  font-size: 9px;
-  letter-spacing: 1.8px;
-  line-height: 1.45;
-  color: var(--text-muted);
-  text-transform: uppercase;
-}
-
-.profile-footer-left-line {
-  width: 28px;
-  height: 1.5px;
-  background: #8ca3b8;
-  margin-top: 5px;
-}
-
 .profile-footer-right {
   display: flex;
   flex-direction: column;

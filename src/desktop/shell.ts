@@ -9,14 +9,7 @@ import { appStore, ScreenType } from '../state/appStore.ts';
 import * as registration from '../services/registrationService.ts';
 
 /** HTML-escapes a value that came from a person rather than from the brochure. */
-export function esc(value: string): string {
-  return value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}
+export { escapeHtml as esc } from '../services/text.ts';
 
 type IconName = 'home' | 'explore' | 'programme' | 'mine' | 'combos' | 'profile' | 'cart' | 'search' | 'arrow' | 'back' | 'chevron' | 'info' | 'shield' | 'clock' | 'award' | 'settings' | 'mail' | 'lock';
 

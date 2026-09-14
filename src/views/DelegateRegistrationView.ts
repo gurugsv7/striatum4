@@ -1,4 +1,5 @@
 import { appStore } from '../state/appStore.ts';
+import { escapeHtml } from '../services/text.ts';
 
 /**
  * Courses the brochure names as eligible (see the NEURONOVA eligibility block in
@@ -363,11 +364,3 @@ export function attachDelegateRegistrationEvents(): void {
   });
 }
 
-function escapeHtml(str: string): string {
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
-}

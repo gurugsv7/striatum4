@@ -4,6 +4,7 @@ import { signOut } from '../../services/authService.ts';
 import { getProfileGender, setProfileGender } from '../../views/ProfileView.ts';
 import { EVENTS } from '../../data/events.ts';
 import { crest, esc, icon } from '../shell.ts';
+import { minutesOf } from '../../services/time.ts';
 
 /**
  * Desktop profile.
@@ -12,16 +13,6 @@ import { crest, esc, icon } from '../shell.ts';
  * has nowhere else to put them. Here the credential sits on the left and the
  * editable details sit beside it, open — no modal, no round-trip.
  */
-
-function minutesOf(time?: string): number | null {
-  if (!time) return null;
-  const match = time.trim().match(/^(\d{1,2})(?::(\d{2}))?\s*(AM|PM)$/i);
-  if (!match) return null;
-  let hours = parseInt(match[1], 10) % 12;
-  const mins = match[2] ? parseInt(match[2], 10) : 0;
-  if (/pm/i.test(match[3])) hours += 12;
-  return hours * 60 + mins;
-}
 
 /** The delegate's own next confirmed session, or null when they have none. */
 function nextCommitted() {

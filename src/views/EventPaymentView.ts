@@ -1,6 +1,7 @@
 import { appStore } from '../state/appStore.ts';
 import * as registration from '../services/registrationService.ts';
 import { Order, OrderLine } from '../services/registrationService.ts';
+import { escapeHtml } from '../services/text.ts';
 
 /**
  * EVENT PAYMENT VIEW — "03 / PAYMENT" (new mockup-faithful design)
@@ -529,11 +530,3 @@ async function handleFileChange(fileInput: HTMLInputElement): Promise<void> {
   appStore.setEventScreenshot(result.dataUrl, file.name);
 }
 
-function escapeHtml(str: string): string {
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
-}

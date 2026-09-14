@@ -72,30 +72,6 @@
   color: var(--text-dim);
   margin-top: 2px;
 }
-
-.top-bar-motto-col {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  text-align: right;
-}
-
-.top-bar-motto-text {
-  font-family: var(--font-mono-meta);
-  font-size: 7.5px;
-  line-height: 1.35;
-  letter-spacing: 1.6px;
-  color: var(--text-silver);
-  display: flex;
-  flex-direction: column;
-}
-
-.top-bar-motto-pipe {
-  width: 1px;
-  height: 28px;
-  background: rgba(42, 241, 250, 0.4);
-}
-
 /* ==========================================================================
    TIMELINE RAIL SYSTEM
    ========================================================================== */
@@ -147,19 +123,6 @@
   color: var(--cyan-glow);
   text-transform: uppercase;
 }
-
-.step-annotation-right {
-  font-family: var(--font-mono-meta);
-  font-size: 7.5px;
-  line-height: 1.35;
-  letter-spacing: 1.8px;
-  color: var(--text-dim);
-  text-align: right;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-}
-
 .step-annotation-right .dash {
   margin-top: 2px;
   color: var(--cyan-glow);
@@ -563,30 +526,6 @@
   background: rgba(42, 241, 250, 0.4);
   margin-top: 8px;
 }
-
-.footer-right-col {
-  display: flex;
-  align-items: flex-end;
-  gap: 8px;
-  text-align: right;
-}
-
-.f-motto-lines {
-  font-family: var(--font-mono-meta);
-  font-size: 7.5px;
-  line-height: 1.35;
-  letter-spacing: 1.6px;
-  color: var(--text-silver);
-  display: flex;
-  flex-direction: column;
-}
-
-.f-pipe {
-  width: 1px;
-  height: 28px;
-  background: rgba(42, 241, 250, 0.4);
-}
-
 /* ==========================================================================
    PAYMENT SCREEN SPECIFIC (delegate_payment.jpg)
    ========================================================================== */

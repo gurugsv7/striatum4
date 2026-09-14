@@ -35,11 +35,6 @@ export interface ComboOffer {
   publishedComboTotal: number;
 }
 
-/**
- * Early-bird combos close at the end of 27 September 2026, India time — the
- * same day early-bird pricing ends.
- */
-export const COMBO_DEADLINE_ISO = '2026-09-27';
 export const COMBO_DEADLINE_DISPLAY = '27 SEP 2026';
 
 /** End of 27 Sep 2026 in Asia/Kolkata, expressed as a UTC instant. */

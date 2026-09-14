@@ -1,5 +1,6 @@
 import { appStore } from '../state/appStore.ts';
 import * as registration from '../services/registrationService.ts';
+import { escapeHtml } from '../services/text.ts';
 
 /** Official symposium UPI ID for delegate pass registration payments. */
 const UPI_ID = 'sigmapy@iob';
@@ -277,11 +278,3 @@ export function attachDelegatePaymentEvents(): void {
   });
 }
 
-function escapeHtml(str: string): string {
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
-}

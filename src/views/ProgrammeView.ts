@@ -2,16 +2,7 @@ import { appStore } from '../state/appStore.ts';
 import * as registration from '../services/registrationService.ts';
 import { EVENTS, allEventDates, eventContextLine, getEvent } from '../data/events.ts';
 import type { SymposiumEvent } from '../data/eventTypes.ts';
-
-function minutesOf(time?: string): number | null {
-  if (!time) return null;
-  const match = time.trim().match(/^(\d{1,2})(?::(\d{2}))?\s*(AM|PM)$/i);
-  if (!match) return null;
-  let hours = parseInt(match[1], 10) % 12;
-  const mins = match[2] ? parseInt(match[2], 10) : 0;
-  if (/pm/i.test(match[3])) hours += 12;
-  return hours * 60 + mins;
-}
+import { minutesOf } from '../services/time.ts';
 
 /** Quiet "now / next" line — never fabricated, derived only from real dates. */
 function nowNextLine(days: { iso: string; display: string }[]): string {

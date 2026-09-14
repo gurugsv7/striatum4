@@ -157,19 +157,6 @@
   padding-top: 20px;
   border-top: 1px solid rgba(42, 241, 250, 0.1);
 }
-
-.footer-left-quote {
-  display: flex;
-  flex-direction: column;
-  font-family: var(--font-mono-meta);
-  font-size: 8px;
-  letter-spacing: 2px;
-  line-height: 1.4;
-  color: var(--text-dim);
-  border-left: 1px solid rgba(42, 241, 250, 0.2);
-  padding-left: 8px;
-}
-
 .footer-left-quote .motto-dash {
   display: block;
   width: 14px;

@@ -1,6 +1,7 @@
 import { appStore } from '../state/appStore.ts';
 import * as registration from '../services/registrationService.ts';
 import { signOut } from '../services/authService.ts';
+import { escapeHtml } from '../services/text.ts';
 
 const GENDER_KEY = 'striatum4.profile.gender';
 
@@ -12,18 +13,6 @@ export function getProfileGender(): 'male' | 'female' {
 
 export function setProfileGender(gender: 'male' | 'female'): void {
   localStorage.setItem(GENDER_KEY, gender);
-}
-
-/**
- * Escapes HTML characters to prevent XSS injection.
- */
-function escapeHtml(str: string): string {
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
 }
 
 export function renderProfileView(): string {

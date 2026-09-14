@@ -156,20 +156,6 @@
   font-weight: 800;
   text-shadow: 0 0 12px rgba(42, 241, 250, 0.7);
 }
-
-.striatum-motto-callout {
-  font-family: var(--font-mono-meta);
-  font-size: 13px;
-  letter-spacing: 2.2px;
-  line-height: 1.6;
-  color: #ffffff;
-}
-
-.striatum-motto-callout .cyan-highlight {
-  color: var(--cyan-glow);
-  text-shadow: 0 0 8px rgba(42, 241, 250, 0.6);
-}
-
 /* Welcome Sign-in Card */
 .onboarding-signin-card {
   display: flex;
@@ -350,23 +336,6 @@
   align-items: center;
   gap: 8px;
 }
-
-.footer-divider-line {
-  width: 1px;
-  height: 38px;
-  background: rgba(42, 241, 250, 0.25);
-}
-
-.footer-right-text {
-  display: flex;
-  flex-direction: column;
-  font-family: var(--font-mono-meta);
-  font-size: 8px;
-  line-height: 1.4;
-  letter-spacing: 2px;
-  color: var(--text-dim);
-}
-
 /* ── Google Identity Services button mount ─────────────────────────────────
    Google renders its own button here; their branding terms do not permit a
    custom-drawn button that issues real credentials. We centre it and match the

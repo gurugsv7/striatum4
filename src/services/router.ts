@@ -97,11 +97,6 @@ export function routeFromPath(pathname: string): Route | null {
   return screen ? { screen } : null;
 }
 
-/** Every path the app serves, for the host's rewrite configuration. */
-export function allRoutePaths(): string[] {
-  return [...Object.keys(STATIC_ROUTES), '/event/:id'];
-}
-
 /** Human title per screen, so history entries and tabs are distinguishable. */
 export function titleFor(screen: ScreenType, eventName?: string): string {
   const suffix = ' | STRIATUM 4.0';

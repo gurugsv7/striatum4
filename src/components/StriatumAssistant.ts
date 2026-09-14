@@ -2,7 +2,7 @@ import { EVENTS, allEventDates } from '../data/events.ts';
 import { CATEGORY_LABELS } from '../data/eventTypes.ts';
 import '../styles/assistant.css';
 
-const esc = (value: string) => value.replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[char] ?? char);
+import { escapeHtml as esc } from '../services/text.ts';
 
 function eventLine(event: typeof EVENTS[number]): string {
   const time = event.startTime ? ` · ${event.startTime}${event.endTime ? `–${event.endTime}` : ''}` : '';

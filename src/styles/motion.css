@@ -45,7 +45,6 @@
   transform: none !important;
 }
 
-.s4-motion-pulse { animation: s4-status-pulse 2.8s ease-in-out infinite; }
 @keyframes s4-content-arrive { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes s4-focus-arrive { from { opacity: 0; transform: translateY(18px) scale(.985); } to { opacity: 1; transform: translateY(0) scale(1); } }
 @keyframes s4-status-pulse { 0%, 100% { opacity: .72; } 50% { opacity: 1; } }

@@ -1,4 +1,4 @@
-import { SymposiumEvent, EventCategory, CATEGORY_FILTERS, Coordinator } from './eventTypes.ts';
+import { SymposiumEvent, CATEGORY_FILTERS, Coordinator } from './eventTypes.ts';
 import { EVENTS_PART_1 } from './events.part1.ts';
 import { EVENTS_PART_2 } from './events.part2.ts';
 
@@ -101,11 +101,6 @@ const LATEST_BROCHURE_OVERRIDES: Record<string, Partial<SymposiumEvent>> = {
   'THE MEDICAL VAULT': {
     date: '18 OCT',
     isoDate: '2026-10-18'
-  },
-  'AURELIA CELESTIA': {
-    date: '17 OCT',
-    isoDate: '2026-10-17',
-    venue: 'OAT'
   },
   MEDMAZE: {
     date: '17 OCT',
@@ -448,15 +443,6 @@ export function matchesSearch(event: SymposiumEvent, rawQuery: string): boolean 
 
   const tokens = query.split(/\s+/).filter(Boolean);
   return tokens.every(matchToken);
-}
-
-export interface SecondaryFilters {
-  specialties?: string[];
-  categories?: EventCategory[];
-  participation?: ('individual' | 'team')[];
-  requiresDelegatePass?: boolean;
-  maxPrice?: number;
-  dates?: string[];
 }
 
 /** Every specialty tag present across the catalogue, alphabetised. */

@@ -2,6 +2,7 @@ import { appStore } from '../state/appStore.ts';
 import * as registration from '../services/registrationService.ts';
 import { formatINR } from '../services/pricing.ts';
 import { getEvent, eventContextLine } from '../data/events.ts';
+import { escapeHtml } from '../services/text.ts';
 
 interface ManifestItem {
   indexStr: string;
@@ -42,15 +43,6 @@ const DEFAULT_MOCKUP_ITEMS: ManifestItem[] = [
     thumbSrc: '/art_penumbra_inner.png'
   }
 ];
-
-function escapeHtml(str: string): string {
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
-}
 
 export function renderEventConfirmView(): string {
   const state = appStore.getState();

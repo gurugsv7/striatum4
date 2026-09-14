@@ -13,7 +13,7 @@
  * the ambiguity is reported rather than guessed.
  */
 import { SymposiumEvent } from './eventTypes.ts';
-import { EVENTS, getEvent } from './events.ts';
+import { getEvent } from './events.ts';
 import { isFullDayWorkshop } from '../services/workshop.ts';
 import type { PassTier } from '../state/appStore.ts';
 
@@ -64,9 +64,6 @@ export interface EventRegistrationSchema {
    */
   teamSizeUnconfirmed?: boolean;
 }
-
-/** Identity fields every registration carries for its primary registrant. */
-export const PRIMARY_FIELDS: MemberField[] = ['name', 'phone', 'email', 'college', 'year'];
 
 const QUIZ_MEMBER_FIELDS: MemberField[] = ['name', 'year'];
 const CROSS_COLLEGE_MEMBER_FIELDS: MemberField[] = ['name', 'year', 'college', 'phone'];
@@ -243,18 +240,7 @@ export function schemaFor(eventId: string): EventRegistrationSchema | null {
   return withNotes;
 }
 
-/** True when this event needs more than a confirmation of the delegate's own details. */
-export function needsRoster(schema: EventRegistrationSchema): boolean {
-  return schema.maxMembers > 1;
-}
-
 /** How many member slots a fresh form should show. */
 export function initialMemberCount(schema: EventRegistrationSchema): number {
   return Math.min(Math.max(schema.defaultMembers, schema.minMembers), schema.maxMembers);
-}
-
-export function allSchemas(): EventRegistrationSchema[] {
-  return EVENTS.filter(event => event.registerable)
-    .map(event => schemaFor(event.id))
-    .filter((schema): schema is EventRegistrationSchema => schema !== null);
 }

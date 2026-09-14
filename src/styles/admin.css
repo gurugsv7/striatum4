@@ -13,58 +13,6 @@
   grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
-
-/* ---------------------------------------------------- delegate modal status -- */
-
-.delegate-status-panel {
-  position: relative;
-  background: rgba(1, 14, 25, 0.7);
-  border: 1px solid rgba(42, 241, 250, 0.16);
-  border-radius: 4px;
-  padding: 14px 16px;
-}
-
-.delegate-status-panel--rejected {
-  border-color: rgba(198, 140, 60, 0.35);
-}
-
-.delegate-status-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 12px;
-  padding: 6px 0;
-  border-bottom: 1px solid rgba(42, 241, 250, 0.08);
-}
-
-.delegate-status-row:last-child {
-  border-bottom: none;
-}
-
-.delegate-status-key {
-  font-family: var(--font-mono-meta);
-  font-size: 9px;
-  letter-spacing: 1.8px;
-  color: var(--text-dim);
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-.delegate-status-val {
-  font-family: var(--font-sans-ui);
-  font-size: 12.5px;
-  color: var(--text-silver);
-  text-align: right;
-}
-
-.delegate-rejection-text {
-  font-family: var(--font-sans-ui);
-  font-size: 12.5px;
-  color: var(--text-muted);
-  line-height: 1.5;
-  margin-top: 6px;
-}
-
 /* ------------------------------------------------------------- figure grid -- */
 
 .admin-figure-grid {
