@@ -128,7 +128,7 @@ const LATEST_BROCHURE_OVERRIDES: Record<string, Partial<SymposiumEvent>> = {
 const EVENT_IN_CHARGES: Record<string, Coordinator[]> = {
   'THE SONO EDGE': [
     { name: 'Sanjai S', phone: '8438835212' },
-    { name: 'Sivashankar V' }
+    { name: 'Sivashankar V', phone: '9025844902' }
   ],
   SUTUREX: [
     { name: 'Soniya S', phone: '8428533333' },
@@ -152,7 +152,7 @@ const EVENT_IN_CHARGES: Record<string, Coordinator[]> = {
   ],
   BONEFIRE: [
     { name: 'Gunasekhar', phone: '8886986966' },
-    { name: 'Rathish E S' }
+    { name: 'Rathish E S', phone: '9629592347' }
   ],
   VITALIS: [
     { name: 'Sajitha B', phone: '9790735423' },
@@ -164,13 +164,13 @@ const EVENT_IN_CHARGES: Record<string, Coordinator[]> = {
   ],
   RYTHMICA: [
     { name: 'Pramika G', phone: '9488178553' },
-    { name: 'Nyara Jacob Manly' }
+    { name: 'Nyara Jacob Manly', phone: '8110005017' }
   ],
   'OCEANIC ODYSSEY': [
     { name: 'Velvizhi V', phone: '8637403376' },
     { name: 'Sushama Ghosh I', phone: '8248193259' }
   ],
-  AQUAQUEST: [{ name: 'Valentina J' }, { name: 'Sakthi S' }],
+  AQUAQUEST: [{ name: 'Valentina J', phone: '9150885613' }, { name: 'Sakthi S', phone: '7010787992' }],
   GLANDSWARS: [
     { name: 'Dikshaya S', phone: '9488306432' },
     { name: 'Dharani M', phone: '9384295160' }
@@ -183,8 +183,8 @@ const EVENT_IN_CHARGES: Record<string, Coordinator[]> = {
     { name: 'Lakshmisree M V', phone: '9626921275' },
     { name: 'Lakshana B', phone: '8072373433' }
   ],
-  'CORAL CANVAS': [{ name: 'Neena Roshini S' }, { name: 'Vaishnovi R C' }],
-  CHIRONEX: [{ name: 'Harikrishna R' }, { name: 'Lavanya', phone: '7603979821' }],
+  'CORAL CANVAS': [{ name: 'Neena Roshini S', phone: '7904519621' }, { name: 'Vaishnovi R C', phone: '8667485281' }],
+  CHIRONEX: [{ name: 'Harikrishna R', phone: '7598388872' }, { name: 'Lavanya', phone: '7603979821' }],
   NEURONOVA: [
     { name: 'Esha Gopika', phone: '9789821884' },
     { name: 'Yuvashri', phone: '6381811767' }
@@ -196,18 +196,18 @@ const EVENT_IN_CHARGES: Record<string, Coordinator[]> = {
   ],
   'LIFE REIMAGINED': [
     { name: 'Jenna Mariam Joji', phone: '7558022834' },
-    { name: 'Shivani S M' }
+    { name: 'Shivani S M', phone: '9384720603' }
   ],
   'BEYOND THE BLUE': [
     { name: 'Adithyan M', phone: '9500207418' },
-    { name: 'Shivam' }
+    { name: 'Shivam', phone: '9354943752' }
   ],
-  BIOVERSE: [{ name: 'Vithiya Saagar S' }, { name: 'Nedu(en)chezhiyan S' }],
+  BIOVERSE: [{ name: 'Vithiya Saagar S', phone: '9360984942' }, { name: 'Nedu(en)chezhiyan S', phone: '9345285122' }],
   'TIDAL CUTS': [
     { name: 'Ram Viswanath Senthil', phone: '7418155363' },
     { name: 'Deepavarshini S', phone: '9487449619' }
   ],
-  MEMEVERSE: [{ name: 'Krishnakumar R' }],
+  MEMEVERSE: [{ name: 'Krishnakumar R', phone: '9790019936' }],
   'THE MEDICAL VAULT': [
     { name: 'Priyadharshini M', phone: '9150682978' },
     { name: 'Purnimasri V', phone: '9047355582' }

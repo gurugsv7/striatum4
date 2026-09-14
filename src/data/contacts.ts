@@ -3,21 +3,17 @@
  *
  * Event in-charges live on the event itself (`SymposiumEvent.coordinators`), so
  * views read them from the catalogue rather than hardcoding names or numbers.
- * This file holds the two things that are NOT per-event:
+ * What is left here is the one contact that is not per-event: the
+ * registration and combo enquiry number.
  *
- *   - the registration/combo enquiry contact, and
- *   - organiser numbers supplied without a confirmed event mapping.
- *
- * The unmapped list is deliberately not rendered anywhere. The organiser
- * supplied these numbers without saying which event each person runs, and
- * guessing would put a stranger's phone on a public page.
+ * There was also a list of organiser numbers supplied without a confirmed
+ * event mapping, held back rather than guessed at. Every one of them has since
+ * been matched to a named in-charge, so the list is gone.
  */
 
 export interface OrganiserContact {
   name: string;
   phone?: string;
-  /** Why this number is not attached to an event yet. */
-  note?: string;
 }
 
 /** Shown on the Combos page for enquiries about bundles and registration. */
