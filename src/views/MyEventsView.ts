@@ -26,6 +26,18 @@ function delegateStatusLine(): string {
   `;
 }
 
+/**
+ * What is actually in an order. A rejected order used to be shown as its
+ * reference alone — "Order S4 / 0012" — which a delegate has no way to map
+ * back to an event they recognise.
+ */
+function orderContents(order: Order): string {
+  const names = order.lines.map(line => line.eventName);
+  if (!names.length) return 'Order ' + order.reference;
+  if (names.length <= 2) return names.join(' + ');
+  return names[0] + ' + ' + (names.length - 1) + ' more';
+}
+
 function actionRequiredGroup(orders: Order[]): string {
   if (!orders.length) return '';
   return `
@@ -38,8 +50,10 @@ function actionRequiredGroup(orders: Order[]): string {
           <div class="myevents-row myevents-row--action">
             <div class="myevents-row-node myevents-row-node--warn"></div>
             <div class="myevents-row-body">
-              <div class="myevents-row-title">Order ${order.reference}</div>
-              <p class="myevents-row-sub">${order.rejectionReason ?? 'Payment proof needs resubmission'}</p>
+              <div class="myevents-row-title">${orderContents(order)}</div>
+              <p class="myevents-row-sub">
+                ${order.reference} · ${order.rejectionReason ?? 'Payment proof needs resubmission'}
+              </p>
               <button class="action-link-cyan myevents-inline-action" data-reupload-order-id="${order.id}">
                 <span>RE-UPLOAD</span>
                 <span>→</span>
@@ -52,6 +66,12 @@ function actionRequiredGroup(orders: Order[]): string {
       </div>
     </div>
   `;
+}
+
+/** " · 4 TEAMS" when one line bought more than a single team entry. */
+function teamCount(line: MyEventEntry['line']): string {
+  const teams = line.quantity ?? 1;
+  return teams > 1 ? ' · ' + teams + ' TEAMS' : '';
 }
 
 function confirmedGroup(entries: MyEventEntry[]): string {
@@ -71,7 +91,7 @@ function confirmedGroup(entries: MyEventEntry[]): string {
             <div class="myevents-row-body">
               <h3 class="myevents-row-title myevents-row-title--headline">${entry.event.name}</h3>
               ${dateRow}
-              <div class="myevents-row-context">${eventContextLine(entry.event).toUpperCase()}</div>
+              <div class="myevents-row-context">${eventContextLine(entry.event).toUpperCase()}${teamCount(entry.line)}</div>
               <span class="status-pill status-pill--confirmed">CONFIRMED</span>
             </div>
           </div>
@@ -97,7 +117,7 @@ function pendingGroup(entries: MyEventEntry[]): string {
             <div class="myevents-row-body">
               <h3 class="myevents-row-title myevents-row-title--headline">${entry.event.name}</h3>
               <p class="myevents-row-sub">Payment verification pending</p>
-              <div class="myevents-row-context">ORDER ${entry.order.reference}</div>
+              <div class="myevents-row-context">ORDER ${entry.order.reference}${teamCount(entry.line)}</div>
               <button class="action-link-cyan myevents-inline-action" data-view-order-id="${entry.order.id}">
                 <span>VIEW ORDER</span>
                 <span>→</span>

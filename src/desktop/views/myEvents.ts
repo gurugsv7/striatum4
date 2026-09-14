@@ -30,16 +30,30 @@ function column(
     </section>`;
 }
 
+/** See orderContents in the mobile view: a reference alone names nothing. */
+function orderContents(order: Order): string {
+  const names = order.lines.map(line => line.eventName);
+  if (!names.length) return 'Order ' + order.reference;
+  if (names.length <= 2) return names.join(' + ');
+  return names[0] + ' + ' + (names.length - 1) + ' more';
+}
+
 function actionRow(order: Order): string {
   return `
     <div class="d-row">
-      <span class="d-row-title">Order ${order.reference}</span>
-      <p class="d-row-meta">${order.rejectionReason ?? 'Payment proof needs resubmission'}</p>
+      <span class="d-row-title">${orderContents(order)}</span>
+      <p class="d-row-meta">${order.reference} &middot; ${order.rejectionReason ?? 'Payment proof needs resubmission'}</p>
       <div class="d-row-foot">
         <span class="d-state is-warn">ACTION REQUIRED</span>
         <button class="d-row-action" data-reupload-order-id="${order.id}">RE-UPLOAD &rarr;</button>
       </div>
     </div>`;
+}
+
+/** " · 4 TEAMS" when one line bought more than a single team entry. */
+function teamCount(line: MyEventEntry['line']): string {
+  const teams = line.quantity ?? 1;
+  return teams > 1 ? ' · ' + teams + ' TEAMS' : '';
 }
 
 function confirmedRow(entry: MyEventEntry): string {
@@ -50,7 +64,7 @@ function confirmedRow(entry: MyEventEntry): string {
     <div class="d-row is-clickable" data-open-event-id="${entry.event.id}">
       <h3 class="d-row-title">${entry.event.name}</h3>
       ${when}
-      <span class="d-row-meta">${eventContextLine(entry.event).toUpperCase()}</span>
+      <span class="d-row-meta">${eventContextLine(entry.event).toUpperCase()}${teamCount(entry.line)}</span>
       <div class="d-row-foot"><span class="d-state">CONFIRMED</span></div>
     </div>`;
 }
@@ -60,7 +74,7 @@ function pendingRow(entry: MyEventEntry): string {
     <div class="d-row">
       <h3 class="d-row-title">${entry.event.name}</h3>
       <p class="d-row-meta">Payment verification pending</p>
-      <span class="d-row-meta">ORDER ${entry.order.reference}</span>
+      <span class="d-row-meta">ORDER ${entry.order.reference}${teamCount(entry.line)}</span>
       <div class="d-row-foot">
         <span class="d-state is-muted">AWAITING VERIFICATION</span>
         <button class="d-row-action" data-view-order-id="${entry.order.id}">VIEW ORDER &rarr;</button>
