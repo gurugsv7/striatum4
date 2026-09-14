@@ -106,7 +106,10 @@ export function renderCartView(): string {
   if (count === 0) {
     blockReason = '';
   } else if (pricing.blockingIssues.length > 0) {
-    blockReason = pricing.blockingIssues[0].message;
+    // Every reason at once. Naming one at a time made clearing a cart a
+    // guessing game: remove the named line, find out there was a second one,
+    // repeat.
+    blockReason = [...new Set(pricing.blockingIssues.map(issue => issue.message))].join(' ');
   } else if (pricing.unpricedEventIds.length > 0) {
     const names = pricing.unpricedEventIds
       .map(id => pricing.lines.find(l => l.eventId === id)?.eventName ?? id)

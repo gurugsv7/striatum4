@@ -75,8 +75,11 @@ export function renderDesktopCart(): string {
   const blocked = count === 0 || pricing.blockingIssues.length > 0 || pricing.unpricedEventIds.length > 0;
 
   let blockReason = '';
+  // Every reason at once. Naming one at a time made clearing a cart a guessing
+  // game: remove the named line, find out there was a second, repeat.
   if (pricing.blockingIssues.length > 0) {
-    blockReason = pricing.blockingIssues[0].message;
+    const messages = [...new Set(pricing.blockingIssues.map(issue => issue.message))];
+    blockReason = messages.join(' ');
   } else if (pricing.unpricedEventIds.length > 0) {
     const names = pricing.unpricedEventIds
       .map(id => pricing.lines.find(line => line.eventId === id)?.eventName ?? id)
