@@ -3,6 +3,15 @@
  *
  * Sourced exclusively from STRIATUM_4.0_Website_Event_Master_Data.md.
  * Never invent a fact: a field the brochure does not state is simply omitted.
+ *
+ * WARNING — this file is not the last word. events.ts applies
+ * LATEST_BROCHURE_OVERRIDES on top of everything here, so several entries below
+ * are stale on purpose: SUTUREX is renamed and redated to STITCHREEF, and other
+ * dates and coordinators are corrected there too. Editing a value here that the
+ * override layer also sets will appear to do nothing.
+ *
+ * Change it in events.ts, or fold the overrides back into these files once the
+ * organisers' final details are settled.
  */
 
 import { SymposiumEvent } from './eventTypes.ts';

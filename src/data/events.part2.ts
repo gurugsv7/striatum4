@@ -3,6 +3,12 @@
  *
  * Sourced exclusively from STRIATUM_4.0_Website_Event_Master_Data.md. See eventTypes.ts
  * for the "never invent a fact" rule: fields the brochure omits are simply left out.
+ *
+ * WARNING — this file is not the last word. events.ts applies
+ * LATEST_BROCHURE_OVERRIDES on top of everything here, so some entries below are
+ * stale on purpose and editing a value the override layer also sets will appear
+ * to do nothing. Change it in events.ts, or fold the overrides back into these
+ * files once the organisers' final details are settled.
  */
 
 import { SymposiumEvent } from './eventTypes.ts';
