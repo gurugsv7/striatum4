@@ -286,10 +286,55 @@ function adoptSnapshot(snapshot: remote.RemoteSnapshot): void {
   remoteDelegates = snapshot.allDelegates;
   isAdminUser = snapshot.isAdmin;
   proofPaths = new Map(snapshot.orders.filter(o => o.proofPath).map(o => [o.id, o.proofPath as string]));
+
+  reconcileCart();
+}
+
+/**
+ * Drops cart lines the server says are already spoken for.
+ *
+ * The cart lives on the device and the orders live on the server, so the two
+ * can disagree: an order created on another device, a checkout whose response
+ * was lost, or an event added in the moment between page load and the first
+ * sync, while this device still believed it had no orders. Whatever the cause,
+ * the result was a cart holding an event that checkout then refused for the
+ * whole cart — every other event in it became unregisterable too, with no way
+ * out but clearing site data.
+ *
+ * An event that is already registered or already sitting in a live order does
+ * not belong in the cart; it belongs in My Events. Anything removed here is
+ * named for the delegate rather than vanishing silently.
+ */
+function reconcileCart(): void {
+  const settled = state.cart.filter(
+    item => isRegistered(item.eventId) || isPendingReview(item.eventId)
+  );
+  if (!settled.length) return;
+
+  const ids = new Set(settled.map(item => item.eventId));
+  state.cart = state.cart.filter(item => !ids.has(item.eventId));
+
+  const names = settled.map(item => getEvent(item.eventId)?.name ?? item.eventId);
+  cartNotice =
+    names.length === 1
+      ? names[0] + ' is already in an order, so it has left your cart.'
+      : names.join(', ') + ' are already in orders, so they have left your cart.';
+}
+
+/**
+ * One-shot message describing what reconcileCart removed, so the cart screen
+ * can say it once instead of the line disappearing without explanation.
+ */
+export function takeCartNotice(): string | null {
+  const notice = cartNotice;
+  cartNotice = null;
+  return notice;
 }
 
 /** Every delegate application, for the verification console. */
 let remoteDelegates: remote.RemoteDelegate[] = [];
+/** Set by reconcileCart, read once by the cart screen. */
+let cartNotice: string | null = null;
 let proofPaths = new Map<string, string>();
 let hydrationPromise: Promise<void> | null = null;
 

@@ -219,6 +219,10 @@ export function renderCartView(): string {
 }
 
 export function attachCartEvents(): void {
+  // Say so when a sync has just taken a line out of the cart.
+  const notice = registration.takeCartNotice();
+  if (notice) appStore.showToast(notice);
+
   const btnBack = document.getElementById('btn-cart-back');
   if (btnBack) {
     btnBack.addEventListener('click', () => {

@@ -322,16 +322,12 @@ export async function createOrderRemote(
 
   const row = Array.isArray(data) ? data[0] : data;
   if (!row) return { ok: false, message: 'The order could not be created.' };
-  const lunchChoices = items
-    .filter(item => item.lunchChoice)
-    .map(item => ({ event_id: item.eventId, lunch_choice: item.lunchChoice }));
-  if (lunchChoices.length) {
-    const { error: lunchError } = await supabase.rpc('set_order_lunch_choices', {
-      p_order_id: row.id,
-      p_choices: lunchChoices
-    });
-    if (lunchError) return { ok: false, message: lunchError.message };
-  }
+
+  // The meal choice travels inside p_items and create_order writes it with the
+  // line, under the same transaction that checks it. A second RPC afterwards
+  // could only fail on an order that already existed, which reported failure to
+  // a delegate whose seats were taken and whose cart was then kept, blocking
+  // every later checkout.
   return { ok: true, message: 'Order created', data: mapOrder({ ...row, order_lines: [] }) };
 }
 

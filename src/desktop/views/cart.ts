@@ -185,6 +185,10 @@ export function renderDesktopCart(): string {
 }
 
 export function attachDesktopCart(): void {
+  // Say so when a sync has just taken a line out of the cart.
+  const notice = registration.takeCartNotice();
+  if (notice) appStore.showToast(notice);
+
   document.getElementById('btn-cart-back')?.addEventListener('click', () => {
     appStore.setScreen('explore');
   });
