@@ -5,7 +5,7 @@ import { appStore } from '../state/appStore.ts';
  *
  * Written to describe what this system ACTUALLY does — the fields the delegate
  * form collects, where payment screenshots are stored and who can read them,
- * and which symposium rules come from the official brochure. Nothing here is
+ * and which conclave rules come from the official brochure. Nothing here is
  * generic filler, and no rule was invented: where the organisers have not
  * published a policy (refunds being the notable one), the text says so and
  * points at the organising committee rather than making one up.
@@ -27,7 +27,7 @@ const PRIVACY: Clause[] = [
   {
     heading: 'WHO WE ARE',
     paragraphs: [
-      'STRIATUM 4.0 is the medical symposium of Indira Gandhi Medical College &amp; Research Institute (IGMCRI), Puducherry, presented by SIGMA 2026. This policy covers the registration website only. It does not cover the college&rsquo;s other systems, or anything that happens off this site.'
+      'STRIATUM 4.0 is the medical conclave of Indira Gandhi Medical College &amp; Research Institute (IGMCRI), Puducherry, presented by SIGMA 2026. This policy covers the registration website only. It does not cover the college&rsquo;s other systems, or anything that happens off this site.'
     ]
   },
   {
@@ -82,7 +82,7 @@ const PRIVACY: Clause[] = [
   {
     heading: 'HOW LONG WE KEEP IT',
     paragraphs: [
-      'Registration records are kept for the symposium and for a reasonable period afterwards, so that attendance, certificates and prize records can be confirmed. Payment screenshots are kept only as long as needed to verify and account for payments. If you want your data removed sooner, write to us at the address below; we will honour requests except where a record must be retained to resolve a payment or an award.'
+      'Registration records are kept for the conclave and for a reasonable period afterwards, so that attendance, certificates and prize records can be confirmed. Payment screenshots are kept only as long as needed to verify and account for payments. If you want your data removed sooner, write to us at the address below; we will honour requests except where a record must be retained to resolve a payment or an award.'
     ]
   },
   {
@@ -103,7 +103,7 @@ const PRIVACY: Clause[] = [
   {
     heading: 'CHANGES',
     paragraphs: [
-      'If this policy changes materially before the symposium, the updated date at the top of this page will change. Continuing to use the site after a change means you accept the updated policy.'
+      'If this policy changes materially before the conclave, the updated date at the top of this page will change. Continuing to use the site after a change means you accept the updated policy.'
     ]
   },
   {
@@ -120,7 +120,7 @@ const TERMS: Clause[] = [
   {
     heading: 'WHAT THIS COVERS',
     paragraphs: [
-      'These terms apply to registration for STRIATUM 4.0, the medical symposium of IGMCRI, Puducherry, presented by SIGMA 2026. By creating an account and registering, you accept them.'
+      'These terms apply to registration for STRIATUM 4.0, the medical conclave of IGMCRI, Puducherry, presented by SIGMA 2026. By creating an account and registering, you accept them.'
     ]
   },
   {
@@ -153,7 +153,7 @@ const TERMS: Clause[] = [
     heading: 'FEES AND PAYMENT',
     bullets: [
       'Fees are shown on each event page and again in your cart before you pay. The amount shown at checkout is the amount payable.',
-      'Payment is made directly from your own UPI application to the symposium account. This website does not process payments and never handles your card, bank or UPI credentials.',
+      'Payment is made directly from your own UPI application to the conclave account. This website does not process payments and never handles your card, bank or UPI credentials.',
       'After paying, you upload a screenshot of the transaction. Your registration stays pending until an organiser verifies it.',
       'If a screenshot is unclear, shows a different amount, or cannot be matched to a payment, it will be sent back to you for re-upload with the reason given. Your selected events are preserved &mdash; you will not have to choose them again.',
       'Submitting a screenshot for a payment you did not make, or altering a screenshot, will result in cancellation of your registration.'
@@ -210,7 +210,7 @@ const TERMS: Clause[] = [
   {
     heading: 'LIABILITY',
     paragraphs: [
-      'The organisers take reasonable care in running the symposium and this website, but are not liable for indirect loss, for events beyond their reasonable control, or for personal belongings. Nothing here limits liability that cannot be limited by law.'
+      'The organisers take reasonable care in running the conclave and this website, but are not liable for indirect loss, for events beyond their reasonable control, or for personal belongings. Nothing here limits liability that cannot be limited by law.'
     ]
   },
   {

@@ -234,7 +234,7 @@ function renderConsole(event: SymposiumEvent): string {
         ${
           cta === 'not_registerable'
             ? `<p class="d-lede" style="color: var(--text-silver);">
-                 ${event.name} is an open symposium activity &mdash; no delegate registration is taken through this app.
+                 ${event.name} is an open conclave activity &mdash; no delegate registration is taken through this app.
                </p>`
             : `
         <div class="d-price-row">

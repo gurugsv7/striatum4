@@ -94,7 +94,7 @@ export function renderEventConfirmView(): string {
       }
 
       // Context
-      const context = line.context || (ev ? eventContextLine(ev) : 'Symposium Event');
+      const context = line.context || (ev ? eventContextLine(ev) : 'Conclave Event');
 
       // Date: ensure 2026 is present
       let date = line.date || ev?.date || '15–18 OCT 2026';

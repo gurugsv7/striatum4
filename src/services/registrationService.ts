@@ -32,7 +32,7 @@ import { minutesOf } from './time.ts';
  * registered for. Views must never compute a payable total themselves; they call
  * priceCart() / createOrder() and render what comes back.
  *
- * PERSISTENCE: the symposium currently has no server, so state lives in
+ * PERSISTENCE: the conclave currently has no server, so state lives in
  * localStorage behind this one facade. Every mutation goes through here, so
  * swapping the backing store for real API calls is a change to load()/save() and
  * the exported surface only — no view touches storage directly.
@@ -370,7 +370,7 @@ export function getDelegateStatus(): DelegateStatus {
 /**
  * A Delegate Pass is usable from the moment it is applied for. Verification is
  * a revocation check, not a gate — making delegates wait to book the very
- * events they bought the pass for was costing the symposium registrations.
+ * events they bought the pass for was costing the conclave registrations.
  */
 export function hasActiveDelegatePass(): boolean {
   const status = state.delegate?.status;
@@ -438,7 +438,7 @@ export function isInCart(eventId: string): boolean {
  * Whether a row belongs to the signed-in delegate.
  *
  * RLS lets an organiser read every delegate's orders and registrations, so an
- * admin's snapshot is the whole symposium. Without this, the screens that ask
+ * admin's snapshot is the whole conclave. Without this, the screens that ask
  * "am I registered for this?" answered "has ANYONE registered for this?" — an
  * organiser saw seven events they had never booked marked REGISTERED and
  * UNDER REVIEW, could not register them, and found an empty My Events hub,

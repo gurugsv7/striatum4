@@ -7,7 +7,7 @@ export function renderDesktopSurround(screenContentHtml: string): string {
 
   const screens: { id: ScreenType; num: string; label: string; desc: string }[] = [
     { id: 'onboarding', num: '00', label: 'Sign In', desc: 'Crest & Access' },
-    { id: 'home', num: '01', label: 'Homepage', desc: 'Symposium Journey' },
+    { id: 'home', num: '01', label: 'Homepage', desc: 'Conclave Journey' },
     { id: 'explore', num: '02', label: 'Explore Events', desc: '26 Events Directory' },
     { id: 'event-details', num: '03', label: 'Event Details', desc: 'Adaptive Event Page' },
     { id: 'delegate-registration', num: '04', label: 'Delegate Registration', desc: 'Pass Tier & Form' },
@@ -50,7 +50,7 @@ export function renderDesktopSurround(screenContentHtml: string): string {
       <!-- ===================================== -->
       <!-- LEFT SIDEBAR: Brand, Nav & Controls   -->
       <!-- ===================================== -->
-      <aside class="workbench-left-sidebar" aria-label="Symposium Navigation & Controls">
+      <aside class="workbench-left-sidebar" aria-label="Conclave Navigation & Controls">
         
         <!-- Brand Block -->
         <div class="sidebar-brand-block">
@@ -62,7 +62,7 @@ export function renderDesktopSurround(screenContentHtml: string): string {
             INDIRA GANDHI MEDICAL COLLEGE &amp; RI
           </div>
           <div class="sidebar-motto-tag">
-            SIGMA 2026 · MEDICAL SYMPOSIUM
+            SIGMA 2026 · MEDICAL CONCLAVE
           </div>
         </div>
 

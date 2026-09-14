@@ -104,7 +104,7 @@ export function titleFor(screen: ScreenType, eventName?: string): string {
     case 'onboarding':
       return 'Sign in' + suffix;
     case 'home':
-      return 'STRIATUM 4.0 — IGMCRI Medical Symposium 2026';
+      return 'STRIATUM 4.0 — IGMCRI Medical Conclave 2026';
     case 'explore':
       return 'Explore events' + suffix;
     case 'event-details':

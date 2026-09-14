@@ -32,7 +32,7 @@ export function renderCreditsView(): string {
           <div class="legal-clause-index">01</div>
           <div class="legal-clause-body">
             <h2 class="legal-clause-heading">DIGITAL EXPERIENCE</h2>
-            <p class="legal-paragraph">Built by GSV created the website experience, registration journey and event discovery interface for the IGMCRI medical symposium.</p>
+            <p class="legal-paragraph">Built by GSV created the website experience, registration journey and event discovery interface for the IGMCRI medical conclave.</p>
             <p class="legal-paragraph">Explore the team behind this work at <a class="credits-external-link" href="https://www.builtbygsv.in/" target="_blank" rel="noopener">Built by GSV</a>.</p>
           </div>
         </section>

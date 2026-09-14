@@ -12,13 +12,13 @@ function nowNextLine(days: { iso: string; display: string }[]): string {
   const last = days[days.length - 1];
 
   if (todayIso < first.iso) {
-    return `<div class="programme-nownext">SYMPOSIUM BEGINS · ${first.display.toUpperCase()}</div>`;
+    return `<div class="programme-nownext">CONCLAVE BEGINS · ${first.display.toUpperCase()}</div>`;
   }
   if (todayIso > last.iso) {
     return '';
   }
 
-  // Within the symposium window — find the actual next event by date/time.
+  // Within the conclave window — find the actual next event by date/time.
   const nowMinutes = new Date().getHours() * 60 + new Date().getMinutes();
   const upcoming = EVENTS.filter(e => e.isoDate && e.startTime)
     .filter(e => {

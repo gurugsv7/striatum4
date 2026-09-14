@@ -350,7 +350,7 @@ export function renderProfileView(): string {
           <div style="display: flex; flex-direction: column; gap: 14px; margin-bottom: 24px;">
             <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.06);">
               <div>
-                <div style="font-family: var(--font-sans-ui); font-size: 13px; color: #ffffff;">Symposium Notifications</div>
+                <div style="font-family: var(--font-sans-ui); font-size: 13px; color: #ffffff;">Conclave Notifications</div>
                 <div style="font-family: var(--font-sans-ui); font-size: 10px; color: var(--text-muted);">Alerts for workshops, schedule shifts &amp; venues</div>
               </div>
               <input type="checkbox" checked style="accent-color: var(--cyan-glow); width: 18px; height: 18px; cursor: pointer;" />

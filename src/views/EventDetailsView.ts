@@ -266,7 +266,7 @@ function renderPrimaryAction(event: SymposiumEvent): string {
     return `
       <div class="details-action-block">
         <div class="non-registerable-note">
-          ${event.name} is an open symposium activity — no delegate registration is taken through this app.
+          ${event.name} is an open conclave activity — no delegate registration is taken through this app.
         </div>
       </div>
     `;

@@ -237,7 +237,7 @@ function footer(): string {
     <footer class="mockup-flow-footer" style="margin-bottom: 20px;">
       <div class="footer-left-col">
         <span class="f-title-main">STRIATUM 4.0</span>
-        <span class="f-title-sub">MEDICAL SYMPOSIUM · 2026</span>
+        <span class="f-title-sub">MEDICAL CONCLAVE · 2026</span>
         <span class="f-line-dash"></span>
       </div>
     </footer>
@@ -389,7 +389,7 @@ function renderStatusCardState(delegate: registration.DelegateApplication, statu
         <div class="holo-card-top-row">
           <div>
             <div class="holo-card-brand-title">STRIATUM <span class="cyan-text">4.0</span></div>
-            <div class="holo-card-brand-sub">MEDICAL SYMPOSIUM · IGMCRI · SIGMA 2026</div>
+            <div class="holo-card-brand-sub">MEDICAL CONCLAVE · IGMCRI · SIGMA 2026</div>
           </div>
 
           <div style="text-align: right;">

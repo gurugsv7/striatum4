@@ -11,7 +11,7 @@ import { escapeHtml } from '../services/text.ts';
  * rewiring of the visual design onto the single pricing/registration authority.
  */
 
-/** Official symposium UPI ID for event registrations checkout payments. */
+/** Official conclave UPI ID for event registrations checkout payments. */
 const UPI_ID = 'sigmapy@iob';
 
 /** No per-event artwork exists for checkout thumbnails — every line uses the same static art. */
@@ -40,7 +40,7 @@ function renderFooter(): string {
     <footer class="mockup-flow-footer">
       <div class="footer-left-col">
         <span class="f-title-main">STRIATUM 4.0</span>
-        <span class="f-title-sub">MEDICAL SYMPOSIUM · 2026</span>
+        <span class="f-title-sub">MEDICAL CONCLAVE · 2026</span>
         <span class="f-line-dash"></span>
       </div>
     </footer>

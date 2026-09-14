@@ -2,7 +2,7 @@ import { appStore } from '../state/appStore.ts';
 import * as registration from '../services/registrationService.ts';
 import { escapeHtml } from '../services/text.ts';
 
-/** Official symposium UPI ID for delegate pass registration payments. */
+/** Official conclave UPI ID for delegate pass registration payments. */
 const UPI_ID = 'sigmapy@iob';
 
 export function renderDelegatePaymentView(): string {
@@ -206,7 +206,7 @@ export function renderDelegatePaymentView(): string {
       <footer class="mockup-flow-footer">
         <div class="footer-left-col">
           <span class="f-title-main">STRIATUM 4.0</span>
-          <span class="f-title-sub">MEDICAL SYMPOSIUM · 2026</span>
+          <span class="f-title-sub">MEDICAL CONCLAVE · 2026</span>
           <span class="f-line-dash"></span>
         </div>
       </footer>

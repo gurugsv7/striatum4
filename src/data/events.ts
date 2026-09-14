@@ -379,7 +379,7 @@ const CORPUS = new Map(EVENTS.map(e => [e.id, corpusFor(e)]));
 
 /**
  * Query aliases for the abbreviations students actually type. These are search
- * synonyms only — they never appear as displayed symposium facts.
+ * synonyms only — they never appear as displayed conclave facts.
  */
 const ALIASES: Record<string, string[]> = {
   ortho: ['orthopaedic', 'bone', 'fracture', 'cast', 'tendon'],

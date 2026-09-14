@@ -96,7 +96,7 @@ let lastScreen: ScreenType | null = null;
 let restoringFromHistory = false;
 let pendingRoute: Route | null = null;
 const DEFAULT_SITE_DESCRIPTION =
-  'STRIATUM 4.0, presented by SIGMA 2026 at IGMCRI, Puducherry — a medical symposium with workshops, quizzes and paper presentations, 14–18 October 2026.';
+  'STRIATUM 4.0, presented by SIGMA 2026 at IGMCRI, Puducherry — a medical conclave with workshops, quizzes and paper presentations, 14–18 October 2026.';
 
 function navigateToRoute(route: Route): void {
   if (routeRequiresAuth(route) && !appStore.getState().isAuthenticated) {
@@ -118,7 +118,7 @@ function syncUrlAndTitle(state: AppState): void {
   const description = document.querySelector<HTMLMetaElement>('meta[name="description"]');
   if (description) {
     description.content = state.currentScreen === 'credits'
-      ? 'Website credits for STRIATUM 4.0. The IGMCRI medical symposium website was designed and developed by Built by GSV.'
+      ? 'Website credits for STRIATUM 4.0. The IGMCRI medical conclave website was designed and developed by Built by GSV.'
       : DEFAULT_SITE_DESCRIPTION;
   }
   const current = window.location.pathname + window.location.search;

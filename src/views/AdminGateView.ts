@@ -31,7 +31,7 @@ export function renderAdminGateView(): string {
         note:
           'If you should have access, ask an existing organiser to add your account to the ' +
           'verification team.',
-        action: { id: 'btn-gate-home', label: 'Back to the symposium' }
+        action: { id: 'btn-gate-home', label: 'Back to the conclave' }
       }
     : {
         index: 'RESTRICTED',

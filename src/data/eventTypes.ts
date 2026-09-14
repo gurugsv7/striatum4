@@ -4,7 +4,7 @@
  * Sourced exclusively from STRIATUM_4.0_Website_Event_Master_Data.md (the brochure
  * extract). Category, specialty and format are deliberately separate fields.
  *
- * RULE: never invent a symposium fact. A field that the brochure does not state is
+ * RULE: never invent a conclave fact. A field that the brochure does not state is
  * simply omitted, and the UI hides it. `TBA` is reserved for values organisers have
  * confirmed as pending.
  */

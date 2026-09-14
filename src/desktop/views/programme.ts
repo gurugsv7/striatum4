@@ -81,7 +81,7 @@ function nowNext(days: { iso: string; display: string }[]): string {
   const last = days[days.length - 1];
 
   if (todayIso < first.iso) {
-    return `<p class="d-nownext">SYMPOSIUM BEGINS &middot; ${first.display.toUpperCase()}</p>`;
+    return `<p class="d-nownext">CONCLAVE BEGINS &middot; ${first.display.toUpperCase()}</p>`;
   }
   if (todayIso > last.iso) return '';
 
