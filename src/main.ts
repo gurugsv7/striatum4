@@ -171,11 +171,41 @@ function renderApp(state: AppState): void {
   if (scroller && lastScreen) scrollMemory[lastScreen] = scroller.scrollTop;
   const isScreenChange = lastScreen !== state.currentScreen;
 
-  // Preserve caret in the search field across the wholesale re-render.
+  /*
+   * Carry the caret across the wholesale re-render.
+   *
+   * Every screen is repainted by replacing #app's innerHTML, so the focused
+   * element is destroyed each time state changes — and state changes for
+   * reasons that have nothing to do with the person typing: a background sync
+   * landing, a toast appearing or expiring, another field being added. Only the
+   * Explore search box used to be carried over, so on the registration form a
+   * delegate could be typing into an element that had already been replaced,
+   * and the characters went nowhere.
+   *
+   * Every field the form renders carries a stable id, which is enough to find
+   * its replacement afterwards.
+   */
   const active = document.activeElement;
-  const searchFocused = active instanceof HTMLInputElement && active.id === 'explore-search-input';
-  const caretStart = searchFocused ? active.selectionStart : null;
-  const caretEnd = searchFocused ? active.selectionEnd : null;
+  const focusedId =
+    (active instanceof HTMLInputElement ||
+      active instanceof HTMLTextAreaElement ||
+      active instanceof HTMLSelectElement) &&
+    active.id
+      ? active.id
+      : null;
+  // selectionStart throws on input types that have no text selection (date,
+  // number and friends), so ask only where it is meaningful.
+  const selectable = active instanceof HTMLInputElement || active instanceof HTMLTextAreaElement;
+  let caretStart: number | null = null;
+  let caretEnd: number | null = null;
+  if (focusedId && selectable) {
+    try {
+      caretStart = active.selectionStart;
+      caretEnd = active.selectionEnd;
+    } catch {
+      /* not a text-bearing input; focus alone is enough */
+    }
+  }
 
   // Admin access is decided server-side by is_admin(); this only mirrors it so
   // a non-organiser sees an explanation instead of an empty console.
@@ -233,11 +263,25 @@ function renderApp(state: AppState): void {
   }
   lastScreen = state.currentScreen;
 
-  if (searchFocused) {
-    const input = document.getElementById('explore-search-input') as HTMLInputElement | null;
-    if (input) {
-      input.focus();
-      if (caretStart !== null && caretEnd !== null) input.setSelectionRange(caretStart, caretEnd);
+  // Only worth restoring within a screen; a navigation is meant to move focus,
+  // and the heading above has just taken it.
+  if (focusedId && !isScreenChange) {
+    const restored = document.getElementById(focusedId);
+    if (
+      restored instanceof HTMLInputElement ||
+      restored instanceof HTMLTextAreaElement ||
+      restored instanceof HTMLSelectElement
+    ) {
+      // preventScroll: the scroller was just put back where it was, and
+      // focusing must not drag it somewhere else.
+      restored.focus({ preventScroll: true });
+      if (caretStart !== null && caretEnd !== null && restored !== document.body) {
+        try {
+          (restored as HTMLInputElement).setSelectionRange(caretStart, caretEnd);
+        } catch {
+          /* selection not supported on this input type */
+        }
+      }
     }
   }
 }
