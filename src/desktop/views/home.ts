@@ -1,7 +1,7 @@
 import { appStore } from '../../state/appStore.ts';
 import { EVENTS, allEventDates } from '../../data/events.ts';
 import * as registration from '../../services/registrationService.ts';
-import { eyebrow, icon, slotButton } from '../shell.ts';
+import { eyebrow, icon } from '../shell.ts';
 
 /**
  * Desktop home.
@@ -12,8 +12,6 @@ import { eyebrow, icon, slotButton } from '../shell.ts';
  */
 export function renderDesktopHome(): string {
   const status = registration.getDelegateStatus();
-  const delegate = registration.getDelegate();
-  const approved = status === 'approved';
   const days = allEventDates();
   const state = appStore.getState();
   const activeIso = state.selectedProgrammeDate ?? days[0]?.iso ?? null;
@@ -26,17 +24,6 @@ export function renderDesktopHome(): string {
       : status === 'rejected'
       ? 'Application needs attention'
       : 'View delegate pass';
-
-  const statusText =
-    status === 'approved'
-      ? 'ACTIVE'
-      : status === 'pending'
-      ? 'AWAITING VERIFICATION'
-      : status === 'rejected'
-      ? 'NEEDS ATTENTION'
-      : status === 'revoked'
-      ? 'REVOKED'
-      : 'NOT REGISTERED';
 
   const chapters = [
     {
@@ -111,35 +98,6 @@ export function renderDesktopHome(): string {
       </section>
 
       <div class="d-pad" style="display: flex; flex-direction: column; flex: 1;">
-        <div class="d-hud-strip d-hud">
-          <div class="d-hud-col" style="flex: 1;">
-            <span class="d-hud-label">DELEGATE ID</span>
-            <div class="d-hud-id">
-              ${
-                approved && delegate?.delegateId
-                  ? `<span class="d-hud-id-code">${delegate.delegateId}</span>`
-                  : `<span class="d-hud-id-prefix">S4</span>
-                     <span class="d-hud-id-dot"></span>
-                     <span class="d-hud-id-track"></span>`
-              }
-            </div>
-          </div>
-
-          <div class="d-hud-col">
-            <span class="d-hud-label">STATUS</span>
-            <span class="d-hud-value ${approved ? 'is-live' : ''}">${statusText}</span>
-          </div>
-
-          <div class="d-hud-col">
-            <span class="d-hud-label">PASS TIER</span>
-            <span class="d-hud-value">${approved ? state.delegateForm.tier : '—'}</span>
-          </div>
-
-          <div class="d-hud-action">
-            ${slotButton('d-home-delegate', delegateCta)}
-          </div>
-        </div>
-
         <div class="d-chapters">
           ${chapters
             .map(
@@ -196,10 +154,6 @@ export function renderDesktopHome(): string {
 export function attachDesktopHome(): void {
   document.getElementById('btn-register-delegate-link')?.addEventListener('click', () => {
     appStore.setScreen('delegate-registration');
-  });
-  document.getElementById('d-home-delegate')?.addEventListener('click', () => {
-    const status = registration.getDelegateStatus();
-    appStore.setScreen(status === 'approved' || status === 'pending' ? 'delegate-confirm' : 'delegate-registration');
   });
   document.getElementById('btn-explore-events-link')?.addEventListener('click', () => {
     appStore.setScreen('explore');

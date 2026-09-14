@@ -1208,33 +1208,6 @@
   font-size: 17px;
   color: var(--text-muted);
 }
-
-/* Delegate HUD strip, straddling the hero edge. */
-.d-hud-strip {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: clamp(20px, 3vw, 44px);
-  background: rgba(1, 14, 25, 0.82);
-  border: 1px solid rgba(42, 241, 250, 0.18);
-  border-radius: 4px;
-  padding: 24px 28px;
-  margin-top: -22px;
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-}
-
-.d-hud-col {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.d-hud-col + .d-hud-col {
-  border-left: 1px solid rgba(42, 241, 250, 0.12);
-  padding-left: clamp(20px, 3vw, 44px);
-}
-
 .d-hud-label {
   font-family: var(--font-mono-meta);
   font-size: 9px;
@@ -1260,14 +1233,6 @@
   align-items: center;
   gap: 12px;
 }
-
-.d-hud-id-prefix {
-  font-family: var(--font-serif-display);
-  font-size: 30px;
-  color: #fff;
-  line-height: 1;
-}
-
 .d-hud-id-code {
   font-family: var(--font-mono-meta);
   font-size: 22px;
@@ -1275,28 +1240,6 @@
   font-weight: 700;
   color: #fff;
 }
-
-.d-hud-id-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--cyan-glow);
-  box-shadow: 0 0 8px var(--cyan-glow);
-}
-
-.d-hud-id-track {
-  flex: 1;
-  max-width: 300px;
-  height: 1px;
-  background: repeating-linear-gradient(90deg, rgba(42, 241, 250, 0.45) 0 22px, transparent 22px 34px);
-}
-
-.d-hud-action {
-  margin-left: auto;
-  flex-shrink: 0;
-  width: 304px;
-}
-
 /* Three chapters across, replacing the phone's vertical timeline. */
 .d-chapters {
   display: grid;
