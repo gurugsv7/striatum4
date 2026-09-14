@@ -12,6 +12,12 @@ import * as remote from './remote.ts';
 import { isSupabaseConfigured } from './supabaseClient.ts';
 import { getCurrentUser } from './authService.ts';
 import { isFullDayWorkshop, LunchChoice } from './workshop.ts';
+import {
+  COMBO_OFFERS,
+  COMBO_DEADLINE_DISPLAY,
+  isComboOpen,
+  comboTitle
+} from '../data/combos.ts';
 
 /* ============================================================================
  * STRIATUM 4.0 — registration & payment domain service.
@@ -51,6 +57,10 @@ export interface CartItem {
   participation: Participation;
   addedAt: number;
   lunchChoice?: LunchChoice;
+  /** Team entries bought for this event. 1 unless a bulk team pack added it. */
+  quantity?: number;
+  /** The combo this item was added as part of, when it was. */
+  comboId?: string;
 }
 
 export interface OrderLine {
@@ -63,6 +73,8 @@ export interface OrderLine {
   date?: string;
   startTime?: string;
   participation: Participation;
+  /** Team entries on this line. 1 for an individual place. */
+  quantity?: number;
   unitPrice: number;
   priceBasis: string;
   lunchChoice?: LunchChoice;
@@ -208,13 +220,14 @@ function adoptSnapshot(snapshot: remote.RemoteSnapshot): void {
       date: line.date,
       startTime: line.startTime,
       participation: line.participation,
+      quantity: line.quantity,
       unitPrice: line.unitPrice,
       priceBasis: line.priceBasis,
       lunchChoice: line.lunchChoice
     })),
     subtotal: order.subtotal,
     discountAmount: order.discountAmount,
-    discountRuleId: null,
+    discountRuleId: order.discountRuleId,
     discountLabel: order.discountLabel,
     total: order.total,
     pricingPhase: CURRENT_PRICING_PHASE,
@@ -363,6 +376,11 @@ export function cartCount(): number {
   return state.cart.length;
 }
 
+/** Team entries a cart item buys. */
+export function cartQuantity(item: CartItem): number {
+  return item.quantity ?? 1;
+}
+
 export function isInCart(eventId: string): boolean {
   return state.cart.some(i => i.eventId === eventId);
 }
@@ -396,36 +414,184 @@ export interface CartMutationResult {
   message: string;
 }
 
-export function addToCart(eventId: string, participation?: Participation, lunchChoice?: LunchChoice): CartMutationResult {
+export interface AddToCartOptions {
+  /** Team entries to buy. Only team events may exceed 1. */
+  quantity?: number;
+  /** Set when the item arrives as part of a combo. */
+  comboId?: string;
+}
+
+/**
+ * Why an event cannot be added right now, or null when it can.
+ * Shared by addToCart and the combo assembler so both refuse for the same
+ * reasons and a combo can be checked before any of it is added.
+ */
+function blockingReason(eventId: string, quantity: number, lunchChoice?: LunchChoice): string | null {
+  const event = getEvent(eventId);
+  if (!event) return 'Unknown event.';
+  if (!event.registerable) return event.name + ' is not open for registration.';
+  if (isRegistered(eventId)) return 'You are already registered for ' + event.name + '.';
+  if (isPendingReview(eventId)) {
+    return event.name + ' is already in an order awaiting verification.';
+  }
+  if (isInCart(eventId)) return event.name + ' is already in your cart.';
+  if (quantity > 1 && event.participation !== 'team') {
+    return event.name + ' is registered per person, not per team.';
+  }
+  // Every team in a bulk entry needs its own place.
+  const capacity = getCapacity(eventId);
+  if (capacity.available !== null && capacity.available < quantity) {
+    return quantity > 1
+      ? event.name + ' does not have ' + quantity + ' places left.'
+      : event.name + ' is full.';
+  }
+  if (isFullDayWorkshop(event) && !lunchChoice) {
+    return 'Please choose a vegetarian or non-vegetarian lunch.';
+  }
+  return null;
+}
+
+export function addToCart(
+  eventId: string,
+  participation?: Participation,
+  lunchChoice?: LunchChoice,
+  options: AddToCartOptions = {}
+): CartMutationResult {
   const event = getEvent(eventId);
   if (!event) return { ok: false, message: 'Unknown event.' };
-  if (!event.registerable) return { ok: false, message: event.name + ' is not open for registration.' };
-  if (isRegistered(eventId)) return { ok: false, message: 'You are already registered for ' + event.name + '.' };
-  if (isPendingReview(eventId)) {
-    return { ok: false, message: event.name + ' is already in an order awaiting verification.' };
-  }
-  if (isInCart(eventId)) return { ok: false, message: event.name + ' is already in your cart.' };
-  if (isFull(eventId)) return { ok: false, message: event.name + ' is full.' };
-  if (isFullDayWorkshop(event) && !lunchChoice) {
-    return { ok: false, message: 'Please choose a vegetarian or non-vegetarian lunch.' };
-  }
+
+  const quantity = options.quantity ?? 1;
+  const reason = blockingReason(eventId, quantity, lunchChoice);
+  if (reason) return { ok: false, message: reason };
 
   state.cart.push({
     eventId,
     participation: participation ?? defaultParticipation(event),
     addedAt: Date.now(),
-    lunchChoice
+    lunchChoice,
+    quantity: quantity > 1 ? quantity : undefined,
+    comboId: options.comboId
   });
   save();
   return { ok: true, message: event.name + ' added to cart' };
 }
 
 export function removeFromCart(eventId: string): CartMutationResult {
-  const before = state.cart.length;
+  const item = state.cart.find(i => i.eventId === eventId);
+  if (!item) return { ok: false, message: 'Not in cart.' };
+
+  // A combo is one intentional selection. Pulling a single event out of it
+  // would leave the rest priced as a bundle that no longer exists, so the whole
+  // bundle goes and the delegate can re-add what they want.
+  if (item.comboId) {
+    const comboId = item.comboId;
+    state.cart = state.cart.filter(i => i.comboId !== comboId);
+    save();
+    return { ok: true, message: 'Combo removed from cart' };
+  }
+
   state.cart = state.cart.filter(i => i.eventId !== eventId);
-  if (state.cart.length === before) return { ok: false, message: 'Not in cart.' };
   save();
   return { ok: true, message: 'Removed from cart' };
+}
+
+/* ------------------------------------------------------------------ combos -- */
+
+export type ComboState = 'available' | 'in_cart' | 'closed' | 'unavailable';
+
+export interface ComboAvailability {
+  state: ComboState;
+  /** Why it cannot be taken, when it cannot. */
+  reason?: string;
+}
+
+/**
+ * Whether a combo can be taken right now.
+ *
+ * A combo is all-or-nothing: if any event in it is full, already registered or
+ * already in the cart, the whole bundle is refused rather than partly added.
+ */
+export function comboAvailability(comboId: string, now: number = Date.now()): ComboAvailability {
+  const combo = COMBO_OFFERS.find(offer => offer.id === comboId);
+  if (!combo) return { state: 'unavailable', reason: 'Unknown combo.' };
+
+  if (!isComboOpen(now)) {
+    return { state: 'closed', reason: 'This combo closed on ' + COMBO_DEADLINE_DISPLAY + '.' };
+  }
+
+  const inCart = combo.eventIds.every(id =>
+    state.cart.some(item => item.eventId === id && item.comboId === comboId)
+  );
+  if (inCart) return { state: 'in_cart' };
+
+  for (const eventId of combo.eventIds) {
+    const reason = blockingReason(eventId, combo.teamsPerEvent, 'veg');
+    // Lunch is collected on the event page, never as part of a combo, so a
+    // missing lunch choice must not read as the combo being unavailable.
+    if (reason && !reason.startsWith('Please choose')) {
+      return { state: 'unavailable', reason };
+    }
+  }
+  return { state: 'available' };
+}
+
+/**
+ * Adds every event in a combo, or none of them.
+ *
+ * The whole bundle is validated first so a delegate is never left holding half
+ * a combo at full price. Pricing is not decided here: create_order re-reads the
+ * catalogue and re-applies the matching rule server-side.
+ */
+export function addComboToCart(comboId: string): CartMutationResult {
+  const combo = COMBO_OFFERS.find(offer => offer.id === comboId);
+  if (!combo) return { ok: false, message: 'Unknown combo.' };
+
+  const availability = comboAvailability(comboId);
+  if (availability.state === 'in_cart') {
+    return { ok: false, message: 'That combo is already in your cart.' };
+  }
+  if (availability.state !== 'available') {
+    return { ok: false, message: availability.reason ?? 'That combo is not available.' };
+  }
+
+  const needsLunch = combo.eventIds
+    .map(id => getEvent(id))
+    .filter((event): event is SymposiumEvent => Boolean(event))
+    .filter(event => isFullDayWorkshop(event));
+
+  for (const eventId of combo.eventIds) {
+    const event = getEvent(eventId);
+    if (!event) continue;
+    state.cart.push({
+      eventId,
+      participation: defaultParticipation(event),
+      addedAt: Date.now(),
+      quantity: combo.teamsPerEvent > 1 ? combo.teamsPerEvent : undefined,
+      comboId
+    });
+  }
+  save();
+
+  return {
+    ok: true,
+    message: needsLunch.length
+      ? comboTitle(combo) + ' added — choose a lunch preference in your cart'
+      : comboTitle(combo) + ' added to cart'
+  };
+}
+
+/** Removes every line a combo contributed. */
+export function removeComboFromCart(comboId: string): CartMutationResult {
+  const before = state.cart.length;
+  state.cart = state.cart.filter(item => item.comboId !== comboId);
+  if (state.cart.length === before) return { ok: false, message: 'That combo is not in your cart.' };
+  save();
+  return { ok: true, message: 'Combo removed' };
+}
+
+/** Combo ids currently represented in the cart. */
+export function combosInCart(): string[] {
+  return [...new Set(state.cart.map(item => item.comboId).filter((id): id is string => Boolean(id)))];
 }
 
 export function setCartParticipation(eventId: string, participation: Participation): void {
@@ -635,6 +801,7 @@ function buildLine(item: CartItem): { line: PricedLine; unpriced: boolean } {
       date: event.date,
       startTime: event.startTime,
       participation: item.participation,
+      quantity: cartQuantity(item),
       unitPrice: price.amount ?? 0,
       priceBasis: price.basis,
       lunchChoice: item.lunchChoice,
@@ -650,12 +817,13 @@ export function priceCart(): CartPricing {
   const lines = built.map(b => b.line);
   const unpricedEventIds = built.filter(b => b.unpriced).map(b => b.line.eventId);
 
-  const subtotal = lines.reduce((sum, l) => sum + l.unitPrice, 0);
+  const subtotal = lines.reduce((sum, l) => sum + l.unitPrice * (l.quantity ?? 1), 0);
 
   const discountInput: DiscountLineInput[] = lines.map(l => ({
     eventId: l.eventId,
     category: l.category,
-    amount: l.unitPrice
+    amount: l.unitPrice,
+    quantity: l.quantity ?? 1
   }));
   const discount = evaluateDiscount(discountInput);
 
@@ -717,7 +885,12 @@ export async function createOrder(): Promise<CreateOrderResult> {
   if (isRemote()) {
     // The server recomputes every price; we send only what was chosen.
     const result = await remote.createOrderRemote(
-      state.cart.map(item => ({ eventId: item.eventId, participation: item.participation, lunchChoice: item.lunchChoice }))
+      state.cart.map(item => ({
+        eventId: item.eventId,
+        participation: item.participation,
+        lunchChoice: item.lunchChoice,
+        quantity: cartQuantity(item)
+      }))
     );
     if (!result.ok) return { ok: false, message: result.message };
     state.cart = [];
@@ -740,6 +913,7 @@ export async function createOrder(): Promise<CreateOrderResult> {
         date: line.date,
         startTime: line.startTime,
         participation: line.participation,
+        quantity: line.quantity,
         unitPrice: line.unitPrice,
         priceBasis: line.priceBasis,
         lunchChoice: line.lunchChoice

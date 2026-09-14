@@ -443,6 +443,17 @@ function renderOrderPanel(order: registration.Order): string {
         </span>
       </div>
 
+      ${
+        // The discount rule that applied is the combo id when one did, so an
+        // organiser can see at a glance that this order came from a bundle.
+        order.discountRuleId?.startsWith('combo-')
+          ? `<div class="admin-combo-flag">
+              <span class="admin-combo-flag-dot"></span>
+              <span>COMBO ORDER &middot; ${escapeHtml(order.discountLabel ?? order.discountRuleId)}</span>
+            </div>`
+          : ''
+      }
+
       <div class="admin-ledger">
         <div class="admin-ledger-row">
           <span class="admin-ledger-key">DELEGATE</span>
@@ -464,10 +475,12 @@ function renderOrderPanel(order: registration.Order): string {
         ${order.lines.map(line => `
           <div class="admin-line-row">
             <div class="admin-line-main">
-              <span class="admin-line-name">${escapeHtml(line.eventName)}</span>
+              <span class="admin-line-name">${escapeHtml(line.eventName)}${
+                (line.quantity ?? 1) > 1 ? ` &times; ${line.quantity} TEAMS` : ''
+              }</span>
               <span class="admin-line-context">${escapeHtml(line.context)}</span>
             </div>
-            <span class="admin-line-price">${formatINR(line.unitPrice)}</span>
+            <span class="admin-line-price">${formatINR(line.unitPrice * (line.quantity ?? 1))}</span>
           </div>
         `).join('')}
 

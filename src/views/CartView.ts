@@ -11,6 +11,10 @@ import { formatINR } from '../services/pricing.ts';
  * persists onto the order.
  */
 
+function comboOf(eventId: string): string | undefined {
+  return registration.getCart().find(item => item.eventId === eventId)?.comboId;
+}
+
 function renderLine(line: registration.PricedLine): string {
   const dateRow =
     line.date !== undefined
@@ -43,15 +47,24 @@ function renderLine(line: registration.PricedLine): string {
           <button class="cart-line-name-btn" data-open-event-id="${line.eventId}">
             ${line.eventName}
           </button>
-          <button class="cart-line-remove" data-remove-event-id="${line.eventId}">REMOVE</button>
+          <button class="cart-line-remove" data-remove-event-id="${line.eventId}">
+            ${comboOf(line.eventId) ? 'REMOVE COMBO' : 'REMOVE'}
+          </button>
         </div>
+        ${comboOf(line.eventId) ? '<div class="cart-line-combo-tag">PART OF A COMBO</div>' : ''}
 
         <div class="cart-line-context">${line.context}</div>
         ${dateRow}
         ${line.lunchChoice ? `<div class="cart-line-meta-row"><span>LUNCH</span><span>${line.lunchChoice === 'veg' ? 'Vegetarian' : 'Non-vegetarian'}</span></div>` : ''}
 
+        ${
+          (line.quantity ?? 1) > 1
+            ? `<div class="cart-line-meta-row"><span>TEAMS</span><span>${line.quantity} × ${formatINR(line.unitPrice)}</span></div>`
+            : ''
+        }
+
         <div class="cart-line-price-row">
-          <span class="cart-line-price">${formatINR(line.unitPrice)}</span>
+          <span class="cart-line-price">${formatINR(line.unitPrice * (line.quantity ?? 1))}</span>
           <span class="cart-line-price-basis">${line.priceBasis}</span>
         </div>
 

@@ -11,9 +11,16 @@ import { crest, eyebrow, icon } from '../shell.ts';
  * it can never disagree with the order that createOrder() persists.
  */
 
+function comboOf(eventId: string): string | undefined {
+  return registration.getCart().find(item => item.eventId === eventId)?.comboId;
+}
+
 function renderLine(line: registration.PricedLine): string {
+  const quantity = line.quantity ?? 1;
   const meta: string[] = [];
   if (line.date) meta.push(line.date + (line.startTime ? ' · ' + line.startTime : ''));
+  if (quantity > 1) meta.push(`<em>${quantity} TEAMS × ${formatINR(line.unitPrice)}</em>`);
+  if (comboOf(line.eventId)) meta.push('<em>PART OF A COMBO</em>');
   if (line.lunchChoice) {
     meta.push(`<em>LUNCH &middot; ${line.lunchChoice === 'veg' ? 'Vegetarian' : 'Non-vegetarian'}</em>`);
   }
@@ -24,7 +31,9 @@ function renderLine(line: registration.PricedLine): string {
         <div class="d-cart-card-main">
           <div class="d-cart-title-row">
             <button class="d-cart-title" data-open-event-id="${line.eventId}">${line.eventName}</button>
-            <button class="d-cart-remove" data-remove-event-id="${line.eventId}">REMOVE</button>
+            <button class="d-cart-remove" data-remove-event-id="${line.eventId}">${
+              comboOf(line.eventId) ? 'REMOVE COMBO' : 'REMOVE'
+            }</button>
           </div>
           <p class="d-cart-context">${line.context}</p>
           ${meta.length ? `<div class="d-cart-meta">${meta.map(item => `<span>${item}</span>`).join('')}</div>` : ''}
@@ -35,7 +44,7 @@ function renderLine(line: registration.PricedLine): string {
             .join('')}
         </div>
         <div class="d-cart-price">
-          <b>${formatINR(line.unitPrice)}</b>
+          <b>${formatINR(line.unitPrice * quantity)}</b>
           <small>${line.priceBasis}</small>
         </div>
       </div>

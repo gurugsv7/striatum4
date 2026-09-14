@@ -38,6 +38,7 @@ export interface RemoteOrderLine {
   date?: string;
   startTime?: string;
   participation: 'individual' | 'team';
+  quantity?: number;
   unitPrice: number;
   priceBasis: string;
   lunchChoice?: 'veg' | 'non_veg';
@@ -51,6 +52,8 @@ export interface RemoteOrder {
   subtotal: number;
   discountAmount: number;
   discountLabel: string | null;
+  /** The discount_rules row that applied. A combo id when one did. */
+  discountRuleId: string | null;
   total: number;
   status: string;
   createdAt: number;
@@ -127,6 +130,7 @@ function mapOrder(row: any): RemoteOrder {
         date: line.event_date ?? undefined,
         startTime: line.start_time ?? undefined,
         participation: line.participation,
+        quantity: line.quantity ?? 1,
         unitPrice: line.unit_price,
         priceBasis: line.price_basis ?? '',
         lunchChoice: line.lunch_choice ?? undefined
@@ -135,6 +139,7 @@ function mapOrder(row: any): RemoteOrder {
     subtotal: row.subtotal,
     discountAmount: row.discount_amount,
     discountLabel: row.discount_label ?? null,
+    discountRuleId: row.discount_rule_id ?? null,
     total: row.total,
     status: row.status,
     createdAt: ms(row.created_at),
@@ -248,12 +253,22 @@ export async function applyForDelegateRemote(input: {
  * every price, re-checks eligibility and capacity, and computes the total.
  */
 export async function createOrderRemote(
-  items: { eventId: string; participation: 'individual' | 'team'; lunchChoice?: 'veg' | 'non_veg' }[]
+  items: {
+    eventId: string;
+    participation: 'individual' | 'team';
+    lunchChoice?: 'veg' | 'non_veg';
+    /** Team entries. Only team events may exceed 1; the server re-checks. */
+    quantity?: number;
+  }[]
 ): Promise<RemoteResult<RemoteOrder>> {
   if (!supabase || !getCurrentUser()) return { ok: false, message: 'Please sign in first.' };
 
   const { data, error } = await supabase.rpc('create_order', {
-    p_items: items.map(i => ({ event_id: i.eventId, participation: i.participation }))
+    p_items: items.map(i => ({
+      event_id: i.eventId,
+      participation: i.participation,
+      quantity: i.quantity ?? 1
+    }))
   });
 
   if (error) return { ok: false, message: error.message };
