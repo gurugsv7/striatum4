@@ -24,11 +24,12 @@ function participationFor(event: SymposiumEvent): Participation {
   return chosenParticipation[event.id] ?? defaultParticipation(event);
 }
 
+/** See teamLabelForChoice in the mobile view: the minimum is the brochure's. */
 function teamLabel(event: SymposiumEvent): string {
   if (!event.teamSize) return 'Team';
   const { min, max } = event.teamSize;
-  const size = Math.max(min, 2);
-  return size === max ? 'Team of ' + max : 'Team of ' + size + '–' + max;
+  if (min === max) return 'Team of ' + max;
+  return min <= 1 ? 'Team of up to ' + max : 'Team of ' + min + '–' + max;
 }
 
 function teamSizeCaption(event: SymposiumEvent): string | null {

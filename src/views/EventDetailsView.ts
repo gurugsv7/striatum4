@@ -25,15 +25,18 @@ function teamSizeLabel(event: SymposiumEvent): string | null {
 }
 
 /**
- * Label for the team side of the participation switch. The individual option is
- * shown separately, so the team option names the team size itself rather than a
- * range that starts at one person.
+ * Label for the team side of the participation switch.
+ *
+ * This used to raise the minimum to two on the reasoning that a team of one is
+ * not a team. That invented a rule: NEURONOVA is published as one to three
+ * people for a flat team fee, and the switch told delegates "Team of 2–3"
+ * while the form and the server both accepted one. Say what the brochure says.
  */
 function teamLabelForChoice(event: SymposiumEvent): string {
   if (!event.teamSize) return 'Team';
   const { min, max } = event.teamSize;
-  const size = Math.max(min, 2);
-  return size === max ? 'Team of ' + max : 'Team of ' + size + '–' + max;
+  if (min === max) return 'Team of ' + max;
+  return min <= 1 ? 'Team of up to ' + max : 'Team of ' + min + '–' + max;
 }
 
 /** Key facts. Only cells with published values are emitted. */

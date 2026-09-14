@@ -562,7 +562,14 @@ export function attachRegistrationFormEvents(): void {
       for (const target of targets) {
         const intent = draft.intents[target];
         const event = getEvent(target);
-        if (intent && event && isFullDayWorkshop(event)) intent.lunchChoice = value;
+        if (intent && event && isFullDayWorkshop(event)) {
+          intent.lunchChoice = value;
+          // Answering the question retires its complaint. Leaving it up made a
+          // satisfied form still read as invalid until the next submit.
+          const remaining = (draft.issues[target] ?? []).filter(issue => issue.field !== 'lunch');
+          if (remaining.length) draft.issues[target] = remaining;
+          else delete draft.issues[target];
+        }
       }
       appStore.refresh();
     });
