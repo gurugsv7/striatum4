@@ -202,7 +202,7 @@ const EVENT_IN_CHARGES: Record<string, Coordinator[]> = {
     { name: 'Adithyan M', phone: '9500207418' },
     { name: 'Shivam', phone: '9354943752' }
   ],
-  BIOVERSE: [{ name: 'Vithiya Saagar S', phone: '9360984942' }, { name: 'Nedu(en)chezhiyan S', phone: '9345285122' }],
+  BIOVERSE: [{ name: 'Vithiya Saagar S', phone: '9360984942' }, { name: 'Neduenchezhian S', phone: '9345285122' }],
   'TIDAL CUTS': [
     { name: 'Ram Viswanath Senthil', phone: '7418155363' },
     { name: 'Deepavarshini S', phone: '9487449619' }
