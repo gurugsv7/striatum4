@@ -1,6 +1,8 @@
 import { appStore } from '../../state/appStore.ts';
 import * as registration from '../../services/registrationService.ts';
 import { formatINR } from '../../services/pricing.ts';
+import { intentSummary } from '../../services/registrationForm.ts';
+import { startEventRegistration, startComboRegistration } from '../../views/RegistrationFormView.ts';
 import { crest, eyebrow, icon } from '../shell.ts';
 
 /**
@@ -13,6 +15,20 @@ import { crest, eyebrow, icon } from '../shell.ts';
 
 function comboOf(eventId: string): string | undefined {
   return registration.getCart().find(item => item.eventId === eventId)?.comboId;
+}
+
+function regSummary(eventId: string): string {
+  const item = registration.getCart().find(candidate => candidate.eventId === eventId);
+  if (!item?.intent) return '';
+  return `
+    <div class="cart-reg-summary">
+      <span>${intentSummary(item.intent)}</span>
+      <span>&middot;</span>
+      <span class="cart-reg-complete">DETAILS COMPLETE &#10003;</span>
+      <button class="cart-reg-edit" data-edit-registration="${eventId}" ${
+        item.comboId ? `data-edit-combo="${item.comboId}"` : ''
+      }>EDIT</button>
+    </div>`;
 }
 
 function renderLine(line: registration.PricedLine): string {
@@ -37,6 +53,7 @@ function renderLine(line: registration.PricedLine): string {
           </div>
           <p class="d-cart-context">${line.context}</p>
           ${meta.length ? `<div class="d-cart-meta">${meta.map(item => `<span>${item}</span>`).join('')}</div>` : ''}
+          ${regSummary(line.eventId)}
           ${line.issues
             .map(
               issue => `<div class="d-cart-issue ${issue.blocking ? 'is-blocking' : ''}">${issue.message}</div>`
@@ -180,6 +197,16 @@ export function attachDesktopCart(): void {
     element.addEventListener('click', () => {
       const id = element.getAttribute('data-open-event-id');
       if (id) appStore.openEvent(id);
+    });
+  });
+
+  document.querySelectorAll<HTMLElement>('[data-edit-registration]').forEach(element => {
+    element.addEventListener('click', event => {
+      event.stopPropagation();
+      const comboId = element.getAttribute('data-edit-combo');
+      const eventId = element.getAttribute('data-edit-registration');
+      if (comboId) startComboRegistration(comboId, true);
+      else if (eventId) startEventRegistration(eventId, true);
     });
   });
 

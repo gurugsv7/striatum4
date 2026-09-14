@@ -18,6 +18,12 @@ import {
   isComboOpen,
   comboTitle
 } from '../data/combos.ts';
+import {
+  EventRegistrationIntent,
+  validateIntent,
+  toServerTeams,
+  participantCount
+} from './registrationForm.ts';
 
 /* ============================================================================
  * STRIATUM 4.0 — registration & payment domain service.
@@ -61,6 +67,11 @@ export interface CartItem {
   quantity?: number;
   /** The combo this item was added as part of, when it was. */
   comboId?: string;
+  /**
+   * The completed registration: who is taking part, in which team. A cart item
+   * is a registration intent now, not a bare event selection.
+   */
+  intent?: EventRegistrationIntent;
 }
 
 export interface OrderLine {
@@ -207,6 +218,7 @@ export function isAdmin(): boolean {
 
 function adoptSnapshot(snapshot: remote.RemoteSnapshot): void {
   remoteCapacities = snapshot.capacities;
+  remoteParticipants = snapshot.participants.map(person => ({ ...person }));
   state.orders = snapshot.orders.map(order => ({
     id: order.id,
     userId: order.userId,
@@ -419,6 +431,8 @@ export interface AddToCartOptions {
   quantity?: number;
   /** Set when the item arrives as part of a combo. */
   comboId?: string;
+  /** The completed registration for this event. */
+  intent?: EventRegistrationIntent;
 }
 
 /**
@@ -470,7 +484,8 @@ export function addToCart(
     addedAt: Date.now(),
     lunchChoice,
     quantity: quantity > 1 ? quantity : undefined,
-    comboId: options.comboId
+    comboId: options.comboId,
+    intent: options.intent
   });
   save();
   return { ok: true, message: event.name + ' added to cart' };
@@ -493,6 +508,153 @@ export function removeFromCart(eventId: string): CartMutationResult {
   state.cart = state.cart.filter(i => i.eventId !== eventId);
   save();
   return { ok: true, message: 'Removed from cart' };
+}
+
+/**
+ * Rosters from the last server sync. Held in memory only: for an organiser
+ * these are other people's names and phone numbers, and they have no business
+ * sitting in browser storage.
+ */
+let remoteParticipants: RosterEntryPerson[] = [];
+
+/** A participant as stored on the order, for the console and My Events. */
+export interface RosterEntryPerson {
+  orderId: string;
+  eventId: string;
+  teamIndex: number;
+  position: number;
+  role: 'captain' | 'member';
+  name: string;
+  yearOfStudy?: string;
+  college?: string;
+  phone?: string;
+  email?: string;
+}
+
+/**
+ * The roster stored against one order line.
+ *
+ * Read from the server snapshot, never from the local cart: once an order
+ * exists the database is the record. Row-level security decides what comes
+ * back, so a delegate sees only their own and an organiser sees all of them.
+ */
+export function rosterFor(orderId: string, eventId: string): RosterEntryPerson[] {
+  return remoteParticipants
+    .filter(person => person.orderId === orderId && person.eventId === eventId)
+    .sort((a, b) => a.teamIndex - b.teamIndex || a.position - b.position);
+}
+
+/* ------------------------------------------------------- registration -- */
+
+/**
+ * Adds a completed registration to the cart.
+ *
+ * This is the only way a single event reaches the cart now: the form is filled
+ * first, validated, and the resulting intent travels with the item. The old
+ * "add the id, ask questions later" path is gone.
+ */
+export function addRegistration(
+  intent: EventRegistrationIntent,
+  participation?: Participation
+): CartMutationResult {
+  const event = getEvent(intent.eventId);
+  if (!event) return { ok: false, message: 'Unknown event.' };
+
+  const validation = validateIntent(intent);
+  if (!validation.ok) {
+    return { ok: false, message: validation.issues[0]?.message ?? 'This registration is incomplete.' };
+  }
+
+  return addToCart(intent.eventId, participation, intent.lunchChoice, {
+    quantity: intent.teams.length,
+    intent
+  });
+}
+
+/**
+ * Adds a combo as one bundle, with one completed registration per included
+ * event. Validated as a whole first so a delegate never ends up holding half a
+ * combo at full price.
+ */
+export function addComboRegistration(
+  comboId: string,
+  intents: EventRegistrationIntent[]
+): CartMutationResult {
+  const combo = COMBO_OFFERS.find(offer => offer.id === comboId);
+  if (!combo) return { ok: false, message: 'Unknown combo.' };
+
+  const availability = comboAvailability(comboId);
+  if (availability.state === 'in_cart') {
+    return { ok: false, message: 'That combo is already in your cart.' };
+  }
+  if (availability.state !== 'available') {
+    return { ok: false, message: availability.reason ?? 'That combo is not available.' };
+  }
+
+  // Every included event must have a completed registration before any of it
+  // is added.
+  for (const eventId of combo.eventIds) {
+    const intent = intents.find(candidate => candidate.eventId === eventId);
+    if (!intent) {
+      return { ok: false, message: 'Complete the details for every event in this combo.' };
+    }
+    const validation = validateIntent(intent);
+    if (!validation.ok) {
+      const name = getEvent(eventId)?.name ?? eventId;
+      return { ok: false, message: name + ': ' + (validation.issues[0]?.message ?? 'incomplete.') };
+    }
+  }
+
+  for (const eventId of combo.eventIds) {
+    const event = getEvent(eventId);
+    const intent = intents.find(candidate => candidate.eventId === eventId)!;
+    if (!event) continue;
+    state.cart.push({
+      eventId,
+      participation: defaultParticipation(event),
+      addedAt: Date.now(),
+      lunchChoice: intent.lunchChoice,
+      quantity: intent.teams.length > 1 ? intent.teams.length : undefined,
+      comboId,
+      intent
+    });
+  }
+  save();
+  return { ok: true, message: comboTitle(combo) + ' added to cart' };
+}
+
+/** The registration held for one event, when the cart has one. */
+export function intentFor(eventId: string): EventRegistrationIntent | undefined {
+  return state.cart.find(item => item.eventId === eventId)?.intent;
+}
+
+/** Every registration a combo contributed, in the combo's own order. */
+export function comboIntents(comboId: string): EventRegistrationIntent[] {
+  return state.cart
+    .filter(item => item.comboId === comboId && item.intent)
+    .map(item => item.intent as EventRegistrationIntent);
+}
+
+/** Replaces the registration held for one event, keeping its place in the cart. */
+export function replaceRegistration(intent: EventRegistrationIntent): CartMutationResult {
+  const item = state.cart.find(candidate => candidate.eventId === intent.eventId);
+  if (!item) return { ok: false, message: 'That registration is not in your cart.' };
+
+  const validation = validateIntent(intent);
+  if (!validation.ok) {
+    return { ok: false, message: validation.issues[0]?.message ?? 'This registration is incomplete.' };
+  }
+
+  item.intent = intent;
+  item.lunchChoice = intent.lunchChoice;
+  item.quantity = intent.teams.length > 1 ? intent.teams.length : undefined;
+  save();
+  return { ok: true, message: 'Registration updated' };
+}
+
+/** People named across a cart item's roster. */
+export function itemParticipantCount(item: CartItem): number {
+  return item.intent ? participantCount(item.intent) : 0;
 }
 
 /* ------------------------------------------------------------------ combos -- */
@@ -708,7 +870,7 @@ export function getCtaState(eventId: string): CtaState {
 }
 
 export const CTA_LABELS: Record<CtaState, string> = {
-  add_to_cart: 'ADD TO CART',
+  add_to_cart: 'REGISTER',
   in_cart: 'IN CART · VIEW CART',
   under_review: 'PAYMENT UNDER REVIEW',
   registered: 'REGISTERED',
@@ -889,7 +1051,11 @@ export async function createOrder(): Promise<CreateOrderResult> {
         eventId: item.eventId,
         participation: item.participation,
         lunchChoice: item.lunchChoice,
-        quantity: cartQuantity(item)
+        quantity: cartQuantity(item),
+        comboId: item.comboId,
+        // The roster travels with the order. create_order re-validates it
+        // against the event's published rules before anything is written.
+        teams: item.intent ? toServerTeams(item.intent) : undefined
       }))
     );
     if (!result.ok) return { ok: false, message: result.message };

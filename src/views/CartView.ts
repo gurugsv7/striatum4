@@ -1,6 +1,8 @@
 import { appStore } from '../state/appStore.ts';
 import * as registration from '../services/registrationService.ts';
 import { formatINR } from '../services/pricing.ts';
+import { intentSummary } from '../services/registrationForm.ts';
+import { startEventRegistration, startComboRegistration } from './RegistrationFormView.ts';
 
 /**
  * CART VIEW — "02 / CART"
@@ -13,6 +15,23 @@ import { formatINR } from '../services/pricing.ts';
 
 function comboOf(eventId: string): string | undefined {
   return registration.getCart().find(item => item.eventId === eventId)?.comboId;
+}
+
+/**
+ * What the cart says about a registration: that it is complete and how big it
+ * is. The form's contents stay in the form; Edit reopens it.
+ */
+function regSummary(eventId: string): string {
+  const item = registration.getCart().find(candidate => candidate.eventId === eventId);
+  if (!item?.intent) return '';
+  const comboId = item.comboId;
+  return `
+    <div class="cart-reg-summary">
+      <span>${intentSummary(item.intent)}</span>
+      <span>&middot;</span>
+      <span class="cart-reg-complete">DETAILS COMPLETE &#10003;</span>
+      <button class="cart-reg-edit" data-edit-registration="${eventId}" ${comboId ? `data-edit-combo="${comboId}"` : ''}>EDIT</button>
+    </div>`;
 }
 
 function renderLine(line: registration.PricedLine): string {
@@ -56,6 +75,8 @@ function renderLine(line: registration.PricedLine): string {
         <div class="cart-line-context">${line.context}</div>
         ${dateRow}
         ${line.lunchChoice ? `<div class="cart-line-meta-row"><span>LUNCH</span><span>${line.lunchChoice === 'veg' ? 'Vegetarian' : 'Non-vegetarian'}</span></div>` : ''}
+
+        ${regSummary(line.eventId)}
 
         ${
           (line.quantity ?? 1) > 1
@@ -216,6 +237,18 @@ export function attachCartEvents(): void {
     el.addEventListener('click', () => {
       const id = el.getAttribute('data-open-event-id');
       if (id) appStore.openEvent(id);
+    });
+  });
+
+  document.querySelectorAll<HTMLElement>('[data-edit-registration]').forEach(el => {
+    el.addEventListener('click', event => {
+      event.stopPropagation();
+      const comboId = el.getAttribute('data-edit-combo');
+      const eventId = el.getAttribute('data-edit-registration');
+      // Editing a combo line reopens the whole bundle's form, because that is
+      // the one form the delegate filled.
+      if (comboId) startComboRegistration(comboId, true);
+      else if (eventId) startEventRegistration(eventId, true);
     });
   });
 

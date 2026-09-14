@@ -72,6 +72,19 @@ export interface RemoteRegistration {
   lunchChoice?: 'veg' | 'non_veg';
 }
 
+export interface RemoteParticipant {
+  orderId: string;
+  eventId: string;
+  teamIndex: number;
+  position: number;
+  role: 'captain' | 'member';
+  name: string;
+  yearOfStudy?: string;
+  college?: string;
+  phone?: string;
+  email?: string;
+}
+
 export interface RemoteSnapshot {
   delegate: RemoteDelegate | null;
   orders: RemoteOrder[];
@@ -79,6 +92,8 @@ export interface RemoteSnapshot {
   /** Every delegate application, for the verification console. Admins only. */
   allDelegates: RemoteDelegate[];
   isAdmin: boolean;
+  /** Rosters for every order the caller may read. RLS decides which. */
+  participants: RemoteParticipant[];
   capacities: Record<string, { slots: number | null; confirmed: number; pending: number; available: number | null }>;
 }
 
@@ -87,8 +102,9 @@ export const EMPTY_SNAPSHOT: RemoteSnapshot = {
   orders: [],
   registrations: [],
   allDelegates: [],
-  isAdmin: false
-  ,capacities: {}
+  isAdmin: false,
+  participants: [],
+  capacities: {}
 };
 
 const PROOF_BUCKET = 'payment-proofs';
@@ -160,13 +176,14 @@ export async function fetchSnapshot(): Promise<RemoteSnapshot> {
   if (!supabase || !getCurrentUser()) return { ...EMPTY_SNAPSHOT };
   const client = supabase;
 
-  const [delegatesRes, ordersRes, registrationsRes, adminRes, eventsRes] = await Promise.all([
+  const [delegatesRes, ordersRes, registrationsRes, participantsRes, adminRes, eventsRes] = await Promise.all([
     supabase.from('delegate_applications').select('*').order('submitted_at', { ascending: false }),
     supabase
       .from('orders')
       .select('*, order_lines(*)')
       .order('created_at', { ascending: false }),
     supabase.from('registrations').select('*'),
+    supabase.from('order_line_participants').select('*'),
     supabase.rpc('is_admin'),
     supabase.from('events').select('id, slots')
   ]);
@@ -208,6 +225,18 @@ export async function fetchSnapshot(): Promise<RemoteSnapshot> {
     })),
     allDelegates,
     isAdmin: adminRes.data === true,
+    participants: (participantsRes.data ?? []).map(row => ({
+      orderId: row.order_id,
+      eventId: row.event_id,
+      teamIndex: row.team_index ?? 1,
+      position: row.position ?? 1,
+      role: row.role === 'captain' ? ('captain' as const) : ('member' as const),
+      name: row.name,
+      yearOfStudy: row.year_of_study ?? undefined,
+      college: row.college ?? undefined,
+      phone: row.phone ?? undefined,
+      email: row.email ?? undefined
+    })),
     capacities: Object.fromEntries(capacityEntries)
   };
 }
@@ -259,6 +288,21 @@ export async function createOrderRemote(
     lunchChoice?: 'veg' | 'non_veg';
     /** Team entries. Only team events may exceed 1; the server re-checks. */
     quantity?: number;
+    comboId?: string;
+    /** Roster per team entry. Re-validated server-side. */
+    teams?: {
+      team_index: number;
+      team_college: string | null;
+      participants: {
+        position: number;
+        role: string;
+        name: string;
+        year_of_study: string | null;
+        college: string | null;
+        phone: string | null;
+        email: string | null;
+      }[];
+    }[];
   }[]
 ): Promise<RemoteResult<RemoteOrder>> {
   if (!supabase || !getCurrentUser()) return { ok: false, message: 'Please sign in first.' };
@@ -267,7 +311,10 @@ export async function createOrderRemote(
     p_items: items.map(i => ({
       event_id: i.eventId,
       participation: i.participation,
-      quantity: i.quantity ?? 1
+      quantity: i.quantity ?? 1,
+      combo_id: i.comboId ?? null,
+      lunch_choice: i.lunchChoice ?? null,
+      teams: i.teams ?? null
     }))
   });
 

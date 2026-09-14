@@ -15,6 +15,7 @@ export type ScreenType =
   | 'cart'
   | 'my-events'
   | 'combos'
+  | 'registration'
   | 'programme'
   | 'profile'
   | 'admin'

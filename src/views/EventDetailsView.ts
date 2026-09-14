@@ -4,6 +4,7 @@ import { eventContextLine } from '../data/events.ts';
 import { resolvePrice, defaultParticipation, formatINR, Participation } from '../services/pricing.ts';
 import * as registration from '../services/registrationService.ts';
 import { isFullDayWorkshop, LunchChoice } from '../services/workshop.ts';
+import { startEventRegistration } from '../views/RegistrationFormView.ts';
 import { telNumber, whatsappNumber } from '../data/contacts.ts';
 
 /**
@@ -458,8 +459,10 @@ export function attachEventDetailsEvents(): void {
     }
     if (cta !== 'add_to_cart') return;
 
-    const result = registration.addToCart(event.id, participationFor(event), chosenLunch[event.id]);
-    appStore.showToast(result.message);
+    // Registration details are collected before anything reaches the cart.
+    if (!startEventRegistration(event.id)) {
+      appStore.showToast('This event cannot be registered right now.');
+    }
   });
 
   // Accordions: one open at a time, matching the established detail rhythm.

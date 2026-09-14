@@ -32,6 +32,10 @@ import { renderAdminView, attachAdminEvents } from '../views/AdminView.ts';
 import { renderAdminGateView, attachAdminGateEvents } from '../views/AdminGateView.ts';
 import { renderPrivacyView, attachPrivacyEvents, renderTermsView, attachTermsEvents } from '../views/LegalView.ts';
 import { renderCreditsView, attachCreditsEvents } from '../views/CreditsView.ts';
+import {
+  renderRegistrationFormView,
+  attachRegistrationFormEvents
+} from '../views/RegistrationFormView.ts';
 
 /** The viewport at which the desktop layer takes over. */
 export const DESKTOP_QUERY = '(min-width: 1024px)';
@@ -59,6 +63,7 @@ const BESPOKE: Partial<Record<ScreenType, DesktopView>> = {
 };
 
 const FRAMED: Partial<Record<ScreenType, DesktopView>> = {
+  registration: { render: renderRegistrationFormView, attach: attachRegistrationFormEvents, framed: true },
   'delegate-registration': { render: renderDelegateRegistrationView, attach: attachDelegateRegistrationEvents, framed: true },
   'delegate-payment': { render: renderDelegatePaymentView, attach: attachDelegatePaymentEvents, framed: true },
   'delegate-confirm': { render: renderDelegateConfirmView, attach: attachDelegateConfirmEvents, framed: true },

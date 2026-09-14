@@ -510,3 +510,350 @@
   box-shadow: 0 0 6px var(--cyan-glow);
   flex-shrink: 0;
 }
+
+/* ============================================================================
+ * 05 / REGISTRATION
+ *
+ * Built from the Delegate registration vocabulary: the same timeline beads,
+ * the same input cards, the same beveled action. A registration form is part
+ * of the same dive, not a checkout page bolted on.
+ * ========================================================================== */
+
+.reg-form-stack {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  margin-top: 8px;
+}
+
+.reg-section-head {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.reg-section-index {
+  font-family: var(--font-mono-meta);
+  font-size: 10px;
+  letter-spacing: 2px;
+  font-weight: 600;
+  color: var(--cyan-glow);
+}
+
+.reg-section-title {
+  font-family: var(--font-serif-display);
+  font-size: 19px;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
+.reg-section-meta {
+  margin-left: auto;
+  font-family: var(--font-mono-meta);
+  font-size: 8.5px;
+  letter-spacing: 1.4px;
+  color: var(--text-dim);
+  border: 1px solid var(--cyan-border-subtle);
+  border-radius: var(--radius-pill);
+  padding: 3px 9px;
+  white-space: nowrap;
+}
+
+.reg-notes {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 16px;
+  padding-left: 2px;
+}
+
+.reg-notes li {
+  position: relative;
+  padding-left: 14px;
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+.reg-notes li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 7px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--cyan-glow);
+  box-shadow: 0 0 5px var(--cyan-glow);
+}
+
+/* ------------------------------------------------------------- rosters --- */
+
+.reg-team + .reg-team {
+  margin-top: 22px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(42, 241, 250, 0.12);
+}
+
+.reg-team-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.reg-team-index {
+  font-family: var(--font-mono-meta);
+  font-size: 9.5px;
+  letter-spacing: 2px;
+  font-weight: 600;
+  color: var(--text-silver);
+}
+
+.reg-team-rule {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(42, 241, 250, 0.3), rgba(42, 241, 250, 0.04));
+}
+
+.reg-member + .reg-member {
+  margin-top: 16px;
+}
+
+.reg-member-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 9px;
+}
+
+.reg-member-bead {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--cyan-glow);
+  box-shadow: 0 0 6px var(--cyan-glow);
+  flex-shrink: 0;
+}
+
+.reg-member-role {
+  font-family: var(--font-mono-meta);
+  font-size: 8.5px;
+  letter-spacing: 1.6px;
+  color: var(--text-muted);
+}
+
+.reg-member-remove {
+  margin-left: auto;
+  font-family: var(--font-mono-meta);
+  font-size: 8px;
+  letter-spacing: 1.4px;
+  color: var(--text-dim);
+  background: none;
+  border: none;
+  border-bottom: 1px solid rgba(84, 110, 132, 0.5);
+  padding-bottom: 1px;
+  cursor: pointer;
+}
+
+.reg-member-remove:hover {
+  color: #ff9a9a;
+  border-bottom-color: #ff9a9a;
+}
+
+.reg-add-member {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 14px;
+  padding: 11px 15px;
+  background: rgba(1, 12, 22, 0.6);
+  border: 1px dashed rgba(42, 241, 250, 0.32);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-family: var(--font-mono-meta);
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  font-weight: 600;
+  color: var(--cyan-glow);
+  transition: all 0.2s ease;
+}
+
+.reg-add-member:hover {
+  border-color: var(--cyan-glow);
+  background: rgba(2, 20, 34, 0.8);
+}
+
+.reg-add-hint {
+  font-size: 9px;
+  letter-spacing: 1.2px;
+  color: var(--text-dim);
+  font-weight: 400;
+}
+
+/* -------------------------------------------------------------- errors --- */
+
+.input-card-box.has-error {
+  border-color: rgba(255, 140, 110, 0.55);
+}
+
+.reg-field-error,
+.reg-error-line {
+  display: block;
+  font-size: 11px;
+  line-height: 1.5;
+  color: #ffc6a0;
+  margin-top: 6px;
+}
+
+.reg-error-line {
+  margin-top: 10px;
+}
+
+.reg-summary-errors {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  background: rgba(255, 140, 90, 0.08);
+  border: 1px solid rgba(255, 160, 110, 0.3);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  line-height: 1.55;
+  color: #ffc6a0;
+}
+
+/* ---------------------------------------------------------------- meal --- */
+
+.reg-lunch {
+  margin-top: 16px;
+}
+
+.reg-lunch-note {
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+/* --------------------------------------------------- combo inclusions ---- */
+
+.reg-included {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.reg-included li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-serif-display);
+  font-size: 16px;
+  color: #ffffff;
+}
+
+.reg-included-tick {
+  color: var(--cyan-glow);
+  font-size: 12px;
+}
+
+.reg-included-meta {
+  margin-left: auto;
+  font-family: var(--font-mono-meta);
+  font-size: 9px;
+  letter-spacing: 1.3px;
+  color: var(--text-dim);
+}
+
+.reg-shared-note,
+.reg-confirm-note {
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: var(--text-dim);
+  margin-top: 12px;
+}
+
+.reg-confirm-note {
+  margin-bottom: 16px;
+}
+
+/* --------------------------------------------------- cart registration --- */
+
+.cart-reg-summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+  font-family: var(--font-mono-meta);
+  font-size: 9.5px;
+  letter-spacing: 1.2px;
+  color: var(--text-muted);
+}
+
+.cart-reg-complete {
+  color: var(--cyan-glow);
+}
+
+.cart-reg-edit {
+  font-family: var(--font-mono-meta);
+  font-size: 9px;
+  letter-spacing: 1.4px;
+  color: var(--cyan-glow);
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--cyan-glow);
+  padding-bottom: 2px;
+  cursor: pointer;
+}
+
+/* --------------------------------------------------------- admin roster -- */
+
+.admin-roster {
+  margin: 10px 0 4px;
+  padding: 10px 12px;
+  background: rgba(1, 10, 20, 0.6);
+  border: 1px solid rgba(42, 241, 250, 0.12);
+  border-radius: var(--radius-xs);
+}
+
+.admin-roster-head {
+  font-family: var(--font-mono-meta);
+  font-size: 8.5px;
+  letter-spacing: 1.6px;
+  color: var(--text-dim);
+  margin-bottom: 7px;
+}
+
+.admin-roster-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 11.5px;
+  color: var(--text-silver);
+  padding: 3px 0;
+}
+
+.admin-roster-pos {
+  font-family: var(--font-mono-meta);
+  font-size: 9px;
+  color: var(--cyan-glow);
+  min-width: 26px;
+}
+
+.admin-roster-meta {
+  margin-left: auto;
+  font-family: var(--font-mono-meta);
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+  text-align: right;
+}

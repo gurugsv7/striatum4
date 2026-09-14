@@ -11,6 +11,7 @@ import {
   isComboOpen
 } from '../../data/combos.ts';
 import { REGISTRATION_CONTACT, telNumber, whatsappNumber } from '../../data/contacts.ts';
+import { startComboRegistration } from '../../views/RegistrationFormView.ts';
 import { eyebrow, icon } from '../shell.ts';
 
 /**
@@ -31,7 +32,7 @@ function ctaFor(state: registration.ComboState): { label: string; disabled: bool
     case 'unavailable':
       return { label: 'UNAVAILABLE', disabled: true };
     default:
-      return { label: 'ADD COMBO', disabled: false };
+      return { label: 'REGISTER COMBO', disabled: false };
   }
 }
 
@@ -189,8 +190,11 @@ export function attachDesktopCombos(): void {
         return;
       }
 
-      const result = registration.addComboToCart(comboId);
-      appStore.showToast(result.message);
+      // One unified form for the whole bundle; nothing is added until it is
+      // completed.
+      if (!startComboRegistration(comboId)) {
+        appStore.showToast('That combo cannot be registered right now.');
+      }
     });
   });
 }

@@ -52,6 +52,10 @@ import {
 } from './views/LegalView.ts';
 import { renderCreditsView, attachCreditsEvents } from './views/CreditsView.ts';
 import { renderCombosView, attachCombosEvents } from './views/CombosView.ts';
+import {
+  renderRegistrationFormView,
+  attachRegistrationFormEvents
+} from './views/RegistrationFormView.ts';
 import { mountStriatumAssistant } from './components/StriatumAssistant.ts';
 
 const VIEWS: Record<ScreenType, { render: () => string; attach: () => void }> = {
@@ -62,6 +66,7 @@ const VIEWS: Record<ScreenType, { render: () => string; attach: () => void }> = 
   cart: { render: renderCartView, attach: attachCartEvents },
   'my-events': { render: renderMyEventsView, attach: attachMyEventsEvents },
   combos: { render: renderCombosView, attach: attachCombosEvents },
+  registration: { render: renderRegistrationFormView, attach: attachRegistrationFormEvents },
   programme: { render: renderProgrammeView, attach: attachProgrammeEvents },
   profile: { render: renderProfileView, attach: attachProfileEvents },
   admin: { render: renderAdminView, attach: attachAdminEvents },

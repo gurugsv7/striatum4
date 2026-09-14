@@ -27,6 +27,54 @@ type RosterFilter = 'ALL' | 'CONFIRMED' | 'AWAITING REVIEW' | 'NEEDS RE-UPLOAD';
 let rosterFilter: RosterFilter = 'ALL';
 let rosterSearch = '';
 
+/**
+ * The people on one order line, grouped by team. Organisers verifying a payment
+ * need to see who is actually entered, not a JSON blob.
+ */
+function rosterBlock(order: registration.Order, line: registration.OrderLine): string {
+  const roster = registration.rosterFor(order.id, line.eventId);
+  if (!roster.length) return '';
+
+  const teams = [...new Set(roster.map(person => person.teamIndex))].sort((a, b) => a - b);
+
+  return `
+    <div class="admin-roster">
+      <div class="admin-roster-head">
+        ${teams.length > 1 ? `${teams.length} TEAMS &middot; ${roster.length} PARTICIPANTS` : `ROSTER &middot; ${roster.length}`}
+        ${line.lunchChoice ? ` &middot; ${line.lunchChoice === 'veg' ? 'VEGETARIAN' : 'NON-VEGETARIAN'}` : ''}
+      </div>
+      ${teams
+        .map(teamIndex => {
+          const members = roster
+            .filter(person => person.teamIndex === teamIndex)
+            .sort((a, b) => a.position - b.position);
+          const heading =
+            teams.length > 1
+              ? `<div class="admin-roster-head">TEAM ${String(teamIndex).padStart(2, '0')}</div>`
+              : '';
+          return (
+            heading +
+            members
+              .map(
+                person => `
+            <div class="admin-roster-row">
+              <span class="admin-roster-pos">${person.role === 'captain' ? 'C' : String(person.position)}</span>
+              <span>${escapeHtml(person.name)}</span>
+              <span class="admin-roster-meta">
+                ${[person.yearOfStudy, person.college, person.phone]
+                  .filter(Boolean)
+                  .map(value => escapeHtml(String(value)))
+                  .join(' &middot; ')}
+              </span>
+            </div>`
+              )
+              .join('')
+          );
+        })
+        .join('')}
+    </div>`;
+}
+
 function escapeHtml(value: string): string {
   return value
     .replace(/&/g, '&amp;')
@@ -482,6 +530,7 @@ function renderOrderPanel(order: registration.Order): string {
             </div>
             <span class="admin-line-price">${formatINR(line.unitPrice * (line.quantity ?? 1))}</span>
           </div>
+          ${rosterBlock(order, line)}
         `).join('')}
 
         ${order.discountAmount > 0 ? `
