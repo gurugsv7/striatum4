@@ -22,7 +22,7 @@ export function renderDesktopSurround(screenContentHtml: string): string {
     { id: 'admin', num: '13', label: 'Verification', desc: 'Manual Payment Review' }
   ];
 
-  const hasBottomNav = ['home', 'explore', 'my-events', 'profile', 'delegate-confirm', 'event-confirm'].includes(state.currentScreen);
+  const hasBottomNav = ['home', 'explore', 'combos', 'my-events', 'profile', 'delegate-confirm', 'event-confirm'].includes(state.currentScreen);
   const homepageVariant = ['home', 'event-details', 'my-events', 'delegate-confirm', 'event-confirm'].includes(state.currentScreen)
     ? 'one'
     : 'two';

@@ -3904,3 +3904,342 @@ body.s4-desktop-active .s4-assistant-orb {
 body.s4-desktop-active .s4-assistant-panel {
   bottom: 66px;
 }
+
+/* ============================================================ 04 / COMBOS ==== */
+
+.d-combo-body {
+  flex: 1;
+  padding-top: 26px;
+  padding-bottom: 34px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(28px, 3.2vw, 48px);
+  align-items: start;
+}
+
+@media (max-width: 1240px) {
+  .d-combo-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.d-combo-status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 18px;
+  background: rgba(1, 14, 25, 0.72);
+  border: 1px solid var(--cyan-border-subtle);
+  border-left: 2px solid var(--cyan-glow);
+  border-radius: 4px;
+}
+
+.d-combo-status.is-closed {
+  border-left-color: var(--text-dim);
+}
+
+.d-combo-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--cyan-glow);
+  box-shadow: 0 0 10px var(--cyan-glow);
+  animation: pulse-glow 2.8s infinite ease-in-out;
+  flex-shrink: 0;
+}
+
+.d-combo-status.is-closed .d-combo-status-dot {
+  background: var(--text-dim);
+  box-shadow: none;
+  animation: none;
+}
+
+.d-combo-status-title {
+  display: block;
+  font-family: var(--font-mono-meta);
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--text-silver);
+  font-weight: 600;
+}
+
+.d-combo-status-sub {
+  display: block;
+  margin-top: 3px;
+  font-family: var(--font-mono-meta);
+  font-size: 9px;
+  letter-spacing: 1.6px;
+  color: var(--cyan-glow);
+}
+
+.d-combo-status.is-closed .d-combo-status-sub {
+  color: var(--text-dim);
+}
+
+.d-combo-group + .d-combo-group {
+  margin-top: 0;
+}
+
+.d-combo-group-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.d-combo-group-index {
+  font-family: var(--font-mono-meta);
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--cyan-glow);
+  font-weight: 600;
+}
+
+.d-combo-group-title {
+  font-family: var(--font-mono-meta);
+  font-size: 10px;
+  letter-spacing: 2.2px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.d-combo-group-rule {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(42, 241, 250, 0.3), rgba(42, 241, 250, 0.04));
+}
+
+/* Each family runs down its own current. */
+.d-combo-rail {
+  position: relative;
+  padding-left: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.d-combo-rail::before {
+  content: '';
+  position: absolute;
+  left: 2px;
+  top: 20px;
+  bottom: 20px;
+  width: 1px;
+  background: linear-gradient(180deg, rgba(42, 241, 250, 0.45), rgba(42, 241, 250, 0.1));
+}
+
+.d-combo {
+  position: relative;
+}
+
+.d-combo-bead {
+  position: absolute;
+  left: -25px;
+  top: 24px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--cyan-glow);
+  box-shadow: 0 0 8px var(--cyan-glow), 0 0 16px rgba(42, 241, 250, 0.85);
+}
+
+.d-combo.is-muted .d-combo-bead {
+  background: var(--text-dim);
+  box-shadow: none;
+}
+
+.d-combo-card {
+  position: relative;
+  background: rgba(0, 12, 20, 0.78);
+  border: 1px solid var(--cyan-border-subtle);
+  border-radius: 14px;
+  padding: 18px 20px 16px;
+  transition: border-color 0.25s ease, transform 0.25s ease;
+}
+
+.d-combo-card:hover {
+  border-color: rgba(42, 241, 250, 0.4);
+}
+
+.d-combo.is-muted .d-combo-card {
+  opacity: 0.55;
+}
+
+.d-combo-bulk {
+  display: inline-block;
+  font-family: var(--font-mono-meta);
+  font-size: 8.5px;
+  letter-spacing: 1.6px;
+  color: var(--cyan-glow);
+  border: 1px solid var(--cyan-border);
+  border-radius: 9999px;
+  padding: 3px 10px;
+  margin-bottom: 12px;
+}
+
+/* Events branch across, joined by a short current. */
+.d-combo-nodes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  margin-bottom: 14px;
+}
+
+.d-combo-node {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.d-combo-node-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(42, 241, 250, 0.85);
+  box-shadow: 0 0 6px rgba(42, 241, 250, 0.7);
+  margin-bottom: 3px;
+}
+
+.d-combo-node-name {
+  font-family: var(--font-serif-display);
+  font-size: 19px;
+  font-weight: 600;
+  color: #fff;
+  line-height: 1.15;
+}
+
+.d-combo-node-meta {
+  font-family: var(--font-mono-meta);
+  font-size: 9px;
+  letter-spacing: 1.1px;
+  color: var(--text-muted);
+}
+
+.d-combo-join {
+  width: 16px;
+  height: 1px;
+  background: rgba(42, 241, 250, 0.35);
+  flex-shrink: 0;
+  margin-top: 12px;
+}
+
+.d-combo-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding-top: 13px;
+  border-top: 1px solid rgba(42, 241, 250, 0.1);
+}
+
+.d-combo-ledger {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.d-combo-normal {
+  font-family: var(--font-mono-meta);
+  font-size: 12px;
+  color: var(--text-muted);
+  text-decoration: line-through;
+  text-decoration-color: rgba(140, 163, 184, 0.6);
+}
+
+.d-combo-price {
+  font-family: var(--font-serif-display);
+  font-size: 26px;
+  font-weight: 600;
+  color: #fff;
+  line-height: 1;
+}
+
+.d-combo-save {
+  font-family: var(--font-mono-meta);
+  font-size: 9px;
+  letter-spacing: 1.4px;
+  font-weight: 600;
+  color: var(--cyan-glow);
+  border: 1px solid var(--cyan-border);
+  background: rgba(42, 241, 250, 0.07);
+  border-radius: 9999px;
+  padding: 4px 10px;
+  white-space: nowrap;
+}
+
+.d-combo.is-muted .d-combo-save {
+  color: var(--text-muted);
+  border-color: rgba(140, 163, 184, 0.25);
+  background: transparent;
+}
+
+.d-combo-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  height: 40px;
+  padding: 0 18px;
+  background: rgba(1, 12, 22, 0.9);
+  border: 1px solid var(--cyan-glow);
+  clip-path: var(--chamfer-cut);
+  cursor: pointer;
+  font-family: var(--font-mono-meta);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  color: var(--cyan-glow);
+  box-shadow: 0 0 12px rgba(42, 241, 250, 0.22);
+  transition: all 0.22s ease;
+  white-space: nowrap;
+}
+
+.d-combo-cta:hover:not(:disabled) {
+  box-shadow: 0 0 20px rgba(42, 241, 250, 0.45);
+  border-color: #fff;
+}
+
+.d-combo-cta:disabled {
+  cursor: not-allowed;
+  color: var(--text-dim);
+  border-color: rgba(140, 163, 184, 0.25);
+  box-shadow: none;
+}
+
+.d-combo-cta.state-in_cart {
+  background: rgba(42, 241, 250, 0.1);
+  color: #fff;
+}
+
+.d-combo-reason {
+  margin-top: 10px;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: #ffc6a0;
+}
+
+.d-combo-contact {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-end;
+}
+
+.d-combo-contact-name {
+  font-size: 14px;
+  color: var(--text-silver);
+}
+
+.d-combo-contact-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+/* Contact actions sit beside the in-charge, not as a directory row. */
+.d-person .incharge-actions {
+  margin-left: 10px;
+}

@@ -18,6 +18,7 @@ import { renderDesktopProgramme, attachDesktopProgramme } from './views/programm
 import { renderDesktopCart, attachDesktopCart } from './views/cart.ts';
 import { renderDesktopMyEvents, attachDesktopMyEvents } from './views/myEvents.ts';
 import { renderDesktopProfile, attachDesktopProfile } from './views/profile.ts';
+import { renderDesktopCombos, attachDesktopCombos } from './views/combos.ts';
 
 // Screens whose single-column form is already the right shape: multi-step
 // registration, payment, confirmation, legal text and the organiser console.
@@ -53,6 +54,7 @@ const BESPOKE: Partial<Record<ScreenType, DesktopView>> = {
   programme: { render: renderDesktopProgramme, attach: attachDesktopProgramme },
   cart: { render: renderDesktopCart, attach: attachDesktopCart },
   'my-events': { render: renderDesktopMyEvents, attach: attachDesktopMyEvents },
+  combos: { render: renderDesktopCombos, attach: attachDesktopCombos },
   profile: { render: renderDesktopProfile, attach: attachDesktopProfile }
 };
 

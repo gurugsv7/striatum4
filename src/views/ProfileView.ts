@@ -157,8 +157,8 @@ export function renderProfileView(): string {
                 </svg>
               </div>
               <div class="profile-card-text-col">
-                <div class="profile-card-title">My Registrations</div>
-                <div class="profile-card-desc">View and manage</div>
+                <div class="profile-card-title">My Bookings</div>
+                <div class="profile-card-desc">My Events &middot; view and manage</div>
               </div>
             </div>
             <svg class="profile-card-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -433,12 +433,7 @@ export function attachProfileEvents(): void {
 
   // Registrations includes the delegate's event and workshop bookings.
   document.getElementById('btn-card-registrations')?.addEventListener('click', () => {
-    const status = registration.getDelegateStatus();
-    if (status === 'approved' || status === 'pending') {
-      appStore.setScreen('my-events');
-    } else {
-      appStore.setScreen('delegate-registration');
-    }
+    appStore.setScreen('my-events');
   });
 
   // Schedule -> Programme timeline

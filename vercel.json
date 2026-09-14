@@ -46,6 +46,10 @@
       "destination": "/index.html"
     },
     {
+      "source": "/combos",
+      "destination": "/index.html"
+    },
+    {
       "source": "/profile",
       "destination": "/index.html"
     },
@@ -104,6 +108,15 @@
     },
     {
       "source": "/payment",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      "source": "/combos",
       "headers": [
         {
           "key": "X-Robots-Tag",

@@ -177,7 +177,7 @@ export function renderDesktopProfile(): string {
             ${actionCard(
               'btn-card-registrations',
               '01',
-              'My registrations',
+              'My bookings',
               `${groups.confirmed.length} confirmed &middot; ${groups.pending.length} pending`,
               icon('mine', 19)
             )}
@@ -243,9 +243,9 @@ export function attachDesktopProfile(): void {
     appStore.setScreen(status === 'approved' || status === 'pending' ? 'delegate-confirm' : 'delegate-registration');
   });
 
+  // The only route to My Events now that it has left the bottom navigation.
   document.getElementById('btn-card-registrations')?.addEventListener('click', () => {
-    const status = registration.getDelegateStatus();
-    appStore.setScreen(status === 'approved' || status === 'pending' ? 'my-events' : 'delegate-registration');
+    appStore.setScreen('my-events');
   });
 
   document.getElementById('btn-card-schedule')?.addEventListener('click', () => {

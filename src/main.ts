@@ -13,6 +13,7 @@ import './styles/legal.css';
 import './styles/profile.css';
 import './styles/confirm.css';
 import './styles/motion.css';
+import './styles/combos.css';
 import './styles/desktop.css';
 import { mountStartupLoader } from './components/StartupLoader.ts';
 
@@ -50,6 +51,7 @@ import {
   attachTermsEvents
 } from './views/LegalView.ts';
 import { renderCreditsView, attachCreditsEvents } from './views/CreditsView.ts';
+import { renderCombosView, attachCombosEvents } from './views/CombosView.ts';
 import { mountStriatumAssistant } from './components/StriatumAssistant.ts';
 
 const VIEWS: Record<ScreenType, { render: () => string; attach: () => void }> = {
@@ -59,6 +61,7 @@ const VIEWS: Record<ScreenType, { render: () => string; attach: () => void }> = 
   'event-details': { render: renderEventDetailsView, attach: attachEventDetailsEvents },
   cart: { render: renderCartView, attach: attachCartEvents },
   'my-events': { render: renderMyEventsView, attach: attachMyEventsEvents },
+  combos: { render: renderCombosView, attach: attachCombosEvents },
   programme: { render: renderProgrammeView, attach: attachProgrammeEvents },
   profile: { render: renderProfileView, attach: attachProfileEvents },
   admin: { render: renderAdminView, attach: attachAdminEvents },
