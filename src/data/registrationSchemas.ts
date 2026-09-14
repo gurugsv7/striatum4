@@ -153,6 +153,7 @@ const EXPLICIT: Record<string, Partial<EventRegistrationSchema>> = {
   },
 
   // -------------------------------------------------------------------- games --
+  // Mystery room. No entry fee; a Tier 2 (SYNEXA) pass is the whole gate.
   's4-25': {
     shape: 'team',
     minMembers: 3,
@@ -160,7 +161,8 @@ const EXPLICIT: Record<string, Partial<EventRegistrationSchema>> = {
     defaultMembers: 3,
     sameCollege: false,
     memberFields: BASIC_MEMBER_FIELDS,
-    notes: []
+    requiredTier: 'SYNEXA',
+    notes: ['A Tier 2 (SYNEXA) Delegate Pass is required, and there is no entry fee.']
   },
   // Treasure hunt. The brochure names a Tier 2 (SYNEXA) Delegate Pass.
   's4-26': {

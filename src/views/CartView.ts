@@ -275,7 +275,13 @@ export function attachCartEvents(): void {
       if (btnProceed.disabled) return;
       const result = await registration.createOrder();
       if (result.ok && result.order) {
-        appStore.openPayment(result.order.id);
+        // An order that cost nothing is confirmed by create_order itself, so
+        // there is no payment to make and no screenshot to upload.
+        if (result.order.status === 'approved') {
+          appStore.openOrderConfirmation(result.order.id);
+        } else {
+          appStore.openPayment(result.order.id);
+        }
       } else {
         appStore.showToast(result.message ?? 'Could not create the order.');
       }

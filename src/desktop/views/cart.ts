@@ -232,7 +232,12 @@ export function attachDesktopCart(): void {
     proceed.disabled = true;
     const result = await registration.createOrder();
     if (result.ok && result.order) {
-      appStore.openPayment(result.order.id);
+      // Nothing to pay means nothing to upload; see CartView.
+      if (result.order.status === 'approved') {
+        appStore.openOrderConfirmation(result.order.id);
+      } else {
+        appStore.openPayment(result.order.id);
+      }
     } else {
       proceed.disabled = false;
       appStore.showToast(result.message ?? 'Could not create the order.');

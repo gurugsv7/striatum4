@@ -25,6 +25,10 @@ export interface ResolvedPrice {
 }
 
 export function formatINR(value: number): string {
+  // A published fee of nothing is free, and saying "₹0" makes a reader wonder
+  // whether the number failed to load. An unpriced event is a separate case
+  // and already reports itself as "Not specified".
+  if (value === 0) return 'Free';
   return '₹' + value.toLocaleString('en-IN');
 }
 
