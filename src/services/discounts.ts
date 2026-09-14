@@ -1,5 +1,11 @@
 import { EventCategory } from '../data/eventTypes.ts';
-import { COMBO_OFFERS, COMBO_DEADLINE_UTC, comboSavings, comboTitle } from '../data/combos.ts';
+import {
+  COMBO_OFFERS,
+  COMBO_DEADLINE_UTC,
+  comboSavings,
+  comboTitle,
+  comboRuleLabel
+} from '../data/combos.ts';
 
 /**
  * Configurable multi-event bundle discounts.
@@ -42,7 +48,7 @@ export interface DiscountRule {
 const COMBO_RULES: DiscountRule[] = COMBO_OFFERS.map(combo => ({
   id: combo.id,
   name: comboTitle(combo),
-  label: 'COMBO · ' + comboTitle(combo),
+  label: comboRuleLabel(combo),
   eligibleEventIds: combo.eventIds,
   minEligibleItems: combo.eventIds.length,
   minQuantity: combo.teamsPerEvent > 1 ? combo.teamsPerEvent : undefined,

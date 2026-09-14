@@ -14,6 +14,16 @@
 --      four-person team. order_lines gains a quantity and registrations gain a
 --      team_index, so one order can carry four real places in the same event.
 --
+-- The three functions below are reproduced from the CURRENT deployed
+-- definitions, not from the original core migration, so that everything added
+-- since is preserved rather than silently rolled back:
+--
+--   * create_order keeps has_active_delegate_pass() (immediate pass access)
+--     and the order-hold expiry filter on the pending-order check.
+--   * approve_order keeps the payment-proof requirement in full, including the
+--     storage-object existence check, and keeps copying lunch_choice.
+--   * event_seats_taken keeps the expiry filter so lapsed holds release seats.
+--
 -- Nothing here changes proof upload, manual verification, order expiry or
 -- delegate approval.
 -- ============================================================================
@@ -55,7 +65,7 @@ comment on column public.registrations.team_index is
   'Distinguishes the teams of a multi-team entry. 1 for a single place.';
 
 -- A delegate may now hold several places in one event, but each must be a
--- distinct team. The old one-row-per-event unique key is replaced, not dropped.
+-- distinct team. Existing rows default to team_index 1 and stay unique.
 alter table public.registrations
   drop constraint if exists registrations_user_id_event_id_key;
 
@@ -97,7 +107,7 @@ comment on column public.discount_rules.ends_at is
 
 -- ---------------------------------------------------------------- seats -----
 -- Seats consumed must count team entries, not rows, now that one line can hold
--- several places.
+-- several places. The expiry filter is unchanged.
 
 create or replace function public.event_seats_taken(p_event_id text)
 returns integer
@@ -112,13 +122,14 @@ as $$
        from public.order_lines ol
        join public.orders o on o.id = ol.order_id
       where ol.event_id = p_event_id
-        and o.status in ('awaiting_payment', 'payment_submitted', 'under_review'))
+        and o.status in ('awaiting_payment', 'payment_submitted', 'under_review')
+        and public.order_hold_expires_at(o.status, o.created_at, o.submitted_at) > now())
 $$;
 
 -- ------------------------------------------------------------ create_order --
 -- Unchanged in intent: the client sends only WHAT it wants. This revision adds
 -- a per-item quantity, prices it, checks capacity against it, and honours the
--- combo validity window.
+-- combo validity window and quantity threshold.
 
 create or replace function public.create_order(p_items jsonb)
 returns public.orders
@@ -159,10 +170,7 @@ begin
   select (value #>> '{}') into v_phase from public.app_settings where key = 'pricing_phase';
   v_phase := coalesce(v_phase, 'early');
 
-  v_has_pass := exists (
-    select 1 from public.delegate_applications
-     where user_id = v_user and status = 'approved'
-  );
+  v_has_pass := public.has_active_delegate_pass(v_user);
 
   -- An event may appear only once per order; several teams travel as quantity.
   if (select count(*) from (
@@ -171,7 +179,6 @@ begin
     raise exception 'An event cannot be added twice to one order' using errcode = 'P0001';
   end if;
 
-  -- Lock every requested event so two concurrent checkouts cannot oversell.
   perform 1
      from public.events
     where id in (select jsonb_array_elements(p_items) ->> 'event_id')
@@ -194,7 +201,7 @@ begin
     end if;
 
     if v_event.delegate_pass_requirement = 'required' and not v_has_pass then
-      raise exception '% requires an approved Delegate ID', v_event.name using errcode = 'P0001';
+      raise exception '% requires a Delegate Pass', v_event.name using errcode = 'P0001';
     end if;
 
     v_quantity := coalesce((v_item ->> 'quantity')::int, 1);
@@ -218,12 +225,14 @@ begin
                  join public.orders o on o.id = ol.order_id
                 where ol.event_id = v_event.id
                   and o.user_id = v_user
-                  and o.status in ('awaiting_payment', 'payment_submitted', 'under_review')) then
+                  and o.status in ('awaiting_payment', 'payment_submitted', 'under_review')
+                  and public.order_hold_expires_at(o.status, o.created_at, o.submitted_at) > now()) then
       raise exception '% is already in an order awaiting verification', v_event.name
         using errcode = 'P0001';
     end if;
 
-    -- Every team in a bulk entry needs its own seat.
+    -- Every team in a bulk entry needs its own seat. For a single place this is
+    -- the same test as before.
     if v_event.slots is not null
        and public.event_seats_taken(v_event.id) + v_quantity > v_event.slots then
       raise exception '% does not have enough places left', v_event.name using errcode = 'P0001';
@@ -233,7 +242,6 @@ begin
                                 case when v_event.participation = 'team'
                                      then 'team' else 'individual' end);
 
-    -- Price resolution mirrors src/services/pricing.ts exactly.
     if v_event.price_early_bird is not null or v_event.price_late_bird is not null then
       if v_phase <> 'early' and v_event.price_late_bird is not null then
         v_price := v_event.price_late_bird; v_basis := 'Late bird';
@@ -261,9 +269,9 @@ begin
     end if;
 
     if v_event.price_unit = 'per_team' then
-      v_basis := v_basis || ' · per team';
+      v_basis := v_basis || ' - per team';
     elsif v_event.price_unit = 'per_person' then
-      v_basis := v_basis || ' · per person';
+      v_basis := v_basis || ' - per person';
     end if;
 
     v_subtotal := v_subtotal + (v_price * v_quantity);
@@ -271,7 +279,7 @@ begin
       'event_id',      v_event.id,
       'event_name',    v_event.name,
       'event_code',    v_event.code,
-      'context',       coalesce(v_event.specialties[1] || ' · ', '') || v_event.format,
+      'context',       coalesce(v_event.specialties[1] || ' - ', '') || v_event.format,
       'category',      v_event.category,
       'event_date',    v_event.event_date,
       'start_time',    v_event.start_time,
@@ -354,6 +362,7 @@ $$;
 
 -- ----------------------------------------------------------- approve_order --
 -- One registration per team entry, so a four-team pack produces four places.
+-- Every payment-proof guard is retained exactly as deployed.
 
 create or replace function public.approve_order(p_order_id uuid)
 returns public.orders
@@ -377,14 +386,38 @@ begin
   if v_order.status = 'approved' then
     raise exception 'Order is already approved' using errcode = 'P0001';
   end if;
+  if v_order.status not in ('payment_submitted', 'under_review') then
+    raise exception 'Payment proof must be submitted before approval'
+      using errcode = 'P0001';
+  end if;
+  if v_order.proof_path is null
+     or v_order.proof_mime not in ('image/jpeg', 'image/png')
+     or v_order.proof_size is null
+     or v_order.proof_size <= 0
+     or v_order.proof_size > 5242880 then
+    raise exception 'A valid payment screenshot is required before approval'
+      using errcode = 'P0001';
+  end if;
+  if not exists (
+    select 1
+      from storage.objects obj
+     where obj.bucket_id = 'payment-proofs'
+       and obj.name = v_order.proof_path
+       and coalesce((obj.metadata ->> 'size')::bigint, 0) > 0
+  ) then
+    raise exception 'Payment screenshot file is missing from secure storage'
+      using errcode = 'P0001';
+  end if;
 
   for v_line in select * from public.order_lines where order_id = p_order_id
   loop
     for v_team in 1 .. v_line.quantity
     loop
       insert into public.registrations
-        (order_id, user_id, event_id, participation, team_index)
-      values (v_order.id, v_order.user_id, v_line.event_id, v_line.participation, v_team)
+        (order_id, user_id, event_id, participation, lunch_choice, team_index)
+      values
+        (v_order.id, v_order.user_id, v_line.event_id, v_line.participation,
+         v_line.lunch_choice, v_team)
       on conflict (user_id, event_id, team_index) do nothing;
     end loop;
   end loop;
@@ -412,63 +445,63 @@ insert into public.discount_rules
    discount_type, discount_value, active, priority, ends_at)
 values
   ('combo-bonefire-trauma', 'Bonefire + Trauma Resuscitation',
-   'COMBO · BONEFIRE + TRAUMA RESUSCITATION', 'combo',
+   'COMBO - BONEFIRE + TRAUMA RESUSCITATION', 'combo',
    array['s4-07','s4-08'], 2, null, 'fixed', 300, true, 20,
    timestamptz '2026-09-27 18:29:59.999+00'),
 
   ('combo-genesis-sono', 'Genesis + The Sono Edge',
-   'COMBO · GENESIS + THE SONO EDGE', 'combo',
+   'COMBO - GENESIS + THE SONO EDGE', 'combo',
    array['s4-05','s4-01'], 2, null, 'fixed', 200, true, 20,
    timestamptz '2026-09-27 18:29:59.999+00'),
 
   ('combo-stitchreef-trauma', 'Stitchreef + Trauma Resuscitation',
-   'COMBO · STITCHREEF + TRAUMA RESUSCITATION', 'combo',
+   'COMBO - STITCHREEF + TRAUMA RESUSCITATION', 'combo',
    array['s4-02','s4-08'], 2, null, 'fixed', 300, true, 20,
    timestamptz '2026-09-27 18:29:59.999+00'),
 
   ('combo-stitchreef-pleuralis', 'Stitchreef + Pleuralis',
-   'COMBO · STITCHREEF + PLEURALIS', 'combo',
+   'COMBO - STITCHREEF + PLEURALIS', 'combo',
    array['s4-02','s4-09'], 2, null, 'fixed', 200, true, 30,
    timestamptz '2026-09-27 18:29:59.999+00'),
 
   ('combo-genesis-stitchreef-pleuralis', 'Genesis + Stitchreef + Pleuralis',
-   'COMBO · GENESIS + STITCHREEF + PLEURALIS', 'combo',
+   'COMBO - GENESIS + STITCHREEF + PLEURALIS', 'combo',
    array['s4-05','s4-02','s4-09'], 3, null, 'fixed', 200, true, 20,
    timestamptz '2026-09-27 18:29:59.999+00'),
 
   ('combo-rythmica-glowcode', 'Rythmica + Glow Code',
-   'COMBO · RYTHMICA + GLOW CODE', 'combo',
+   'COMBO - RYTHMICA + GLOW CODE', 'combo',
    array['s4-10','s4-06'], 2, null, 'fixed', 200, true, 20,
    timestamptz '2026-09-27 18:29:59.999+00'),
 
   ('combo-rythmica-penumbra-paedopraxis', 'Rythmica + Penumbra + Paedopraxis',
-   'COMBO · RYTHMICA + PENUMBRA + PAEDOPRAXIS', 'combo',
+   'COMBO - RYTHMICA + PENUMBRA + PAEDOPRAXIS', 'combo',
    array['s4-10','s4-04','s4-03'], 3, null, 'fixed', 200, true, 20,
    timestamptz '2026-09-27 18:29:59.999+00'),
 
   ('combo-oceanic-glandswars', 'Oceanic Odyssey + Glandswars',
-   'COMBO · OCEANIC ODYSSEY + GLANDSWARS', 'combo',
+   'COMBO - OCEANIC ODYSSEY + GLANDSWARS', 'combo',
    array['s4-11','s4-13'], 2, null, 'fixed', 150, true, 20,
    timestamptz '2026-09-27 18:29:59.999+00'),
 
   ('combo-aquaquest-glandswars', 'Aquaquest + Glandswars',
-   'COMBO · AQUAQUEST + GLANDSWARS', 'combo',
+   'COMBO - AQUAQUEST + GLANDSWARS', 'combo',
    array['s4-12','s4-13'], 2, null, 'fixed', 200, true, 20,
    timestamptz '2026-09-27 18:29:59.999+00'),
 
   -- Four distinct teams entering one quiz.
   ('combo-glandswars-4-teams', 'Glandswars, four teams',
-   'COMBO · 4 TEAMS · GLANDSWARS', 'combo',
+   'COMBO - 4 TEAMS - GLANDSWARS', 'combo',
    array['s4-13'], 1, 4, 'fixed', 200, true, 10,
    timestamptz '2026-09-27 18:29:59.999+00'),
 
   ('combo-oceanic-4-teams', 'Oceanic Odyssey, four teams',
-   'COMBO · 4 TEAMS · OCEANIC ODYSSEY', 'combo',
+   'COMBO - 4 TEAMS - OCEANIC ODYSSEY', 'combo',
    array['s4-11'], 1, 4, 'fixed', 200, true, 10,
    timestamptz '2026-09-27 18:29:59.999+00'),
 
   ('combo-aquaquest-4-teams', 'Aquaquest, four teams',
-   'COMBO · 4 TEAMS · AQUAQUEST', 'combo',
+   'COMBO - 4 TEAMS - AQUAQUEST', 'combo',
    array['s4-12'], 1, 4, 'fixed', 300, true, 10,
    timestamptz '2026-09-27 18:29:59.999+00')
 on conflict (id) do update set

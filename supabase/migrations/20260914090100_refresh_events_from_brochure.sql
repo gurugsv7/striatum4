@@ -4,7 +4,7 @@
 -- public.create_order re-reads every price, name and date from public.events,
 -- and order_lines snapshot those values. The table still held the previous
 -- brochure, so an order placed today would have been priced correctly but
--- stamped with retired names — "SUTUREX" and "VITALIS" would have reached
+-- stamped with retired names -- "SUTUREX" and "VITALIS" would have reached
 -- delegates and organisers through My Events and the verification console.
 --
 -- Generated from src/data/events.ts by scripts/generate-seed.mjs. The body is

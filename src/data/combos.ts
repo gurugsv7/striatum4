@@ -203,6 +203,20 @@ export function combosOfKind(kind: ComboKind): ComboOffer[] {
   return COMBO_OFFERS.filter(combo => combo.kind === kind);
 }
 
+/**
+ * The label stored on an order when this combo applies.
+ *
+ * Must match the `label` column of the seeded discount_rules row exactly: the
+ * cart preview shows this one, and the created order shows whatever the server
+ * stored. ASCII separators, because that is what the deployed rows carry.
+ */
+export function comboRuleLabel(combo: ComboOffer): string {
+  const names = comboEvents(combo).map(event => event.name);
+  return combo.teamsPerEvent > 1
+    ? `COMBO - ${combo.teamsPerEvent} TEAMS - ${names[0] ?? ''}`
+    : `COMBO - ${names.join(' + ')}`;
+}
+
 /** Human label for a combo, built from the live event names. */
 export function comboTitle(combo: ComboOffer): string {
   const events = comboEvents(combo);
