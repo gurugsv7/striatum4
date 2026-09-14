@@ -5,6 +5,7 @@ import { resolvePrice, defaultParticipation, formatINR, Participation } from '..
 import * as registration from '../../services/registrationService.ts';
 import { isFullDayWorkshop, LunchChoice } from '../../services/workshop.ts';
 import { icon, slotButton } from '../shell.ts';
+import { telNumber, whatsappNumber } from '../../data/contacts.ts';
 
 /**
  * Desktop event detail.
@@ -350,7 +351,13 @@ export function renderDesktopEventDetails(): string {
                   ${event.coordinators
                     .map(
                       person => `<span class="d-person">${person.name}${
-                        person.phone ? ` <a href="tel:${person.phone}">${person.phone}</a>` : ''
+                        person.phone
+                          ? `<span class="incharge-actions">
+                              <a class="incharge-action" href="tel:${telNumber(person.phone)}">CALL</a>
+                              <a class="incharge-action" href="https://wa.me/${whatsappNumber(person.phone)}"
+                                 target="_blank" rel="noopener noreferrer">WHATSAPP</a>
+                            </span>`
+                          : ''
                       }</span>`
                     )
                     .join('')}

@@ -4,6 +4,7 @@ import { eventContextLine } from '../data/events.ts';
 import { resolvePrice, defaultParticipation, formatINR, Participation } from '../services/pricing.ts';
 import * as registration from '../services/registrationService.ts';
 import { isFullDayWorkshop, LunchChoice } from '../services/workshop.ts';
+import { telNumber, whatsappNumber } from '../data/contacts.ts';
 
 /**
  * Participation shape chosen on this screen for events that accept either an
@@ -318,7 +319,15 @@ function renderCoordinators(event: SymposiumEvent): string {
           <div class="incharge-item">
             <span class="incharge-bullet"></span>
             <span class="incharge-name">${person.name}</span>
-            ${person.phone ? `<a href="tel:${person.phone}" class="incharge-phone">${person.phone}</a>` : ''}
+            ${
+              person.phone
+                ? `<span class="incharge-actions">
+                    <a class="incharge-action" href="tel:${telNumber(person.phone)}">CALL</a>
+                    <a class="incharge-action" href="https://wa.me/${whatsappNumber(person.phone)}"
+                       target="_blank" rel="noopener noreferrer">WHATSAPP</a>
+                  </span>`
+                : ''
+            }
           </div>`
           )
           .join('')}

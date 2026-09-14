@@ -1,8 +1,24 @@
--- GENERATED FILE — do not edit by hand.
--- Produced by scripts/generate-seed.mjs from src/data/events.ts
--- 26 events. Every value originates in the STRIATUM 4.0 brochure
--- master data; nothing here is invented. Fields the brochure does not state are
--- null, which the app renders as "hidden" rather than "TBA".
+-- ============================================================================
+-- Refresh the events catalogue from the current brochure.
+--
+-- public.create_order re-reads every price, name and date from public.events,
+-- and order_lines snapshot those values. The table still held the previous
+-- brochure, so an order placed today would have been priced correctly but
+-- stamped with retired names — "SUTUREX" and "VITALIS" would have reached
+-- delegates and organisers through My Events and the verification console.
+--
+-- Generated from src/data/events.ts by scripts/generate-seed.mjs. The body is
+-- the same upsert the seed file carries, applied here so an existing database
+-- is corrected rather than only a fresh one.
+--
+-- Corrections in this refresh:
+--   SUTUREX  -> STITCHREEF, and its date moves 17 Oct -> 15 Oct
+--   VITALIS  -> TRAUMA RESUSCITATION, 17 Oct -> 16 Oct
+--   PENUMBRA 15 Oct -> 17 Oct;  GENESIS 15 Oct -> 16 Oct
+--   PLEURALIS 08:00-12:30 -> 14:00-16:30;  RYTHMICA 14:00-16:00 -> 08:00-13:00
+--   The three quizzes gain their dates and delegate_pass_requirement
+--   'unspecified' -> 'not_required'.
+-- ============================================================================
 
 insert into public.events (
   id, code, name, category, format, specialties,

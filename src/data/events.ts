@@ -1,4 +1,4 @@
-import { SymposiumEvent, EventCategory, CATEGORY_FILTERS } from './eventTypes.ts';
+import { SymposiumEvent, EventCategory, CATEGORY_FILTERS, Coordinator } from './eventTypes.ts';
 import { EVENTS_PART_1 } from './events.part1.ts';
 import { EVENTS_PART_2 } from './events.part2.ts';
 
@@ -39,7 +39,7 @@ const LATEST_BROCHURE_OVERRIDES: Record<string, Partial<SymposiumEvent>> = {
     endTime: '4:00 PM'
   },
   VITALIS: {
-    name: 'Trauma Resuscitation',
+    name: 'TRAUMA RESUSCITATION',
     date: '16 OCT',
     isoDate: '2026-10-16',
     startTime: '8:00 AM',
@@ -50,7 +50,7 @@ const LATEST_BROCHURE_OVERRIDES: Record<string, Partial<SymposiumEvent>> = {
     date: '15 OCT',
     isoDate: '2026-10-15',
     startTime: '2:00 PM',
-    endTime: '5:00 PM'
+    endTime: '4:30 PM'
   },
   RYTHMICA: {
     date: '16 OCT',
@@ -111,6 +111,116 @@ const LATEST_BROCHURE_OVERRIDES: Record<string, Partial<SymposiumEvent>> = {
     date: '17 OCT',
     isoDate: '2026-10-17'
   }
+};
+
+/**
+ * Event in-charges, from the organiser's assignment document.
+ *
+ * That document is authoritative for WHO runs an event and for their phone
+ * number. It is NOT used for dates: several of its workshop dates are older
+ * than the current brochure, so only the names and numbers are taken from it.
+ *
+ * Two corrections it makes to the previous catalogue are worth naming, because
+ * both were showing the wrong people publicly:
+ *   - GENESIS and PENUMBRA had their in-charges swapped.
+ *   - BONEFIRE was credited to Gugan M, who has no confirmed event; the
+ *     in-charge is Gunasekhar. (Gugan G, of GLOW CODE, is a different person.)
+ *
+ * Where the document says a number was not supplied, an existing number is kept
+ * only if it belongs to a person it still lists for that event. When it
+ * replaces the person, their number goes with them.
+ */
+const EVENT_IN_CHARGES: Record<string, Coordinator[]> = {
+  'THE SONO EDGE': [
+    { name: 'Sanjai S', phone: '8438835212' },
+    { name: 'Sivashankar V' }
+  ],
+  SUTUREX: [
+    { name: 'Soniya S', phone: '8428533333' },
+    { name: 'Karthikeyan T', phone: '9342393778' }
+  ],
+  PAEDOPRAXIS: [
+    { name: 'Kiruthiga R', phone: '8903704742' },
+    { name: 'Harepriya', phone: '9786349308' }
+  ],
+  PENUMBRA: [
+    { name: 'AmudhaGeedhan M', phone: '9003788545' },
+    { name: 'Jivika L', phone: '8778133951' }
+  ],
+  GENESIS: [
+    { name: 'Keerthana S', phone: '8838904846' },
+    { name: 'Harini', phone: '9487515001' }
+  ],
+  'GLOW CODE': [
+    { name: 'Tharuna S', phone: '9626183525' },
+    { name: 'Gugan G', phone: '6380952626' }
+  ],
+  BONEFIRE: [
+    { name: 'Gunasekhar', phone: '8886986966' },
+    { name: 'Rathish E S' }
+  ],
+  VITALIS: [
+    { name: 'Sajitha B', phone: '9790735423' },
+    { name: 'Akash S', phone: '9585211633' }
+  ],
+  PLEURALIS: [
+    { name: 'Harish Ragavendar L', phone: '9150472071' },
+    { name: 'Swetha S', phone: '6380235355' }
+  ],
+  RYTHMICA: [
+    { name: 'Pramika G', phone: '9488178553' },
+    { name: 'Nyara Jacob Manly' }
+  ],
+  'OCEANIC ODYSSEY': [
+    { name: 'Velvizhi V', phone: '8637403376' },
+    { name: 'Sushama Ghosh I', phone: '8248193259' }
+  ],
+  AQUAQUEST: [{ name: 'Valentina J' }, { name: 'Sakthi S' }],
+  GLANDSWARS: [
+    { name: 'Dikshaya S', phone: '9488306432' },
+    { name: 'Dharani M', phone: '9384295160' }
+  ],
+  LUMINARA: [
+    { name: 'Sameera S', phone: '7397763597' },
+    { name: 'Narmadha G', phone: '9342408194' }
+  ],
+  'THE DIAGNOSTIC ABYSS': [
+    { name: 'Lakshmisree M V', phone: '9626921275' },
+    { name: 'Lakshana B', phone: '8072373433' }
+  ],
+  'CORAL CANVAS': [{ name: 'Neena Roshini S' }, { name: 'Vaishnovi R C' }],
+  CHIRONEX: [{ name: 'Harikrishna R' }, { name: 'Lavanya', phone: '7603979821' }],
+  NEURONOVA: [
+    { name: 'Esha Gopika', phone: '9789821884' },
+    { name: 'Yuvashri', phone: '6381811767' }
+  ],
+  // Both were already on file with numbers; the document confirms the people.
+  'THE UNCHARTED': [
+    { name: 'Shanmathi S', phone: '9176680741' },
+    { name: 'Pooja L', phone: '9345408760' }
+  ],
+  'LIFE REIMAGINED': [
+    { name: 'Jenna Mariam Joji', phone: '7558022834' },
+    { name: 'Shivani S M' }
+  ],
+  'BEYOND THE BLUE': [
+    { name: 'Adithyan M', phone: '9500207418' },
+    { name: 'Shivam' }
+  ],
+  BIOVERSE: [{ name: 'Vithiya Saagar S' }, { name: 'Nedu(en)chezhiyan S' }],
+  'TIDAL CUTS': [
+    { name: 'Ram Viswanath Senthil', phone: '7418155363' },
+    { name: 'Deepavarshini S', phone: '9487449619' }
+  ],
+  MEMEVERSE: [{ name: 'Krishnakumar R' }],
+  'THE MEDICAL VAULT': [
+    { name: 'Priyadharshini M', phone: '9150682978' },
+    { name: 'Purnimasri V', phone: '9047355582' }
+  ],
+  MEDMAZE: [
+    { name: 'Kabila Barathi S', phone: '9042461697' },
+    { name: 'Atheethi G', phone: '9944858040' }
+  ]
 };
 
 /** Exact section facts whose old brochure values would otherwise still render. */
@@ -201,12 +311,17 @@ function patchSections(
 
 function applyLatestBrochureData(event: SymposiumEvent): SymposiumEvent {
   const originalName = event.name;
+  const inCharges = EVENT_IN_CHARGES[originalName];
   const override = LATEST_BROCHURE_OVERRIDES[originalName];
-  if (!override) return event;
+
+  // In-charges are keyed on the original name so renamed events still resolve,
+  // and they apply whether or not the event has a brochure override.
+  if (!override) return inCharges ? { ...event, coordinators: inCharges } : event;
 
   const patched: SymposiumEvent = {
     ...event,
     ...override,
+    coordinators: inCharges ?? override.coordinators ?? event.coordinators,
     sections: patchSections(originalName, event, override)
   };
 
