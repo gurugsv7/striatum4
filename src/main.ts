@@ -287,8 +287,14 @@ onAuthChange(user => {
       appStore.setScreen(route.screen);
     }
     // Pull this delegate's real orders, registrations and pass status down.
-    void hydrateRegistrations();
+    void hydrateRegistrations().catch(error => {
+      console.error('Could not sync registrations', error);
+      appStore.showToast('Could not reach the server — your registrations may be out of date.');
+    });
   } else if (appStore.getState().isAuthenticated) {
+    // Drop the departing account's orders before the next one signs in; on a
+    // shared device they would otherwise still be readable until a sync lands.
+    registrationService.forgetLocalState();
     appStore.signOut();
   }
 });

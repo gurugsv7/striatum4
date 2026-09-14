@@ -121,6 +121,8 @@ export interface Order {
 
 export interface Registration {
   id: string;
+  /** Owner. Undefined for local-only state, where everything is the user's. */
+  userId?: string;
   orderId: string;
   eventId: string;
   participation: Participation;
@@ -260,6 +262,7 @@ function adoptSnapshot(snapshot: remote.RemoteSnapshot): void {
 
   state.registrations = snapshot.registrations.map(r => ({
     id: r.id,
+    userId: r.userId,
     orderId: r.orderId,
     eventId: r.eventId,
     participation: r.participation,
@@ -431,8 +434,27 @@ export function isInCart(eventId: string): boolean {
   return state.cart.some(i => i.eventId === eventId);
 }
 
+/**
+ * Whether a row belongs to the signed-in delegate.
+ *
+ * RLS lets an organiser read every delegate's orders and registrations, so an
+ * admin's snapshot is the whole symposium. Without this, the screens that ask
+ * "am I registered for this?" answered "has ANYONE registered for this?" — an
+ * organiser saw seven events they had never booked marked REGISTERED and
+ * UNDER REVIEW, could not register them, and found an empty My Events hub,
+ * because that one screen did filter by owner.
+ *
+ * Capacity deliberately does not use this: seats taken are everyone's.
+ */
+function ownedByMe(ownerId?: string): boolean {
+  if (!isRemote()) return true;
+  // Local-only rows carry no owner; they were made on this device by this user.
+  if (!ownerId) return true;
+  return ownerId === getCurrentUser()?.id;
+}
+
 export function isRegistered(eventId: string): boolean {
-  return state.registrations.some(r => r.eventId === eventId);
+  return state.registrations.some(r => r.eventId === eventId && ownedByMe(r.userId));
 }
 
 const OPEN_ORDER_STATUSES: OrderStatus[] = ['awaiting_payment', 'payment_submitted', 'under_review'];
@@ -452,7 +474,9 @@ function holdIsLive(order: Order): boolean {
 
 /** True when a created-but-unapproved order already contains this event. */
 export function isPendingReview(eventId: string): boolean {
-  return state.orders.some(o => holdIsLive(o) && o.lines.some(l => l.eventId === eventId));
+  return state.orders.some(
+    o => ownedByMe(o.userId) && holdIsLive(o) && o.lines.some(l => l.eventId === eventId)
+  );
 }
 
 export interface CartMutationResult {
@@ -1498,7 +1522,7 @@ export function getMyEvents(): MyEventsGroups {
   const actionRequired: Order[] = [];
 
   state.orders.forEach(order => {
-    if (isRemote() && order.userId && order.userId !== getCurrentUser()?.id) return;
+    if (!ownedByMe(order.userId)) return;
     if (order.status === 'cancelled') return;
     if (order.status === 'rejected') {
       actionRequired.push({ ...order });
@@ -1672,6 +1696,26 @@ export function orderStatusLabel(status: OrderStatus): string {
     case 'cancelled':
       return 'CANCELLED';
   }
+}
+
+/**
+ * Forgets everything held for the account that just left.
+ *
+ * Sign-out used to leave the persisted blob in place, so until the next
+ * successful sync the previous delegate's orders were still being read on a
+ * shared device.
+ */
+export function forgetLocalState(): void {
+  state.orders.forEach(o => {
+    try {
+      localStorage.removeItem(proofKey(o.id));
+    } catch {
+      /* ignore */
+    }
+  });
+  state = { ...EMPTY, cart: [] };
+  cartNotice = null;
+  save();
 }
 
 export { formatINR, EVENTS };

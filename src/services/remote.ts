@@ -65,6 +65,8 @@ export interface RemoteOrder {
 
 export interface RemoteRegistration {
   id: string;
+  /** Who it belongs to. An admin's snapshot contains everyone's rows. */
+  userId: string;
   orderId: string;
   eventId: string;
   participation: 'individual' | 'team';
@@ -217,6 +219,7 @@ export async function fetchSnapshot(): Promise<RemoteSnapshot> {
     orders: (ordersRes.data ?? []).map(mapOrder),
     registrations: (registrationsRes.data ?? []).map(row => ({
       id: row.id,
+      userId: row.user_id,
       orderId: row.order_id,
       eventId: row.event_id,
       participation: row.participation,
