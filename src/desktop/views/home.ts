@@ -87,7 +87,7 @@ export function renderDesktopHome(): string {
             <div class="d-hero-copy">
               <span class="d-hero-spark"></span>
               <h1 class="d-hero-title">Welcome to<br />STRIATUM<span class="d-dot">.</span></h1>
-              <p class="d-hero-sub">Your symposium journey starts here.</p>
+              <p class="d-hero-sub">Your conclave journey starts here.</p>
             </div>
             <p class="d-annot">
               ${dayRange ? dayRange.toUpperCase() + ' 2026<br>' : ''}IGMCRI &middot; PUDUCHERRY<br>
@@ -142,7 +142,7 @@ export function renderDesktopHome(): string {
         <footer class="d-footer">
           <div class="d-foot-stack">
             <b>STRIATUM 4.0</b>
-            <span>MEDICAL SYMPOSIUM &middot; 2026</span>
+            <span>MEDICAL CONCLAVE &middot; 2026</span>
             <span><a href="/credits" id="d-home-credits">WEBSITE BY BUILT BY GSV</a></span>
           </div>
           <p class="d-footer-motto">A familiar journey,<br /><em>a deeper dive.</em></p>

@@ -43,6 +43,9 @@ export function renderHomepageView(): string {
       
       <!-- Top App Bar -->
       <header class="app-top-header">
+        <div class="app-brand-lockup">
+          <img class="app-brand-crest" src="/igmcri-crest.png"
+               alt="Indira Gandhi Medical College &amp; Research Institute" width="27" height="40" />
         <div class="app-brand-block">
           <div class="app-brand-title">
             STRIATUM <span class="cyan-text">4.0</span>
@@ -53,6 +56,7 @@ export function renderHomepageView(): string {
           <div class="app-brand-glow-bar">
             <span class="glow-bar-line"></span>
             <span class="glow-bar-dot"></span>
+          </div>
           </div>
         </div>
 
@@ -76,7 +80,7 @@ export function renderHomepageView(): string {
             STRIATUM<span class="cyan-period">.</span>
           </h1>
           <p class="home-welcome-sub">
-            Your symposium journey starts here.
+            Your conclave journey starts here.
           </p>
         </div>
       </section>
@@ -164,7 +168,7 @@ export function renderHomepageView(): string {
       <footer class="home-bottom-footer">
         <div class="footer-left-info">
           <span class="symp-name">STRIATUM 4.0</span>
-          <span class="symp-sub">MEDICAL SYMPOSIUM · 2026</span>
+          <span class="symp-sub">MEDICAL CONCLAVE · 2026</span>
           <span class="footer-dash-line"></span>
           <a class="footer-credits-link" href="/credits">Website by Built by GSV</a>
         </div>

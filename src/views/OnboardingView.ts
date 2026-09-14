@@ -10,17 +10,8 @@ export function renderOnboardingView(): string {
         <div class="institution-col">
           <div class="crest-row">
             <div class="caduceus-crest-badge">
-              <svg width="34" height="34" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5">
-                <circle cx="16" cy="16" r="14" stroke="rgba(42, 241, 250, 0.5)" stroke-dasharray="2 2"/>
-                <!-- Wings -->
-                <path d="M11 9C13 8 15 9 16 11C17 9 19 8 21 9C23 10 22 13 19 13C16 13 16 11 16 11" stroke="#ffffff" stroke-width="1.6"/>
-                <!-- Staff -->
-                <line x1="16" y1="7" x2="16" y2="26" stroke="#ffffff" stroke-width="2"/>
-                <circle cx="16" cy="7" r="1.8" fill="#2af1fa"/>
-                <!-- Entwined Serpents -->
-                <path d="M12 14C12 12 20 12 20 16C20 20 12 18 12 22C12 24 16 25 16 25" stroke="#2af1fa" stroke-width="1.4"/>
-                <path d="M20 14C20 12 12 12 12 16C12 20 20 18 20 22C20 24 16 25 16 25" stroke="#ffffff" stroke-width="1.4"/>
-              </svg>
+              <img class="inst-crest-img" src="/igmcri-crest.png"
+                   alt="Indira Gandhi Medical College &amp; Research Institute" width="24" height="36" />
             </div>
             <div class="inst-text-block">
               <span class="inst-line-primary">INDIRA GANDHI MEDICAL COLLEGE</span>
@@ -39,11 +30,11 @@ export function renderOnboardingView(): string {
       <section class="onboarding-hero-section">
         <h1 class="striatum-main-title">STRIATUM</h1>
         <div class="striatum-version-row">
-          <span class="symposium-v4">4.0</span>
-          <span class="symposium-pipe">|</span>
-          <div class="symposium-subtitle-meta">
+          <span class="conclave-v4">4.0</span>
+          <span class="conclave-pipe">|</span>
+          <div class="conclave-subtitle-meta">
             <span class="meta-symp-word">MEDICAL</span>
-            <span class="meta-symp-word">SYMPOSIUM</span>
+            <span class="meta-symp-word">CONCLAVE</span>
             <span class="meta-symp-year">2026</span>
           </div>
         </div>
@@ -132,7 +123,7 @@ export function renderOnboardingView(): string {
               </svg>
             </div>
             <p class="terms-text">
-              By continuing, you agree to the symposium registration 
+              By continuing, you agree to the conclave registration 
               <a href="/terms" class="cyan-link" id="link-terms">terms</a> and 
               <a href="/privacy" class="cyan-link" id="link-privacy">privacy policy</a>.
             </p>

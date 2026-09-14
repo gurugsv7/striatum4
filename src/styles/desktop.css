@@ -4170,3 +4170,10 @@ body.s4-desktop-active .s4-assistant-panel {
   font-size: 13px;
   color: var(--text-silver);
 }
+
+/* The crest is portrait, so it is sized by height inside the round badge. */
+.d-crest-img {
+  width: 26px;
+  height: auto;
+  display: block;
+}

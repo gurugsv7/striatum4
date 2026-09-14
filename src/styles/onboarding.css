@@ -26,7 +26,7 @@
 }
 
 .caduceus-crest-badge {
-  width: 40px;
+  width: 28px;
   height: 40px;
   display: flex;
   align-items: center;
@@ -116,7 +116,7 @@
   margin-bottom: 22px;
 }
 
-.symposium-v4 {
+.conclave-v4 {
   font-family: var(--font-serif-display);
   font-size: 64px;
   font-weight: 400;
@@ -126,7 +126,7 @@
   letter-spacing: -1px;
 }
 
-.symposium-pipe {
+.conclave-pipe {
   font-family: var(--font-sans-ui);
   font-size: 38px;
   color: rgba(42, 241, 250, 0.45);
@@ -134,7 +134,7 @@
   line-height: 1;
 }
 
-.symposium-subtitle-meta {
+.conclave-subtitle-meta {
   display: flex;
   flex-direction: column;
   font-family: var(--font-sans-ui);
@@ -146,11 +146,11 @@
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9), 0 0 14px rgba(42, 241, 250, 0.35);
 }
 
-.symposium-subtitle-meta .meta-symp-word {
+.conclave-subtitle-meta .meta-symp-word {
   color: #ffffff;
 }
 
-.symposium-subtitle-meta .meta-symp-year {
+.conclave-subtitle-meta .meta-symp-year {
   color: var(--cyan-glow);
   letter-spacing: 4px;
   font-weight: 800;
@@ -360,4 +360,10 @@
    Google-rendered button and our fallback show at once. */
 [hidden] {
   display: none !important;
+}
+
+.inst-crest-img {
+  width: 100%;
+  height: auto;
+  display: block;
 }

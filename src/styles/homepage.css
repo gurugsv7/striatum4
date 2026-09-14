@@ -137,3 +137,19 @@
 .footer-right-motto .cyan-text {
   color: var(--cyan-glow);
 }
+
+/* College crest beside the wordmark. Grouped with the brand block so the
+   header's space-between still pushes the cart button to the far edge. */
+.app-brand-lockup {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.app-brand-crest {
+  width: 27px;
+  height: auto;
+  flex-shrink: 0;
+  opacity: 0.92;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.8));
+}

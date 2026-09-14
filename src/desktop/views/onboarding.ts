@@ -1,7 +1,7 @@
 import { appStore } from '../../state/appStore.ts';
 import { renderGoogleButton, signInWithEmail } from '../../services/authService.ts';
 import { allEventDates } from '../../data/events.ts';
-import { crest, icon } from '../shell.ts';
+import { icon } from '../shell.ts';
 
 /**
  * Desktop sign-in.
@@ -21,7 +21,9 @@ export function renderDesktopOnboarding(): string {
       <div class="d-signin-inner">
         <header class="d-signin-head">
           <div class="d-crest-row">
-            <span class="d-crest-badge">${crest(30)}</span>
+            <span class="d-crest-badge">
+              <img class="d-crest-img" src="/igmcri-crest.png" alt="Indira Gandhi Medical College &amp; Research Institute" width="26" height="38" />
+            </span>
             <div>
               <span class="d-inst-primary">INDIRA GANDHI MEDICAL COLLEGE</span>
               <span class="d-inst-secondary">&amp; RESEARCH INSTITUTE</span>
@@ -42,7 +44,7 @@ export function renderDesktopOnboarding(): string {
               <span class="d-version-num">4.0</span>
               <span class="d-version-rule"></span>
               <div class="d-version-meta">
-                <span>MEDICAL</span><span>SYMPOSIUM</span><em>2026</em>
+                <span>MEDICAL</span><span>CONCLAVE</span><em>2026</em>
               </div>
             </div>
             <p class="d-lede" style="font-size: 16px; max-width: 470px;">
@@ -113,7 +115,7 @@ export function renderDesktopOnboarding(): string {
               <div class="d-terms">
                 ${icon('shield', 16, 2)}
                 <p>
-                  By continuing, you agree to the symposium registration
+                  By continuing, you agree to the conclave registration
                   <a href="/terms" id="link-terms">terms</a> and
                   <a href="/privacy" id="link-privacy">privacy policy</a>.
                 </p>
