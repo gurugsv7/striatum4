@@ -3638,20 +3638,6 @@
   color: #fff;
   background: rgba(1, 18, 28, 0.9);
 }
-
-.d-save-btn {
-  height: 42px;
-  padding: 0 22px;
-  background: linear-gradient(90deg, #b7effb 0%, #cef0f7 100%);
-  color: #03202e;
-  font-family: var(--font-sans-ui);
-  font-size: 13px;
-  font-weight: 600;
-  border: none;
-  cursor: pointer;
-  clip-path: var(--chamfer-cut);
-}
-
 .d-danger-btn {
   height: 42px;
   padding: 0 22px;
@@ -4160,4 +4146,27 @@ body.s4-desktop-active .s4-assistant-panel {
 /* Contact actions sit beside the in-charge, not as a directory row. */
 .d-person .incharge-actions {
   margin-left: 10px;
+}
+
+/* See profile.css: the delegate application is read-only here. */
+.d-readonly-note {
+  font-family: var(--font-sans-ui);
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--text-muted);
+  margin: 0 0 4px;
+}
+
+.d-readonly-value {
+  display: flex;
+  align-items: center;
+  min-height: 42px;
+  margin: 0;
+  padding: 0 13px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 8px;
+  font-family: var(--font-sans-ui);
+  font-size: 13px;
+  color: var(--text-silver);
 }

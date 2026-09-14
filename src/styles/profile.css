@@ -637,25 +637,6 @@
   margin-bottom: 6px;
   display: block;
 }
-
-.profile-field-input {
-  width: 100%;
-  background: rgba(1, 10, 20, 0.7);
-  border: 1px solid rgba(42, 241, 250, 0.25);
-  border-radius: 8px;
-  padding: 10px 12px;
-  color: #ffffff;
-  font-family: var(--font-sans-ui);
-  font-size: 13px;
-  outline: none;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.profile-field-input:focus {
-  border-color: var(--cyan-glow);
-  box-shadow: 0 0 10px rgba(42, 241, 250, 0.3);
-}
-
 .profile-btn-primary-action {
   width: 100%;
   background: linear-gradient(135deg, #0e5b72 0%, #00f0ff 100%);
@@ -676,4 +657,27 @@
 .profile-btn-primary-action:hover {
   box-shadow: 0 0 16px rgba(42, 241, 250, 0.6);
   transform: translateY(-1px);
+}
+
+/* Personal Details is a read-out of the delegate application, not a form: the
+   organisers verify against those values and there is no route to change them
+   from here. Styled as text so it does not invite an edit it cannot honour. */
+.profile-readonly-note {
+  font-family: var(--font-sans-ui);
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--text-muted);
+  margin: 0 0 16px;
+}
+
+.profile-field-readonly {
+  width: 100%;
+  margin: 0;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 8px;
+  color: var(--text-silver);
+  font-family: var(--font-sans-ui);
+  font-size: 13px;
 }
