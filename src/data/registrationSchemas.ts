@@ -84,20 +84,20 @@ const EXPLICIT: Record<string, Partial<EventRegistrationSchema>> = {
     sameCollege: true,
     allowedYears: ['1st Year', '2nd Year', '3rd Year'],
     yearLimits: [
-      { year: '3rd Year', max: 1, reason: 'Only one third-year student (2023 batch) per team.' },
+      { year: '3rd Year', max: 1, reason: 'Only one third-year student (2024 batch) per team.' },
       { year: '2nd Year', max: 2, reason: 'Only two second-year students per team.' }
     ],
     memberFields: QUIZ_MEMBER_FIELDS,
     notes: [
-      'Every team member must bring ID proof on the day.',
-      'The brochure lists the third year as the 2024 batch while the per-team limit names the 2023 batch. Both are reproduced as written; organisers to confirm.'
+      'Every team member must bring ID proof on the day.'
     ]
   },
 
   // Senior quiz. Exactly three, one college, one CRRI and one final year.
   's4-12': {
     shape: 'team',
-    minMembers: 3,
+    // Up to three, and a lone entrant is allowed; the fee is still per team.
+    minMembers: 1,
     maxMembers: 3,
     defaultMembers: 3,
     sameCollege: true,

@@ -774,7 +774,7 @@ export const EVENTS_PART_1: SymposiumEvent[] = [
     delegatePassRequirement: 'not_required',
     eligibility: [
       'Open to first-year, second-year and third-year (2024) medical students.',
-      'Only one third-year student from the 2023 batch is allowed per team.',
+      'Only one third-year student from the 2024 batch is allowed per team.',
       'Only two second-year students are allowed per team.',
       'Every team must consist of exactly 3 members.',
       'All three team members must belong to the same college.',
@@ -795,7 +795,7 @@ export const EVENTS_PART_1: SymposiumEvent[] = [
         defaultOpen: true,
         items: [
           'Open to first-year, second-year and third-year (2024) medical students.',
-          'Only one third-year student from the 2023 batch is allowed per team.',
+          'Only one third-year student from the 2024 batch is allowed per team.',
           'Only two second-year students are allowed per team.',
           'Every team must consist of exactly 3 members.',
           'All three team members must belong to the same college.',
@@ -836,13 +836,6 @@ export const EVENTS_PART_1: SymposiumEvent[] = [
     ],
     status: 'open',
     registerable: true,
-    // Internal only — never rendered. The brochure's eligibility line names the
-    // third year as the 2024 batch, while the per-team limit refers to a
-    // 2023-batch third year. Both are reproduced above as written rather than
-    // silently reconciled.
-    needsConfirmation: [
-      'Eligibility names "third year (2024)" but the per-team limit refers to a third-year student from the 2023 batch. Organisers to confirm which batch the third-year allowance covers.'
-    ],
     keywords: ['anatomy', 'pharmacology', 'quiz', 'junior quiz']
   },
 
@@ -854,7 +847,7 @@ export const EVENTS_PART_1: SymposiumEvent[] = [
     code: 'S4 / 12',
     name: 'AQUAQUEST',
     tagline: 'The stakes are high',
-    summary: 'A senior-category Nephrology quiz for teams of three, from second year through CRRI.',
+    summary: 'A senior-category Nephrology quiz for up to three, from second year through CRRI, open to solo entrants.',
     description:
       'The questions are challenging. The stakes are high. Is your clinical acumen ready? AquaQuest is the STRIATUM 4.0 Senior Quiz, centred on Nephrology. The competition begins with preliminary rounds in the morning, followed by semifinals and finals in the afternoon. The top six teams progress to the on-stage grand finale.',
     category: 'quiz',
@@ -865,14 +858,14 @@ export const EVENTS_PART_1: SymposiumEvent[] = [
     // Reporting time only; round timings and venue are unpublished.
     reportingTime: '8:00 AM',
     participation: 'team',
-    teamSize: { min: 3, max: 3 },
+    teamSize: { min: 1, max: 3 },
     pricing: { entry: 700, spot: 850, unit: 'per_team' },
     delegatePassRequirement: 'not_required',
     eligibility: [
       'Open to students from second year through CRRI.',
       'Only one CRRI from the 2021 batch is allowed per team.',
       'Only one final-year student from the 2022 batch is allowed per team.',
-      'Each team must consist of exactly 3 members.',
+      'A team may have up to 3 members. Individual entries are allowed.',
       'All team members must belong to the same college.',
       'There is no restriction on the number of teams from a college.'
     ],
@@ -894,7 +887,7 @@ export const EVENTS_PART_1: SymposiumEvent[] = [
           'Open to students from second year through CRRI.',
           'Only one CRRI from the 2021 batch is allowed per team.',
           'Only one final-year student from the 2022 batch is allowed per team.',
-          'Each team must consist of exactly 3 members.',
+          'A team may have up to 3 members. Individual entries are allowed.',
           'All team members must belong to the same college.',
           'There is no restriction on the number of teams from a college.'
         ]
