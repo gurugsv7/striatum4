@@ -29,14 +29,20 @@ export function renderDesktopSurround(screenContentHtml: string): string {
 
   const delegate = registration.getDelegate();
   const delegateApproved = delegate?.status === 'approved';
-  // Never surface an identifier before manual approval has issued one.
-  const delegateCode = delegateApproved
-    ? (delegate?.delegateId ?? 'S4 — ISSUED')
-    : delegate?.status === 'pending'
-    ? 'S4 — AWAITING VERIFICATION'
-    : delegate?.status === 'rejected'
-    ? 'S4 — NEEDS ATTENTION'
-    : 'S4 — UNREGISTERED';
+  /*
+   * The Delegate ID is issued when the application is filed, not when an
+   * organiser approves it — verification is a revocation check, not a gate.
+   * This used to withhold the identifier until approval, so a delegate who
+   * already had one was shown "AWAITING VERIFICATION" in its place while the
+   * pass screen was happily showing them the real thing.
+   */
+  const delegateCode =
+    delegate?.delegateId ??
+    (delegate?.status === 'rejected'
+      ? 'S4 — NEEDS ATTENTION'
+      : delegate
+      ? 'S4 — NOT ISSUED'
+      : 'S4 — UNREGISTERED');
 
   return `
     <div class="desktop-workbench-root" id="desktop-workbench">

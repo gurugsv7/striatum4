@@ -47,13 +47,14 @@ export function renderDesktopProfile(): string {
 
   const rawName = delegate?.fullName || state.delegateForm.fullName || '';
   const firstName = rawName.trim().split(' ')[0] || 'Delegate';
-  const institution = delegate?.institution || state.delegateForm.college || 'IGMCRI';
+  const institution = delegate?.institution || state.delegateForm.college || '';
   const email = delegate?.email || state.userEmail || '';
   const phone = delegate?.phone || state.delegateForm.phone || '';
   const year = delegate?.yearOfStudy || state.delegateForm.yearOfStudy || '';
 
   const role = approved ? 'Delegate' : status === 'pending' ? 'Delegate (pending)' : 'Delegate';
-  const code = approved && delegate?.delegateId ? delegate.delegateId : 'NOT ISSUED';
+  // Issued on application, not on approval — see ProfileView.
+  const code = delegate?.delegateId ?? 'NOT ISSUED';
 
   const gender = getProfileGender();
   const avatar = gender === 'female' ? '/femaleprofile.webp' : '/maleprofile.png';
@@ -130,26 +131,30 @@ export function renderDesktopProfile(): string {
 
           <form class="d-panel-soft d-editform" id="d-profile-form">
             <span class="d-filter-legend">PERSONAL DETAILS</span>
+            <p class="d-readonly-note">
+              As recorded on your delegate application, which the organisers verify
+              against. Contact the registration desk to correct anything here.
+            </p>
             <div class="d-editform-grid">
               <div class="d-editfield">
-                <label for="input-prof-fullname">FULL NAME</label>
-                <input type="text" id="input-prof-fullname" value="${esc(rawName)}" required />
+                <label>FULL NAME</label>
+                <p class="d-readonly-value">${esc(rawName || 'Not provided')}</p>
               </div>
               <div class="d-editfield">
-                <label for="input-prof-email">EMAIL</label>
-                <input type="email" id="input-prof-email" value="${esc(email)}" />
+                <label>EMAIL</label>
+                <p class="d-readonly-value">${esc(email || 'Not provided')}</p>
               </div>
               <div class="d-editfield">
-                <label for="input-prof-phone">PHONE</label>
-                <input type="tel" id="input-prof-phone" value="${esc(phone)}" placeholder="+91 98765 43210" />
+                <label>PHONE</label>
+                <p class="d-readonly-value">${esc(phone || 'Not provided')}</p>
               </div>
               <div class="d-editfield">
-                <label for="input-prof-inst">INSTITUTION</label>
-                <input type="text" id="input-prof-inst" value="${esc(institution)}" required />
+                <label>INSTITUTION</label>
+                <p class="d-readonly-value">${esc(institution || 'Not provided')}</p>
               </div>
               <div class="d-editfield" style="grid-column: 1 / -1;">
-                <label for="input-prof-year">YEAR OF STUDY</label>
-                <input type="text" id="input-prof-year" value="${esc(year)}" placeholder="3rd Year MBBS" />
+                <label>YEAR OF STUDY</label>
+                <p class="d-readonly-value">${esc(year || 'Not provided')}</p>
               </div>
             </div>
 
@@ -158,7 +163,6 @@ export function renderDesktopProfile(): string {
                 <button type="button" class="d-avatar-opt ${gender === 'male' ? 'is-on' : ''}" data-d-gender="male">ICON A</button>
                 <button type="button" class="d-avatar-opt ${gender === 'female' ? 'is-on' : ''}" data-d-gender="female">ICON B</button>
               </div>
-              <button type="submit" class="d-save-btn" id="btn-save-personal">Save changes</button>
             </div>
           </form>
         </div>
@@ -174,7 +178,6 @@ export function renderDesktopProfile(): string {
             )}
             ${actionCard('btn-card-schedule', '02', 'My schedule', 'The full six-day programme', icon('clock', 19))}
             ${actionCard('btn-card-cart', '03', 'Your selection', `${registration.cartCount()} event${registration.cartCount() === 1 ? '' : 's'} in the cart`, icon('cart', 19))}
-            ${actionCard('btn-card-certificates', '04', 'Certificates', 'Issued after the symposium', icon('award', 19))}
           </div>
 
           ${
@@ -247,10 +250,6 @@ export function attachDesktopProfile(): void {
     appStore.setScreen('cart');
   });
 
-  document.getElementById('btn-card-certificates')?.addEventListener('click', () => {
-    appStore.showToast('Certificates are issued after the symposium, once attendance is recorded.');
-  });
-
   document.querySelectorAll<HTMLElement>('[data-open-event-id]').forEach(element => {
     element.addEventListener('click', () => {
       const id = element.getAttribute('data-open-event-id');
@@ -269,20 +268,9 @@ export function attachDesktopProfile(): void {
   });
 
   document.getElementById('d-profile-form')?.addEventListener('submit', event => {
+    // Nothing to submit: the delegate application is the server's record and
+    // the avatar buttons save themselves. See ProfileView for the full note.
     event.preventDefault();
-    const value = (id: string) => (document.getElementById(id) as HTMLInputElement | null)?.value.trim() ?? '';
-    const fullName = value('input-prof-fullname');
-    if (!fullName) return;
-
-    appStore.setDelegateForm({
-      fullName,
-      email: value('input-prof-email'),
-      phone: value('input-prof-phone'),
-      college: value('input-prof-inst'),
-      yearOfStudy: value('input-prof-year')
-    });
-    appStore.login(value('input-prof-email') || appStore.getState().userEmail || '', fullName, false);
-    appStore.showToast('Profile updated');
   });
 
   document.getElementById('btn-profile-sign-out')?.addEventListener('click', async event => {

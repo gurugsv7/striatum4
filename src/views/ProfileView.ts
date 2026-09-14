@@ -21,12 +21,23 @@ export function renderProfileView(): string {
   const status = registration.getDelegateStatus();
   const approved = status === 'approved';
 
-  // First name extraction or default from mockup
-  const rawName = delegate?.fullName || state.delegateForm?.fullName || 'Guru';
-  const firstName = rawName.trim().split(' ')[0] || 'Guru';
-  const institution = delegate?.institution || 'IGMCRI';
+  /*
+   * Nothing here is invented. These fields used to fall back to the mockup's
+   * sample delegate — "Guru", "IGMCRI", "3rd Year MBBS", "S4 / 01" — so a
+   * student who had only just signed in was shown somebody else's name,
+   * college and credential as if they were their own.
+   *
+   * The delegate application is the record. Failing that, the name the
+   * account was created with, which login() puts on the delegate form.
+   * Failing that, nothing at all.
+   */
+  const rawName = delegate?.fullName || state.delegateForm?.fullName || '';
+  const firstName = rawName.trim().split(' ')[0] || 'Delegate';
+  const institution = delegate?.institution || state.delegateForm?.college || '';
   const role = approved ? 'Delegate' : status === 'pending' ? 'Delegate (Pending)' : 'Delegate';
-  const delegateCode = approved && delegate?.delegateId ? delegate.delegateId : 'S4 / 01';
+  // The ID is issued the moment the application is filed, before verification,
+  // so a pending delegate has a real one to be shown.
+  const delegateCode = delegate?.delegateId ?? 'NOT ISSUED';
 
   const cartCount = registration.cartCount();
 
@@ -271,9 +282,14 @@ export function renderProfileView(): string {
           </div>
 
           <form id="form-personal-details">
+            <p class="profile-readonly-note">
+              These are the details on your delegate application, which the organisers
+              verify against. To correct any of them, contact the registration desk.
+            </p>
+
             <div class="profile-field-group">
               <label class="profile-field-label">FULL NAME</label>
-              <input type="text" class="profile-field-input" id="input-prof-fullname" value="${escapeHtml(rawName)}" required />
+              <p class="profile-field-readonly">${escapeHtml(rawName || 'Not provided')}</p>
             </div>
 
             <div class="profile-field-group">
@@ -292,70 +308,28 @@ export function renderProfileView(): string {
 
             <div class="profile-field-group">
               <label class="profile-field-label">EMAIL ADDRESS</label>
-              <input type="email" class="profile-field-input" id="input-prof-email" value="${escapeHtml(delegate?.email || state.userEmail || '')}" />
+              <p class="profile-field-readonly">${escapeHtml(delegate?.email || state.userEmail || 'Not provided')}</p>
             </div>
 
             <div class="profile-field-group">
               <label class="profile-field-label">PHONE NUMBER</label>
-              <input type="tel" class="profile-field-input" id="input-prof-phone" value="${escapeHtml(delegate?.phone || '')}" placeholder="+91 98765 43210" />
+              <p class="profile-field-readonly">${escapeHtml(delegate?.phone || 'Not provided')}</p>
             </div>
 
             <div class="profile-field-group">
               <label class="profile-field-label">COLLEGE / INSTITUTION</label>
-              <input type="text" class="profile-field-input" id="input-prof-inst" value="${escapeHtml(institution)}" required />
+              <p class="profile-field-readonly">${escapeHtml(institution || 'Not provided')}</p>
             </div>
 
             <div class="profile-field-group">
               <label class="profile-field-label">YEAR OF STUDY</label>
-              <input type="text" class="profile-field-input" id="input-prof-year" value="${escapeHtml(delegate?.yearOfStudy || '3rd Year MBBS')}" />
+              <p class="profile-field-readonly">${escapeHtml(delegate?.yearOfStudy || 'Not provided')}</p>
             </div>
 
             <button type="submit" class="profile-btn-primary-action" id="btn-save-personal">
-              SAVE CHANGES
+              SAVE AVATAR
             </button>
           </form>
-        </div>
-      </div>
-
-      <!-- Certificates Sheet -->
-      <div class="profile-modal-overlay" id="modal-certificates" role="dialog" aria-modal="true">
-        <div class="profile-bottom-sheet">
-          <div class="profile-sheet-handle"></div>
-          <div class="profile-sheet-header">
-            <h2 class="profile-sheet-title">Certificates</h2>
-            <button class="profile-sheet-close-btn" id="btn-close-certificates" aria-label="Close">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="18" y1="6" x2="6" y2="18"/>
-                <line x1="6" y1="6" x2="18" y2="18"/>
-              </svg>
-            </button>
-          </div>
-
-          <div style="font-family: var(--font-sans-ui); font-size: 12px; color: var(--text-muted); line-height: 1.5; margin-bottom: 16px;">
-            Official digital certificates for STRIATUM 4.0 symposium attendance, workshop certifications, and competition presentations.
-          </div>
-
-          <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
-            <div style="background: rgba(2, 14, 26, 0.7); border: 1px solid rgba(42, 241, 250, 0.2); border-radius: 10px; padding: 12px; display: flex; justify-content: space-between; align-items: center;">
-              <div>
-                <div style="font-family: var(--font-serif-display); font-size: 14px; font-weight: 600; color: #ffffff;">Symposium Participation</div>
-                <div style="font-family: var(--font-mono-meta); font-size: 9px; color: var(--cyan-glow); margin-top: 2px;">DELEGATE CREDENTIAL · SIGMA 2026</div>
-              </div>
-              <span style="font-family: var(--font-mono-meta); font-size: 8.5px; color: var(--text-dim); background: rgba(255,255,255,0.06); padding: 4px 8px; border-radius: 4px;">POST-EVENT 18 OCT</span>
-            </div>
-
-            <div style="background: rgba(2, 14, 26, 0.7); border: 1px solid rgba(42, 241, 250, 0.2); border-radius: 10px; padding: 12px; display: flex; justify-content: space-between; align-items: center;">
-              <div>
-                <div style="font-family: var(--font-serif-display); font-size: 14px; font-weight: 600; color: #ffffff;">Clinical Workshops</div>
-                <div style="font-family: var(--font-mono-meta); font-size: 9px; color: var(--cyan-glow); margin-top: 2px;">HANDS-ON SKILLS ACCREDITATION</div>
-              </div>
-              <span style="font-family: var(--font-mono-meta); font-size: 8.5px; color: var(--text-dim); background: rgba(255,255,255,0.06); padding: 4px 8px; border-radius: 4px;">UPON VERIFICATION</span>
-            </div>
-          </div>
-
-          <button class="profile-btn-primary-action" id="btn-sample-cert">
-            DOWNLOAD SAMPLE CERTIFICATE (PDF)
-          </button>
         </div>
       </div>
 
@@ -439,26 +413,24 @@ export function attachProfileEvents(): void {
     modalPersonal?.classList.remove('open');
   });
 
-  // Save Personal Details form handler
-  document.getElementById('form-personal-details')?.addEventListener('submit', (e) => {
+  /*
+   * The avatar is the only thing on this sheet the delegate owns.
+   *
+   * The rest is their delegate application, which organisers verify against —
+   * it belongs to the server and there is no RPC to change it. The form used
+   * to accept edits to name, college, phone and year, say "Profile updated
+   * successfully", and persist none of them: the handler read the fields into
+   * locals it never used, so the next sync quietly restored the old values.
+   */
+  document.getElementById('form-personal-details')?.addEventListener('submit', e => {
     e.preventDefault();
-    const fullName = (document.getElementById('input-prof-fullname') as HTMLInputElement)?.value.trim();
-    const email = (document.getElementById('input-prof-email') as HTMLInputElement)?.value.trim();
-    const institution = (document.getElementById('input-prof-inst') as HTMLInputElement)?.value.trim();
-    const phone = (document.getElementById('input-prof-phone') as HTMLInputElement)?.value.trim();
-    const yearOfStudy = (document.getElementById('input-prof-year') as HTMLInputElement)?.value.trim();
-
-    // Handle gender
-    const selectedGenderRadio = document.querySelector<HTMLInputElement>('input[name="profile-gender"]:checked');
-    if (selectedGenderRadio && (selectedGenderRadio.value === 'male' || selectedGenderRadio.value === 'female')) {
-      setProfileGender(selectedGenderRadio.value);
+    const chosen = document.querySelector<HTMLInputElement>('input[name="profile-gender"]:checked');
+    if (chosen && (chosen.value === 'male' || chosen.value === 'female')) {
+      setProfileGender(chosen.value);
+      appStore.showToast('Avatar updated');
     }
-
-    if (fullName) {
-      appStore.login(email || appStore.getState().userEmail || '', fullName, false);
-      appStore.showToast('Profile updated successfully');
-      modalPersonal?.classList.remove('open');
-    }
+    modalPersonal?.classList.remove('open');
+    appStore.refresh();
   });
 
   // 7. Action Card 6: Settings -> Open Settings Sheet
@@ -500,11 +472,4 @@ export function attachProfileEvents(): void {
     appStore.setScreen('cart');
   });
 
-  // Sample Certificate download toast
-  document.getElementById('btn-sample-cert')?.addEventListener('click', () => {
-    appStore.showToast('Generating sample certificate preview...');
-    setTimeout(() => {
-      appStore.showToast('Certificate available post-symposium attendance');
-    }, 1500);
-  });
 }
