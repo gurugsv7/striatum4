@@ -38,7 +38,7 @@ const FADE_MS = 320;
  */
 const SWAP_AT = 0.58;
 /** Matches the reveal animation in motion.css. */
-const REVEAL_MS = 620;
+const REVEAL_MS = 900;
 /**
  * Absolute ceiling on how long the overlay may stay up.
  *
@@ -157,7 +157,7 @@ export function playBubbleTransition(swap?: () => void): Promise<void> {
     video.addEventListener(
       'playing',
       () => {
-        const length = video.duration || 1.6;
+        const length = video.duration || 2.43;
         const remaining = Math.max(0, length - video.currentTime);
         window.setTimeout(doSwap, Math.max(0, length * SWAP_AT - video.currentTime) * 1000);
         window.setTimeout(finish, remaining * 1000);

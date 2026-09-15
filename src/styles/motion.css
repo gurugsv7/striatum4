@@ -112,7 +112,7 @@
    app would sit at opacity 0 and the screen would be blank. Without it the
    worst case is simply no fade. */
 #app.s4-bubble-reveal {
-  animation: s4-bubble-reveal 620ms cubic-bezier(.22, .75, .25, 1);
+  animation: s4-bubble-reveal 900ms cubic-bezier(.22, .75, .25, 1);
 }
 
 /* Starts dimmed rather than fully transparent. The screen is behind dense
