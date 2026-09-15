@@ -49,6 +49,7 @@ const STATIC_ROUTES: Record<string, ScreenType> = {
   '/admin': 'admin',
   '/privacy': 'privacy',
   '/terms': 'terms',
+  '/council': 'council',
   '/credits': 'credits'
 };
 
@@ -75,6 +76,7 @@ const SCREEN_TO_PATH: Partial<Record<ScreenType, string>> = {
   admin: '/admin',
   privacy: '/privacy',
   terms: '/terms',
+  council: '/council',
   credits: '/credits'
 };
 
@@ -125,6 +127,8 @@ export function titleFor(screen: ScreenType, eventName?: string): string {
       return 'Delegate payment' + suffix;
     case 'delegate-home':
       return 'IGMCRI delegate' + suffix;
+    case 'council':
+      return 'SIGMA Council' + suffix;
     case 'delegate-confirm':
       return 'Your Delegate Pass' + suffix;
     case 'my-events':

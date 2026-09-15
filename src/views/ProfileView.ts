@@ -204,7 +204,28 @@ export function renderProfileView(): string {
             </svg>
           </button>
 
-          <!-- Card 6: Settings -->
+          <!-- Card 6: The council behind the conclave -->
+          <button class="profile-action-card" id="btn-card-council">
+            <div class="profile-card-left-col">
+              <div class="profile-card-icon-box">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                  <circle cx="9" cy="7" r="4"/>
+                  <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+              </div>
+              <div class="profile-card-text-col">
+                <div class="profile-card-title">SIGMA Council</div>
+                <div class="profile-card-desc">The students who run the conclave</div>
+              </div>
+            </div>
+            <svg class="profile-card-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="m9 18 6-6-6-6"/>
+            </svg>
+          </button>
+
+          <!-- Card 7: Settings -->
           <button class="profile-action-card" id="btn-card-settings">
             <div class="profile-card-left-col">
               <div class="profile-card-icon-box">
@@ -435,6 +456,10 @@ export function attachProfileEvents(): void {
 
   // 7. Action Card 6: Settings -> Open Settings Sheet
   const modalSettings = document.getElementById('modal-settings');
+  document.getElementById('btn-card-council')?.addEventListener('click', () => {
+    appStore.setScreen('council');
+  });
+
   document.getElementById('btn-card-settings')?.addEventListener('click', () => {
     modalSettings?.classList.add('open');
   });

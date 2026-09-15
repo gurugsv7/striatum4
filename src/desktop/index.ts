@@ -26,6 +26,7 @@ import { renderDesktopCombos, attachDesktopCombos } from './views/combos.ts';
 import { renderDelegateRegistrationView, attachDelegateRegistrationEvents } from '../views/DelegateRegistrationView.ts';
 import { renderDelegatePaymentView, attachDelegatePaymentEvents } from '../views/DelegatePaymentView.ts';
 import { renderDelegateHomeView, attachDelegateHomeEvents } from '../views/DelegateHomeCollegeView.ts';
+import { renderDesktopCouncil, attachDesktopCouncil } from './views/council.ts';
 import { renderDelegateConfirmView, attachDelegateConfirmEvents } from '../views/DelegateConfirmView.ts';
 import { renderEventPaymentView, attachEventPaymentEvents } from '../views/EventPaymentView.ts';
 import { renderEventConfirmView, attachEventConfirmEvents } from '../views/EventConfirmView.ts';
@@ -60,7 +61,8 @@ const BESPOKE: Partial<Record<ScreenType, DesktopView>> = {
   cart: { render: renderDesktopCart, attach: attachDesktopCart },
   'my-events': { render: renderDesktopMyEvents, attach: attachDesktopMyEvents },
   combos: { render: renderDesktopCombos, attach: attachDesktopCombos },
-  profile: { render: renderDesktopProfile, attach: attachDesktopProfile }
+  profile: { render: renderDesktopProfile, attach: attachDesktopProfile },
+  council: { render: renderDesktopCouncil, attach: attachDesktopCouncil }
 };
 
 const FRAMED: Partial<Record<ScreenType, DesktopView>> = {

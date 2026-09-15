@@ -23,6 +23,7 @@ export type ScreenType =
   | 'admin'
   | 'privacy'
   | 'terms'
+  | 'council'
   | 'credits';
 
 export type PassTier = 'AQUALUME' | 'SYNEXA';

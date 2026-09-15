@@ -1,0 +1,187 @@
+/* ============================================================================
+   05 / COUNCIL
+   Eighteen people with a real hierarchy, drawn as a descent rather than a grid
+   of identical cards. The rail and beads are the app's own idiom, reused: each
+   bead is a tier, and each tier is set lighter than the one above it, so rank
+   is carried by weight instead of a label saying "senior".
+   ========================================================================== */
+
+.council-hero {
+  position: relative;
+  padding: 6px 0 22px;
+}
+
+/* The seal sits behind the heading rather than beside it — an emblem, not a
+   logo slot. Low opacity so the title keeps the contrast it needs. */
+.council-seal-wrap {
+  position: absolute;
+  top: -14px;
+  right: -18px;
+  width: 150px;
+  pointer-events: none;
+}
+
+.council-seal {
+  width: 100%;
+  height: auto;
+  display: block;
+  opacity: 0.22;
+  filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.6));
+}
+
+.council-rail {
+  position: relative;
+  padding-left: 26px;
+  margin-top: 8px;
+}
+
+.council-rail-line {
+  position: absolute;
+  left: 5px;
+  top: 6px;
+  bottom: 28px;
+  width: 1px;
+  background: linear-gradient(
+    to bottom,
+    var(--cyan-glow),
+    rgba(42, 241, 250, 0.35) 45%,
+    rgba(42, 241, 250, 0.08)
+  );
+}
+
+.council-tier {
+  position: relative;
+  padding-bottom: 34px;
+}
+
+.council-tier .timeline-bead {
+  position: absolute;
+  left: -26px;
+  top: 4px;
+}
+
+.council-tier-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.council-tier-count {
+  font-family: var(--font-mono-meta);
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: var(--text-dim);
+}
+
+.council-tier-blurb {
+  margin: 8px 0 14px;
+  font-family: var(--font-sans-ui);
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--text-muted);
+  max-width: 34ch;
+}
+
+.council-roll {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Two columns for the thirteen-strong executive board: one column would be a
+   scroll, and at this type size two still read comfortably on a phone. */
+.council-roll.is-dense {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 16px;
+}
+
+.council-entry {
+  min-width: 0;
+}
+
+.council-role {
+  font-family: var(--font-mono-meta);
+  font-size: 8.5px;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: var(--cyan-glow);
+  line-height: 1.4;
+}
+
+.council-name {
+  /* Keeps a trailing initial from being stranded on a line of its own
+     ("Sudikksha Rhashmi / S"). Ignored by browsers that lack it, which simply
+     wrap as before. */
+  text-wrap: balance;
+  margin: 3px 0 0;
+  font-family: var(--font-serif-display);
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: 1.25;
+}
+
+/* The president is the only entry set at display weight, and the only one that
+   gets a panel. One person, alone, is the whole point of the tier. */
+.council-tier.is-lead .council-roll {
+  background: var(--bg-card-glass);
+  border: 1px solid rgba(42, 241, 250, 0.2);
+  border-radius: 10px;
+  padding: 16px 18px;
+}
+
+.council-tier.is-lead .council-name {
+  font-size: 26px;
+  letter-spacing: 0.2px;
+  text-shadow: 0 0 22px rgba(42, 241, 250, 0.18);
+}
+
+.council-tier.is-dense-tier .council-name {
+  font-size: 14px;
+}
+
+.council-roll.is-dense .council-name {
+  font-size: 14px;
+}
+
+/* Roles run from one word to five, so in a two-column register the names
+   landed at different heights and the page read as ragged. Reserving two lines
+   for every role puts the names on a shared baseline; the two roles long
+   enough to need a third line push only their own row. */
+.council-roll.is-dense .council-role {
+  display: block;
+  min-height: 2.5em;
+}
+
+/* Each entry hangs off its own hairline, which keeps the two columns legible
+   as columns without drawing a full grid. */
+.council-roll.is-dense .council-entry {
+  padding-left: 10px;
+  border-left: 1px solid rgba(42, 241, 250, 0.14);
+}
+
+.council-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 18px 0 28px;
+  border-top: 1px solid rgba(42, 241, 250, 0.14);
+  margin-top: 4px;
+}
+
+.council-footer-mark {
+  font-family: var(--font-mono-meta);
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--cyan-glow);
+}
+
+.council-footer-sub {
+  font-family: var(--font-mono-meta);
+  font-size: 8px;
+  letter-spacing: 1.4px;
+  color: var(--text-dim);
+}

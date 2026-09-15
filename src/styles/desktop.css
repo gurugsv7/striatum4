@@ -4225,3 +4225,116 @@ body.s4-desktop-active .s4-assistant-panel {
   margin-top: 8px;
   max-width: 46ch;
 }
+
+/* ---------------------------------------------------------------- council --
+   Same hierarchy as the phone, spent differently. The phone descends a rail
+   because it can only show one thing at a time; with this much width the three
+   tiers can be seen at once, and rank is carried by how much room each is
+   given. */
+
+.d-council-seal-col {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+}
+
+.d-council-seal {
+  width: 150px;
+  height: auto;
+  opacity: 0.85;
+  filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.55));
+}
+
+.d-council-body {
+  display: flex;
+  flex-direction: column;
+  gap: 46px;
+  padding-bottom: 20px;
+}
+
+.d-council-tier-head {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.d-council-index {
+  font-family: var(--font-mono-meta);
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--cyan-glow);
+}
+
+.d-council-tier-title {
+  margin: 0;
+  font-family: var(--font-cinzel);
+  font-size: 15px;
+  letter-spacing: 2.4px;
+  color: #ffffff;
+}
+
+.d-council-rule {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, rgba(42, 241, 250, 0.32), rgba(42, 241, 250, 0));
+}
+
+/* The president: a band of its own, the only entry given the full width. */
+.d-council-lead-roll {
+  margin: 0;
+  padding: 26px 30px;
+  background: var(--bg-card-glass);
+  border: 1px solid rgba(42, 241, 250, 0.2);
+  border-radius: 6px;
+}
+
+.d-council-lead-roll .d-council-name {
+  font-size: 34px;
+  line-height: 1.1;
+}
+
+.d-council-grid {
+  margin: 0;
+  display: grid;
+  gap: 22px 26px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+/* The advisory board is four people and four columns, so it sits as one clean
+   row rather than wrapping oddly. */
+.d-council-grid.is-advisory {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.d-council-entry {
+  min-width: 0;
+  padding-left: 12px;
+  border-left: 1px solid rgba(42, 241, 250, 0.16);
+}
+
+.d-council-role {
+  font-family: var(--font-mono-meta);
+  font-size: 8.5px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--cyan-glow);
+  line-height: 1.45;
+}
+
+.d-council-name {
+  text-wrap: balance;
+  margin: 5px 0 0;
+  font-family: var(--font-serif-display);
+  font-size: 18px;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: 1.25;
+}
+
+@media (max-width: 1240px) {
+  .d-council-grid,
+  .d-council-grid.is-advisory {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

@@ -178,6 +178,7 @@ export function renderDesktopProfile(): string {
             )}
             ${actionCard('btn-card-schedule', '02', 'My schedule', 'The full six-day programme', icon('clock', 19))}
             ${actionCard('btn-card-cart', '03', 'Your selection', `${registration.cartCount()} event${registration.cartCount() === 1 ? '' : 's'} in the cart`, icon('cart', 19))}
+            ${actionCard('btn-card-council', '04', 'SIGMA Council', 'The students who run the conclave', icon('mine', 19))}
           </div>
 
           ${
@@ -248,6 +249,10 @@ export function attachDesktopProfile(): void {
 
   document.getElementById('btn-card-cart')?.addEventListener('click', () => {
     appStore.setScreen('cart');
+  });
+
+  document.getElementById('btn-card-council')?.addEventListener('click', () => {
+    appStore.setScreen('council');
   });
 
   document.querySelectorAll<HTMLElement>('[data-open-event-id]').forEach(element => {
