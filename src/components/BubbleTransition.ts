@@ -55,17 +55,61 @@ function prefersReducedMotion(): boolean {
 }
 
 /**
- * Fetch the clip once, early, so the first transition is not a pause while
- * 300KB arrives. Runs on import, which happens at app start.
+ * The clip, fetched and buffered once during the startup loader and then reused
+ * for every transition.
+ *
+ * Reusing the element rather than making a fresh one each time is the point: a
+ * new element would re-request the file and could stall on a slow connection at
+ * the exact moment the bubbles are supposed to be playing. This way the only
+ * fetch happens behind the splash, where waiting is free.
  */
-let warmed: HTMLVideoElement | null = null;
-function warm(): void {
-  if (warmed || isDesktopViewport() || prefersReducedMotion()) return;
-  warmed = document.createElement('video');
-  warmed.src = CLIP_SRC;
-  warmed.preload = 'auto';
-  warmed.muted = true;
-  warmed.load();
+let clip: HTMLVideoElement | null = null;
+let ready: Promise<void> | null = null;
+
+/** How long startup will wait for the clip before going on without it. */
+const PREPARE_TIMEOUT_MS = 6000;
+
+/**
+ * Fetches and buffers the clip. Safe to call more than once; the work happens
+ * on the first call and later callers get the same promise.
+ *
+ * Always resolves, never rejects: a clip that cannot be fetched means a
+ * transition that falls back to a plain navigation, which is not a reason to
+ * hold the splash screen or fail startup.
+ */
+export function prepareBubbleTransition(): Promise<void> {
+  if (ready) return ready;
+  if (isDesktopViewport() || prefersReducedMotion()) {
+    ready = Promise.resolve();
+    return ready;
+  }
+
+  const video = document.createElement('video');
+  video.src = CLIP_SRC;
+  video.preload = 'auto';
+  video.muted = true;
+  video.defaultMuted = true;
+  video.playsInline = true;
+  clip = video;
+
+  ready = new Promise<void>(resolve => {
+    let settled = false;
+    const settle = () => {
+      if (settled) return;
+      settled = true;
+      resolve();
+    };
+    // canplaythrough means the whole clip can play without pausing to buffer,
+    // which is the guarantee worth waiting for. loadeddata is the fallback for
+    // browsers that are stingy about firing it.
+    video.addEventListener('canplaythrough', settle, { once: true });
+    video.addEventListener('loadeddata', () => window.setTimeout(settle, 400), { once: true });
+    video.addEventListener('error', settle, { once: true });
+    window.setTimeout(settle, PREPARE_TIMEOUT_MS);
+    video.load();
+  });
+
+  return ready;
 }
 
 /**
@@ -111,8 +155,10 @@ export function playBubbleTransition(swap?: () => void): Promise<void> {
   overlay.className = 's4-bubbles';
   overlay.setAttribute('aria-hidden', 'true');
 
-  const video = document.createElement('video');
-  video.src = CLIP_SRC;
+  // Reuse the buffered clip where startup managed to get one; only fall back to
+  // a cold element if preparation never ran or failed.
+  const video = clip ?? document.createElement('video');
+  if (!clip) video.src = CLIP_SRC;
   video.muted = true;
   // Both are needed for an autoplaying clip on iOS; without playsinline it
   // takes over the screen in the native player.
@@ -120,10 +166,21 @@ export function playBubbleTransition(swap?: () => void): Promise<void> {
   video.playsInline = true;
   video.autoplay = true;
   video.preload = 'auto';
+  // A reused element is wherever the last transition left it.
+  try {
+    video.currentTime = 0;
+  } catch {
+    /* not seekable yet; it will start from the beginning anyway */
+  }
   overlay.appendChild(video);
 
   document.body.appendChild(overlay);
   active = overlay;
+
+  // Every listener below is bound to this run only. Without that they would
+  // pile up on the reused element and a later transition would be ended by a
+  // previous run's handler.
+  const run = new AbortController();
 
   return new Promise<void>(resolve => {
     let swapped = false;
@@ -140,6 +197,8 @@ export function playBubbleTransition(swap?: () => void): Promise<void> {
       doSwap();
       if (done) return;
       done = true;
+      run.abort();
+      video.pause();
       overlay.classList.add('is-leaving');
       window.setTimeout(() => {
         overlay.remove();
@@ -148,9 +207,9 @@ export function playBubbleTransition(swap?: () => void): Promise<void> {
       resolve();
     };
 
-    video.addEventListener('ended', finish, { once: true });
+    video.addEventListener('ended', finish, { once: true, signal: run.signal });
     // A blocked autoplay or a decode error must not hold the screen.
-    video.addEventListener('error', finish, { once: true });
+    video.addEventListener('error', finish, { once: true, signal: run.signal });
     // Only once playback is really under way is the clip's length meaningful.
     // Timing from the call instead would cut the bubbles short whenever the
     // file had to be fetched first.
@@ -162,7 +221,7 @@ export function playBubbleTransition(swap?: () => void): Promise<void> {
         window.setTimeout(doSwap, Math.max(0, length * SWAP_AT - video.currentTime) * 1000);
         window.setTimeout(finish, remaining * 1000);
       },
-      { once: true }
+      { once: true, signal: run.signal }
     );
     window.setTimeout(finish, SAFETY_MS);
 
@@ -171,4 +230,5 @@ export function playBubbleTransition(swap?: () => void): Promise<void> {
   });
 }
 
-warm();
+// Start the fetch as soon as the app boots; the startup loader awaits it.
+void prepareBubbleTransition();

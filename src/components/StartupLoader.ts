@@ -1,5 +1,6 @@
 import lottie, { AnimationItem } from 'lottie-web';
 import '../styles/startup-loader.css';
+import { prepareBubbleTransition } from './BubbleTransition.ts';
 
 /** Mounts the supplied Lottie animation while the first app assets are decoded. */
 export function mountStartupLoader(): () => Promise<void> {
@@ -51,6 +52,10 @@ export function mountStartupLoader(): () => Promise<void> {
         for (const match of background.matchAll(/url\(["']?(.*?)["']?\)/g)) urls.add(match[1]);
       }
     });
+    // The bubble transition plays moments after this splash clears, so its clip
+    // is buffered here alongside the artwork rather than fetched mid-animation.
+    const clipReady = prepareBubbleTransition();
+
     await Promise.all([...urls].map(url => new Promise<void>(resolve => {
       const image = new Image();
       const timeout = setTimeout(resolve, 12000);
@@ -59,6 +64,7 @@ export function mountStartupLoader(): () => Promise<void> {
       image.onerror = settle;
       image.src = url;
     })));
+    await clipReady;
     await new Promise(resolve => setTimeout(resolve, 120));
     if (closed) return;
     layer.classList.add('is-loading-complete');
