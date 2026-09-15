@@ -138,7 +138,7 @@ export const EVENTS_PART_2: SymposiumEvent[] = [
       'Email: striatum04@gmail.com',
       'Filename: name_subject_diagnosticabyss'
     ],
-    prizes: { totalValue: 3000, notes: 'One winner for each category, announced during the valedictory ceremony.' },
+    prizes: { totalValue: 10000, notes: '₹5,000 for each domain. One winner per category, announced during the valedictory ceremony.' },
     coordinators: [{ name: 'Lakshmi Sree' }, { name: 'Lakshana' }],
     sections: [
       {
@@ -183,7 +183,7 @@ export const EVENTS_PART_2: SymposiumEvent[] = [
       },
       {
         title: 'PRIZES',
-        facts: [{ label: 'Prize Pool', value: '₹3,000' }],
+        facts: [{ label: 'Prize Pool', value: '₹10,000 (₹5,000 per domain)' }],
         body: 'One winner for each category, announced during the valedictory ceremony.'
       },
       {
@@ -191,7 +191,7 @@ export const EVENTS_PART_2: SymposiumEvent[] = [
         facts: [
           { label: 'Registration fee', value: 'Individual ₹300 / Team of 2 ₹400' },
           { label: 'Team size', value: '1–2' },
-          { label: 'Prize pool', value: '₹3,000' },
+          { label: 'Prize pool', value: '₹10,000 (₹5,000 per domain)' },
           { label: 'Abstract deadline', value: '3 October 2026' },
           { label: 'Submission deadline', value: '10 October 2026' },
           { label: 'Delegate Pass', value: 'Not required for abstract submission' }
@@ -405,7 +405,7 @@ export const EVENTS_PART_2: SymposiumEvent[] = [
       'Submit as PDF with: Title of the Innovation; Background/Problem Statement; Statement of Innovation; Description of the Innovation; Methodology/Approach; Expected Outcomes/Impact; Feasibility & Scalability; Keywords (3 to 5).',
       'Also include: participant name, teammate names, college name, college registration number, year of study, course.'
     ],
-    prizes: { totalValue: 15000, notes: 'Top 3 ideas receive prizes and certificates. Participation certificates are provided to all presenters.' },
+    prizes: { totalValue: 10000, notes: 'Top 3 ideas receive prizes and certificates. Participation certificates are provided to all presenters.' },
     coordinators: [{ name: 'Esha', phone: '9789821884' }, { name: 'Yuvashri', phone: '6381811767' }],
     needsConfirmation: [
       'Brochure still contains placeholder fields: "Submit your ideas to EMAIL", "Payment Link" and "QR Code for registration". The submission email is intentionally omitted from published content pending organiser confirmation.'
@@ -459,7 +459,7 @@ export const EVENTS_PART_2: SymposiumEvent[] = [
       },
       {
         title: 'PRIZES',
-        facts: [{ label: 'Prize Pool', value: '₹15,000' }],
+        facts: [{ label: 'Prize Pool', value: '₹10,000' }],
         body: 'Top 3 ideas receive prizes and certificates. Participation certificates are provided to all presenters.'
       },
       {
@@ -469,7 +469,7 @@ export const EVENTS_PART_2: SymposiumEvent[] = [
           { label: 'Time', value: '9:00 AM' },
           { label: 'Registration fee', value: '₹500 per team (after abstract selection)' },
           { label: 'Team size', value: '1–3' },
-          { label: 'Prize pool', value: '₹15,000' },
+          { label: 'Prize pool', value: '₹10,000' },
           { label: 'Abstract deadline', value: '3 October 2026' }
         ]
       }
