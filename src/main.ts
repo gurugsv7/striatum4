@@ -329,7 +329,7 @@ onAuthChange(user => {
       // Sign the delegate in without moving them yet: the screen stays put
       // under the bubbles, and home arrives when the bubbles are done.
       if (!state.isAuthenticated) appStore.login(user.email, user.fullName, false);
-      void playBubbleTransition().then(() => appStore.setScreen('home'));
+      void playBubbleTransition(() => appStore.setScreen('home'));
     } else if (!state.isAuthenticated) {
       appStore.login(user.email, user.fullName, false);
     }

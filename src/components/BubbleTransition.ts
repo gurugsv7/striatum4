@@ -29,6 +29,17 @@ const CLIP_SRC = '/bubble-transition.mp4';
 /** Lets the last few bubbles leave the frame rather than cutting them off. */
 const FADE_MS = 320;
 /**
+ * How far into the clip the screen behind the bubbles is swapped.
+ *
+ * The bubbles are densest around the middle and thin out towards the end, so
+ * the swap happens once they are thick enough to hide it and early enough that
+ * the new screen has finished fading in by the time they clear. Swapping at the
+ * very end would show the change instead of covering it.
+ */
+const SWAP_AT = 0.58;
+/** Matches the reveal animation in motion.css. */
+const REVEAL_MS = 620;
+/**
  * Absolute ceiling on how long the overlay may stay up.
  *
  * Every other path that ends it depends on the clip behaving. This one does
@@ -58,17 +69,43 @@ function warm(): void {
 }
 
 /**
- * Plays the transition over the current screen, resolving once the bubbles
- * have cleared. Callers navigate in `.then()`, so the new screen arrives as the
- * last bubbles leave rather than behind them.
+ * Fades the incoming screen up behind the bubbles.
  *
- * Resolves immediately where the transition does not apply, so every call site
- * reads the same.
+ * Without this the swap is a hard cut: the new screen is simply there, and at
+ * the moment the bubbles are thinning that reads as a flicker rather than an
+ * arrival.
  */
-export function playBubbleTransition(): Promise<void> {
-  if (isDesktopViewport() || prefersReducedMotion()) return Promise.resolve();
+function revealApp(): void {
+  const app = document.getElementById('app');
+  if (!app) return;
+  app.classList.remove('s4-bubble-reveal');
+  // Force the removal to take effect so re-adding restarts the animation.
+  void app.offsetWidth;
+  app.classList.add('s4-bubble-reveal');
+  window.setTimeout(() => app.classList.remove('s4-bubble-reveal'), REVEAL_MS + 80);
+}
+
+/**
+ * Plays the transition over the current screen.
+ *
+ * `swap` is what changes the screen underneath, and it is called partway
+ * through — while the bubbles are thick — so the new screen fades up behind
+ * them and is settled by the time they clear. The promise resolves once the
+ * bubbles are gone.
+ *
+ * Where the transition does not apply the swap still happens, immediately, so
+ * every call site reads the same.
+ */
+export function playBubbleTransition(swap?: () => void): Promise<void> {
+  if (isDesktopViewport() || prefersReducedMotion()) {
+    swap?.();
+    return Promise.resolve();
+  }
   // A second trigger while one is running would stack two layers of bubbles.
-  if (active) return Promise.resolve();
+  if (active) {
+    swap?.();
+    return Promise.resolve();
+  }
 
   const overlay = document.createElement('div');
   overlay.className = 's4-bubbles';
@@ -89,8 +126,18 @@ export function playBubbleTransition(): Promise<void> {
   active = overlay;
 
   return new Promise<void>(resolve => {
+    let swapped = false;
+    const doSwap = () => {
+      if (swapped) return;
+      swapped = true;
+      swap?.();
+      revealApp();
+    };
+
     let done = false;
     const finish = () => {
+      // However the clip ends, the screen behind it must have changed.
+      doSwap();
       if (done) return;
       done = true;
       overlay.classList.add('is-leaving');
@@ -110,7 +157,9 @@ export function playBubbleTransition(): Promise<void> {
     video.addEventListener(
       'playing',
       () => {
-        const remaining = Math.max(0, (video.duration || 1.6) - video.currentTime);
+        const length = video.duration || 1.6;
+        const remaining = Math.max(0, length - video.currentTime);
+        window.setTimeout(doSwap, Math.max(0, length * SWAP_AT - video.currentTime) * 1000);
         window.setTimeout(finish, remaining * 1000);
       },
       { once: true }

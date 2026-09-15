@@ -103,3 +103,27 @@
     display: none;
   }
 }
+
+/* The screen arriving behind the bubbles fades up rather than cutting in. It
+   is deliberately longer than the bubbles have left to run, so the new screen
+   is settled before they clear. */
+/* No fill mode on purpose. `both` would hold the from-state, so if the
+   animation never runs — a throttled background tab, animations disabled — the
+   app would sit at opacity 0 and the screen would be blank. Without it the
+   worst case is simply no fade. */
+#app.s4-bubble-reveal {
+  animation: s4-bubble-reveal 620ms cubic-bezier(.22, .75, .25, 1);
+}
+
+/* Starts dimmed rather than fully transparent. The screen is behind dense
+   bubbles at this point so the difference is invisible in motion, and if the
+   animation is ever frozen — a backgrounded tab throttles them — the worst case
+   is a dim screen for half a second instead of a blank one. */
+@keyframes s4-bubble-reveal {
+  from { opacity: 0.15; transform: scale(1.012); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #app.s4-bubble-reveal { animation: none; }
+}

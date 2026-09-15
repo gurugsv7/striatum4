@@ -509,10 +509,9 @@ export function attachEventPaymentEvents(): void {
 
     appStore.showToast(res.message);
     if (res.ok) {
-      // Bubbles rise over the payment screen, and the confirmation is what is
-      // there when they clear.
-      await playBubbleTransition();
-      appStore.openOrderConfirmation(order.id);
+      // Bubbles rise over the payment screen; the confirmation fades up
+      // behind them and is there when they clear.
+      await playBubbleTransition(() => appStore.openOrderConfirmation(order.id));
     } else {
       btnSubmit.disabled = false;
       btnSubmit.classList.remove('is-submitting');

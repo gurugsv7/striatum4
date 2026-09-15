@@ -166,7 +166,10 @@ export function attachOnboardingEvents(): void {
 
       const result = await signInWithEmail(value, password);
       appStore.showToast(result.message);
-      if (result.ok) appStore.login(value.trim());
+      // Sign in, but do not move: the central auth listener owns navigation
+      // and plays the transition, and jumping home here would land the
+      // homepage before the bubbles had even started.
+      if (result.ok) appStore.login(value.trim(), undefined, false);
       if (submitBtn) submitBtn.disabled = false;
     });
   }
@@ -183,7 +186,7 @@ export function attachOnboardingEvents(): void {
       // The central auth listener owns navigation. Keep this as a fallback for
       // an unusually late browser auth event without producing a second render.
       if (user && !appStore.getState().isAuthenticated) {
-        appStore.login(user.email, user.fullName);
+        appStore.login(user.email, user.fullName, false);
       }
     }).then(rendered => {
       // Fall back to a visible, honest disabled state if GIS could not load.
