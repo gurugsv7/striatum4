@@ -20,3 +20,10 @@
 .s4-assistant-form { display:flex; gap:8px; padding:12px; border-top:1px solid rgba(42,241,250,.13); } .s4-assistant-form input { min-width:0; flex:1; border:1px solid rgba(42,241,250,.22); border-radius:5px; padding:11px; background:#010b15; color:var(--text-pure-white); font:11px var(--font-sans-ui); outline:none; } .s4-assistant-form input:focus { border-color:var(--cyan-glow); } .s4-assistant-form button { width:40px; border:1px solid var(--cyan-border-strong); border-radius:5px; background:var(--cyan-glow); color:#031424; font-size:19px; cursor:pointer; }
 @media (max-width: 600px) { #s4-assistant { right: 14px; bottom: calc(var(--nav-height, 72px) + 14px); } .s4-assistant-orb { width:112px; height:112px; } .s4-assistant-panel { right: 0; bottom: 132px; width:min(360px, calc(100vw - 28px)); height:min(480px, calc(100dvh - 210px)); border-radius:16px 16px 5px 16px; } .s4-assistant-feed { padding:12px; } .s4-assistant-message, .s4-assistant-user { font-size:11px; } }
 @media (prefers-reduced-motion: reduce) { .s4-assistant-panel, .s4-assistant-orb { transition:none; } .s4-assistant-avatar { animation:none; background-position: 100% 50%; } }
+
+/* Hidden until there is something to guide: no orb on the sign-in screen, and
+   none before signing in at all. Display rather than opacity, so it cannot be
+   tabbed to or tapped through while hidden. */
+body.s4-guide-hidden #s4-assistant {
+  display: none;
+}

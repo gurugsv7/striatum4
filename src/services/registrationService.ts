@@ -78,6 +78,9 @@ export interface CartItem {
 export interface OrderLine {
   /** Server id for this line. Absent for local-only orders. */
   id?: string;
+  /** Name of the attached abstract, where one has been. */
+  abstractName?: string;
+  abstractPath?: string;
   eventId: string;
   /** Snapshotted so historical orders never change when prices or names change. */
   eventName: string;
@@ -240,6 +243,8 @@ function adoptSnapshot(snapshot: remote.RemoteSnapshot): void {
     reference: order.reference,
     lines: order.lines.map(line => ({
       id: line.id,
+      abstractName: line.abstractName,
+      abstractPath: line.abstractPath,
       eventId: line.eventId,
       eventName: line.eventName,
       eventCode: line.eventCode,
@@ -1319,6 +1324,15 @@ async function warmProofByPath(path: string): Promise<void> {
   }
 }
 
+/** Warms every abstract attached to an order the console can see. */
+export async function warmAbstracts(): Promise<void> {
+  if (!isRemote()) return;
+  const paths = listAllOrdersForAdmin()
+    .flatMap(order => order.lines.map(line => line.abstractPath))
+    .filter((path): path is string => Boolean(path));
+  await Promise.all(paths.map(warmProofByPath));
+}
+
 /** Warms every delegate proof the console is about to render. */
 export async function warmDelegateProofs(): Promise<void> {
   if (!isRemote()) return;
@@ -1558,6 +1572,73 @@ export async function revokeDelegate(
  * evidence sitting in front of an organiser, and the server refuses to touch it
  * regardless of what the screen offers.
  */
+/**
+ * Documents an abstract may be written in.
+ *
+ * Deliberately not images: a phone photo of a 500-word abstract is not
+ * something a judge can read, and the brochures ask for a written document.
+ */
+const ABSTRACT_TYPES: Record<string, { mime: string; extension: string }> = {
+  pdf: { mime: 'application/pdf', extension: 'pdf' },
+  doc: { mime: 'application/msword', extension: 'doc' },
+  docx: {
+    mime: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    extension: 'docx'
+  },
+  ppt: { mime: 'application/vnd.ms-powerpoint', extension: 'ppt' },
+  pptx: {
+    mime: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    extension: 'pptx'
+  }
+};
+
+/** 10 MB, matching the bucket. Slide decks are bigger than screenshots. */
+const ABSTRACT_MAX_BYTES = 10 * 1024 * 1024;
+
+export const ABSTRACT_ACCEPT = '.pdf,.doc,.docx,.ppt,.pptx';
+
+/**
+ * Attaches an abstract to a registration.
+ *
+ * The type is taken from the file's extension rather than its reported MIME
+ * type, because browsers disagree about what a .docx is and some report nothing
+ * at all for Office files.
+ */
+export async function attachAbstract(
+  line: OrderLine,
+  file: File
+): Promise<CartMutationResult> {
+  if (!line.id) return { ok: false, message: 'That registration cannot take an abstract here.' };
+  if (!isRemote()) return { ok: false, message: 'Please sign in first.' };
+
+  const extension = file.name.split('.').pop()?.toLowerCase() ?? '';
+  const kind = ABSTRACT_TYPES[extension];
+  if (!kind) {
+    return { ok: false, message: 'Upload a PDF, Word or PowerPoint file.' };
+  }
+  if (file.size <= 0 || file.size > ABSTRACT_MAX_BYTES) {
+    return { ok: false, message: 'That file is larger than 10 MB. Please upload a smaller one.' };
+  }
+
+  const result = await remote.uploadAbstractRemote(line.id, {
+    blob: file,
+    mimeType: kind.mime,
+    size: file.size,
+    name: file.name,
+    extension: kind.extension
+  });
+  if (result.ok) await hydrate();
+  return result;
+}
+
+/** Events in this order still waiting for the abstract they require. */
+export function abstractsOutstanding(order: Order): OrderLine[] {
+  return order.lines.filter(line => {
+    const event = getEvent(line.eventId);
+    return Boolean(event?.requiresAbstract) && !line.abstractPath;
+  });
+}
+
 export function canEditOrder(order: Order): boolean {
   return order.status === 'awaiting_payment';
 }

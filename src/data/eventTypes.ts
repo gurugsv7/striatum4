@@ -126,6 +126,14 @@ export interface SymposiumEvent {
   rules?: string[];
 
   abstractDeadline?: string;
+  /**
+   * Registration is incomplete until an abstract is attached.
+   *
+   * Mirrors events.requires_abstract, which is what actually stops a payment
+   * being submitted. Stated on both sides rather than inferred from
+   * abstractDeadline, so neither can quietly drift from the other.
+   */
+  requiresAbstract?: boolean;
   submissionDeadline?: string;
   submissionEmail?: string;
   submissionInstructions?: string[];

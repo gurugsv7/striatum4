@@ -228,6 +228,7 @@ export const EVENTS_PART_2: SymposiumEvent[] = [
       'Plagiarism leads to disqualification.',
       'Selected teams present on event day.'
     ],
+    requiresAbstract: true,
     abstractDeadline: '3 October 2026',
     submissionDeadline: '10 October 2026',
     submissionEmail: 'striatum04@gmail.com',
@@ -307,6 +308,7 @@ export const EVENTS_PART_2: SymposiumEvent[] = [
     pricing: { individual: 300, team: 400 },
     delegatePassRequirement: 'unspecified',
     rules: ['One delegate from the team presents.', 'Either member may answer questions.'],
+    requiresAbstract: true,
     abstractDeadline: '2 October 2026',
     submissionEmail: 'striatum04@gmail.com',
     submissionInstructions: [
@@ -507,6 +509,7 @@ export const EVENTS_PART_2: SymposiumEvent[] = [
       'Fabricated data leads to disqualification.',
       'Judges\' decision is final.'
     ],
+    requiresAbstract: true,
     abstractDeadline: '3 October 2026',
     submissionEmail: 'striatum04@gmail.com',
     submissionInstructions: ['Maximum 500 words', '.doc or .docx', 'Email: striatum04@gmail.com', 'Filename: NAME_SUBJECT_THEUNCHARTED'],

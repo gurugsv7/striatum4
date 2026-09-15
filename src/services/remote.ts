@@ -42,6 +42,9 @@ export interface RemoteDelegate {
 export interface RemoteOrderLine {
   /** The line's own id, which is what removing one is addressed by. */
   id: string;
+  /** Attached abstract, for the events that ask for one. */
+  abstractName?: string;
+  abstractPath?: string;
   eventId: string;
   eventName: string;
   eventCode: string;
@@ -158,6 +161,8 @@ function mapOrder(row: any): RemoteOrder {
     lines: (row.order_lines ?? []).map(
       (line: any): RemoteOrderLine => ({
         id: line.id,
+        abstractName: line.abstract_name ?? undefined,
+        abstractPath: line.abstract_path ?? undefined,
         eventId: line.event_id,
         eventName: line.event_name,
         eventCode: line.event_code,
@@ -397,6 +402,36 @@ export async function createOrderRemote(
   // a delegate whose seats were taken and whose cart was then kept, blocking
   // every later checkout.
   return { ok: true, message: 'Order created', data: mapOrder({ ...row, order_lines: [] }) };
+}
+
+/**
+ * Attaches an abstract to one line of an unpaid order.
+ *
+ * Uploaded first, then recorded, so the server only ever stores a path it has
+ * confirmed points at a real file in the caller's own folder.
+ */
+export async function uploadAbstractRemote(
+  lineId: string,
+  file: { blob: Blob; mimeType: string; size: number; name: string; extension: string }
+): Promise<RemoteResult> {
+  const user = getCurrentUser();
+  if (!supabase || !user) return { ok: false, message: 'Please sign in first.' };
+
+  const path = `${user.id}/abstract-${lineId}.${file.extension}`;
+  const { error: uploadError } = await supabase.storage
+    .from(PROOF_BUCKET)
+    .upload(path, file.blob, { contentType: file.mimeType, upsert: true });
+  if (uploadError) return { ok: false, message: uploadError.message };
+
+  const { error } = await supabase.rpc('set_order_line_abstract', {
+    p_line_id: lineId,
+    p_path: path,
+    p_mime: file.mimeType,
+    p_size: file.size,
+    p_name: file.name
+  });
+  if (error) return { ok: false, message: error.message };
+  return { ok: true, message: 'Abstract attached' };
 }
 
 /**

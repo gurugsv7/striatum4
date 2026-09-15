@@ -3,6 +3,7 @@ import { playBubbleTransition } from '../components/BubbleTransition.ts';
 import * as registration from '../services/registrationService.ts';
 import { Order, OrderLine } from '../services/registrationService.ts';
 import { escapeHtml } from '../services/text.ts';
+import { getEvent } from '../data/events.ts';
 
 /**
  * EVENT PAYMENT VIEW — "03 / PAYMENT" (new mockup-faithful design)
@@ -88,6 +89,43 @@ function renderEmptyState(): string {
   `;
 }
 
+/**
+ * The abstract slot, shown under the events that ask for one.
+ *
+ * It sits with its event rather than in a section of its own: an order can hold
+ * several events and only some of them want an abstract, so a single upload box
+ * would leave the delegate guessing which one it was for.
+ */
+function renderAbstractSlot(line: OrderLine): string {
+  const event = line.eventId ? getEvent(line.eventId) : undefined;
+  if (!event?.requiresAbstract || !line.id) return '';
+
+  const attached = Boolean(line.abstractPath);
+  return `
+    <div class="abstract-slot ${attached ? 'is-attached' : ''}">
+      <input type="file" id="abstract-input-${line.id}" accept="${registration.ABSTRACT_ACCEPT}" style="display: none;" />
+      <div class="abstract-slot-head">
+        <span class="abstract-slot-label">ABSTRACT ${attached ? '' : '&middot; REQUIRED'}</span>
+        ${
+          event.abstractDeadline
+            ? `<span class="abstract-slot-deadline">BY ${escapeHtml(event.abstractDeadline.toUpperCase())}</span>`
+            : ''
+        }
+      </div>
+      ${
+        attached
+          ? `<div class="abstract-attached-row">
+               <span class="abstract-attached-name">${escapeHtml(line.abstractName ?? 'Abstract')}</span>
+               <button class="abstract-replace-btn" data-abstract-line="${line.id}">REPLACE</button>
+             </div>`
+          : `<button class="abstract-upload-btn" data-abstract-line="${line.id}">
+               <span>Attach your abstract</span>
+               <small>PDF, Word or PowerPoint &middot; up to 10 MB</small>
+             </button>`
+      }
+    </div>`;
+}
+
 function renderSelectionRow(line: OrderLine): string {
   const dateRow =
     line.date
@@ -133,6 +171,9 @@ function renderRejectionNotice(order: Order): string {
 }
 
 function renderPaymentAndUploadSteps(order: Order, hasProof: boolean, screenshotUrl: string | null, screenshotName: string | null): string {
+  // The server refuses a submission while an abstract is missing, so the button
+  // says so rather than letting the delegate discover it by being rejected.
+  const outstanding = registration.abstractsOutstanding(order);
   return `
     <!-- 02 / PAYMENT Split Card -->
     <div class="timeline-step-block">
@@ -277,12 +318,21 @@ function renderPaymentAndUploadSteps(order: Order, hasProof: boolean, screenshot
     <div class="timeline-step-block button-step-block">
       <div class="timeline-bead" style="top: 20px;"></div>
 
-      <button class="beveled-cyan-btn" id="btn-submit-event-payment" ${hasProof ? '' : 'disabled aria-disabled="true"'}>
+      <button class="beveled-cyan-btn" id="btn-submit-event-payment" ${
+        hasProof && !outstanding.length ? '' : 'disabled aria-disabled="true"'
+      }>
         <span>${order.status === 'rejected' ? 'UPLOAD A NEW SCREENSHOT' : 'Submit &amp; Get My Registrations'}</span>
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
           <path d="M5 12h14m-7-7 7 7-7 7"/>
         </svg>
       </button>
+      ${
+        outstanding.length
+          ? `<p class="abstract-blocker">Attach the abstract for ${outstanding
+              .map(line => escapeHtml(line.eventName))
+              .join(', ')} before submitting.</p>`
+          : ''
+      }
     </div>
   `;
 }
@@ -407,7 +457,7 @@ export function renderEventPaymentView(): string {
 
           <!-- Selection List Container -->
           <div class="selection-summary-container">
-            ${order.lines.map(renderSelectionRow).join('')}
+            ${order.lines.map(line => renderSelectionRow(line) + renderAbstractSlot(line)).join('')}
           </div>
 
         </div>
@@ -433,6 +483,33 @@ export function attachEventPaymentEvents(): void {
   const btnBack = document.getElementById('btn-event-pay-back');
   const btnToCart = document.getElementById('btn-event-pay-to-cart');
   const btnEdit = document.getElementById('btn-edit-selection');
+  // One abstract slot per event that asks for one.
+  document.querySelectorAll<HTMLButtonElement>('[data-abstract-line]').forEach(button => {
+    const lineId = button.getAttribute('data-abstract-line');
+    if (!lineId) return;
+    const input = document.getElementById(`abstract-input-${lineId}`) as HTMLInputElement | null;
+
+    button.addEventListener('click', () => input?.click());
+
+    input?.addEventListener('change', () => {
+      void (async () => {
+        const file = input.files?.[0];
+        if (!file) return;
+
+        const order = registration.getOrder(appStore.getState().eventPayment.orderId);
+        const line = order?.lines.find(candidate => candidate.id === lineId);
+        if (!line) return;
+
+        button.disabled = true;
+        const result = await registration.attachAbstract(line, file);
+        button.disabled = false;
+        input.value = '';
+        appStore.showToast(result.message);
+        appStore.refresh();
+      })();
+    });
+  });
+
   const btnSubmit = document.getElementById('btn-submit-event-payment') as HTMLButtonElement | null;
   const dropzone = document.getElementById('event-dropzone');
   const fileInput = document.getElementById('event-file-input') as HTMLInputElement | null;

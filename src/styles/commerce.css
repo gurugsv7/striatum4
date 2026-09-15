@@ -236,3 +236,103 @@
 .screen-content.no-bottom-nav {
   padding-bottom: 48px;
 }
+
+/* Abstract slot, under the events that ask for one. Sits with its event rather
+   than in a section of its own, because an order can hold several events and
+   only some of them want an abstract. */
+.abstract-slot {
+  margin: -4px 0 14px;
+  padding: 12px 14px;
+  background: rgba(1, 11, 21, 0.55);
+  border: 1px dashed rgba(42, 241, 250, 0.3);
+  border-radius: 10px;
+}
+
+/* Solid once satisfied: dashed reads as "something still to do". */
+.abstract-slot.is-attached {
+  border-style: solid;
+  border-color: rgba(74, 222, 128, 0.35);
+}
+
+.abstract-slot-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.abstract-slot-label {
+  font-family: var(--font-mono-meta);
+  font-size: 8.5px;
+  letter-spacing: 1.6px;
+  color: var(--cyan-glow);
+}
+
+.abstract-slot-deadline {
+  font-family: var(--font-mono-meta);
+  font-size: 8px;
+  letter-spacing: 1.2px;
+  color: var(--text-dim);
+}
+
+.abstract-upload-btn {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  padding: 2px 0;
+  color: #ffffff;
+  font-family: var(--font-sans-ui);
+  font-size: 13px;
+}
+
+.abstract-upload-btn small {
+  font-family: var(--font-mono-meta);
+  font-size: 8.5px;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+}
+
+.abstract-attached-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.abstract-attached-name {
+  font-family: var(--font-sans-ui);
+  font-size: 12.5px;
+  color: #4ade80;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.abstract-replace-btn {
+  background: none;
+  border: 1px solid rgba(42, 241, 250, 0.3);
+  border-radius: 4px;
+  color: var(--cyan-glow);
+  font-family: var(--font-mono-meta);
+  font-size: 8.5px;
+  letter-spacing: 1.3px;
+  padding: 5px 10px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* Beside the button it is holding shut. */
+.abstract-blocker {
+  margin: 10px 0 0;
+  font-family: var(--font-sans-ui);
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--text-muted);
+  text-align: center;
+}

@@ -117,6 +117,28 @@ function renderRevokePanel(id: string): string {
  * the ID card behind it, so the card is shown beside the claim rather than
  * somewhere else.
  */
+/**
+ * The abstract attached to a line, as a link the organiser can open.
+ *
+ * A document, not an image, so it is offered for download rather than shown
+ * inline. The link is a short-lived signed URL — there is no public URL for
+ * anything in that bucket.
+ */
+function abstractRow(line: registration.OrderLine): string {
+  if (!line.abstractPath) return '';
+  const url = registration.readProofByPath(line.abstractPath);
+  const name = escapeHtml(line.abstractName ?? 'Abstract');
+  return `
+    <div class="admin-abstract-row">
+      <span class="admin-ledger-key">ABSTRACT</span>
+      ${
+        url
+          ? `<a class="admin-abstract-link" href="${url}" target="_blank" rel="noopener noreferrer">${name} &darr;</a>`
+          : `<span class="admin-abstract-pending">${name} &middot; preparing link&hellip;</span>`
+      }
+    </div>`;
+}
+
 function renderDelegateEvidence(app: registration.DelegateApplication): string {
   const cards: { label: string; path?: string }[] = [];
   if (app.homeCollege) cards.push({ label: 'IGMCRI STUDENT ID', path: app.idProofPath });
@@ -579,6 +601,7 @@ function renderOrderPanel(order: registration.Order): string {
             </div>
             <span class="admin-line-price">${formatINR(line.unitPrice * (line.quantity ?? 1))}</span>
           </div>
+          ${abstractRow(line)}
           ${rosterBlock(order, line)}
         `).join('')}
 
@@ -729,8 +752,10 @@ export function attachAdminEvents(): void {
   // visible in the console so the verifier gets the actual image, not a
   // misleading empty placeholder on the first render.
   void registration.warmProofImages(registration.listAllOrdersForAdmin().filter(order => order.proof).map(order => order.id));
-  // Delegate evidence lives at its own paths rather than under an order id.
+  // Delegate evidence and abstracts live at their own paths rather than under
+  // an order id, so they are warmed by path.
   void registration.warmDelegateProofs();
+  void registration.warmAbstracts();
 
   const btnBack = document.getElementById('btn-admin-back');
   if (btnBack) {

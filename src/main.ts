@@ -228,6 +228,15 @@ function renderApp(state: AppState): void {
   // The field-guide orb is mounted on <body>, outside #app, so it needs a
   // body-level hook to know which surface it is floating over.
   document.body.classList.toggle('s4-desktop-active', desktop);
+  /*
+   * The orb has nothing to offer someone who has not signed in — it searches a
+   * catalogue they cannot reach yet — and on the sign-in screen it sat on top
+   * of the Google button. It stays away until there is an app to guide.
+   */
+  document.body.classList.toggle(
+    's4-guide-hidden',
+    state.currentScreen === 'onboarding' || !state.isAuthenticated
+  );
   appContainer.innerHTML = desktop ? renderDesktopApp(state) : renderDesktopSurround(view.render());
   appContainer.classList.remove('s4-route-enter');
   /*
