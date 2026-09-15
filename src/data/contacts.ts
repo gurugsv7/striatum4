@@ -16,6 +16,14 @@ export interface OrganiserContact {
   phone?: string;
 }
 
+/**
+ * The STRIATUM WhatsApp community.
+ *
+ * Offered once a registration is complete, where a delegate has a reason to
+ * want announcements and nothing left to do on the page.
+ */
+export const STRIATUM_COMMUNITY_URL = 'https://chat.whatsapp.com/Iea13KRmCxk4mxufFzTidt';
+
 /** Shown on the Combos page for enquiries about bundles and registration. */
 export const REGISTRATION_CONTACT: OrganiserContact = {
   name: 'Aswin E',

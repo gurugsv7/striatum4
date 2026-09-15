@@ -1,6 +1,7 @@
 import QRCode from 'qrcode';
 import { appStore } from '../state/appStore.ts';
 import * as registration from '../services/registrationService.ts';
+import { renderCommunityCta } from '../components/CommunityCta.ts';
 import { escapeHtml } from '../services/text.ts';
 
 /**
@@ -555,6 +556,8 @@ function renderStatusCardState(delegate: registration.DelegateApplication, statu
           <path d="M5 12h14m-7-7 7 7-7 7"/>
         </svg>
       </button>
+
+      ${renderCommunityCta()}
 
       ${footer()}
     </div>

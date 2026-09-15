@@ -1,5 +1,6 @@
 import { appStore } from '../state/appStore.ts';
 import * as registration from '../services/registrationService.ts';
+import { renderCommunityCta } from '../components/CommunityCta.ts';
 import { formatINR } from '../services/pricing.ts';
 import { getEvent, eventContextLine } from '../data/events.ts';
 import { escapeHtml } from '../services/text.ts';
@@ -376,6 +377,7 @@ export function renderEventConfirmView(): string {
 
         <!-- Action Buttons (Next line with full width and generous spacing) -->
         <div class="confirm-actions-wrap">
+          ${renderCommunityCta()}
           <!-- Primary Button: Explore More Events -->
           <button class="confirm-btn-primary-chamfer" id="btn-confirm-explore-more">
             <div class="confirm-btn-label-group">
