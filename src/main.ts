@@ -228,12 +228,26 @@ function renderApp(state: AppState): void {
   document.body.classList.toggle('s4-desktop-active', desktop);
   appContainer.innerHTML = desktop ? renderDesktopApp(state) : renderDesktopSurround(view.render());
   appContainer.classList.remove('s4-route-enter');
-  // Re-trigger the entry choreography after each wholesale screen render.
-  void appContainer.offsetWidth;
-  // Profile has a fixed atmospheric backdrop and bottom sheets. Avoid applying
-  // the global composited entry animation to it; mobile WebViews can otherwise
-  // briefly paint the route as a black surface.
-  if (desktop || (state.currentScreen !== 'profile' && state.currentScreen !== 'admin')) {
+  /*
+   * The entry choreography belongs to arriving at a screen, not to every paint
+   * of it.
+   *
+   * This used to run on every render, and renders happen for reasons that have
+   * nothing to do with navigation: a toast appearing, a background sync
+   * landing, signing in. Each one restarted the staggered fade-in of every
+   * element on screen, which read as the page flickering one or two times —
+   * under the bubbles on the way in, and again on the homepage once the sync
+   * came back.
+   *
+   * Profile has a fixed atmospheric backdrop and bottom sheets. Avoid applying
+   * the global composited entry animation to it; mobile WebViews can otherwise
+   * briefly paint the route as a black surface.
+   */
+  if (
+    isScreenChange &&
+    (desktop || (state.currentScreen !== 'profile' && state.currentScreen !== 'admin'))
+  ) {
+    void appContainer.offsetWidth;
     appContainer.classList.add('s4-route-enter');
   }
 
