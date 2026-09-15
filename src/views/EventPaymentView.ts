@@ -1,4 +1,5 @@
 import { appStore } from '../state/appStore.ts';
+import { playBubbleTransition } from '../components/BubbleTransition.ts';
 import * as registration from '../services/registrationService.ts';
 import { Order, OrderLine } from '../services/registrationService.ts';
 import { escapeHtml } from '../services/text.ts';
@@ -508,6 +509,9 @@ export function attachEventPaymentEvents(): void {
 
     appStore.showToast(res.message);
     if (res.ok) {
+      // Bubbles rise over the payment screen, and the confirmation is what is
+      // there when they clear.
+      await playBubbleTransition();
       appStore.openOrderConfirmation(order.id);
     } else {
       btnSubmit.disabled = false;

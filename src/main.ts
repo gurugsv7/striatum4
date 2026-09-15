@@ -18,6 +18,7 @@ import './styles/desktop.css';
 import { mountStartupLoader } from './components/StartupLoader.ts';
 
 import { appStore, AppState, ScreenType } from './state/appStore.ts';
+import { playBubbleTransition } from './components/BubbleTransition.ts';
 import { initAuth, onAuthChange } from './services/authService.ts';
 import { pathFor, routeFromPath, routeRequiresAuth, titleFor, Route } from './services/router.ts';
 import * as registrationService from './services/registrationService.ts';
@@ -321,10 +322,16 @@ onAuthChange(user => {
     // must leave onboarding immediately. Public legal/credits routes remain in
     // place, and protected deep links still win over the homepage fallback.
     const shouldEnterHome = !route && state.currentScreen === 'onboarding';
-    if (!state.isAuthenticated) {
-      appStore.login(user.email, user.fullName, shouldEnterHome);
-    } else if (shouldEnterHome) {
-      appStore.setScreen('home');
+    // Leaving the sign-in screen is the one arrival worth marking, so the
+    // bubbles rise over it and the homepage appears as they clear. A restored
+    // session landing straight on a deep link gets no transition.
+    if (shouldEnterHome) {
+      // Sign the delegate in without moving them yet: the screen stays put
+      // under the bubbles, and home arrives when the bubbles are done.
+      if (!state.isAuthenticated) appStore.login(user.email, user.fullName, false);
+      void playBubbleTransition().then(() => appStore.setScreen('home'));
+    } else if (!state.isAuthenticated) {
+      appStore.login(user.email, user.fullName, false);
     }
     if (route) {
       if (route.eventId) appStore.setSelectedEvent(route.eventId);

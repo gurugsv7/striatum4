@@ -65,3 +65,41 @@
   #app.s4-route-enter .onboarding-hero-section,
   .s4-motion-pulse { animation: none !important; }
 }
+
+/* Bubble transition — bubbles rise over the screen being left, then the next
+   screen is shown. The clip is bubbles on pure black, and `screen` blending
+   drops every black pixel and keeps only the bubbles, so the page stays visible
+   underneath. The blend sits on the layer itself, not on the video: an element
+   blends with what is painted below it in its parent stacking context, and
+   putting it on the video would confine the blend to this layer's own box. */
+.s4-bubbles {
+  position: fixed;
+  inset: 0;
+  /* Above the field-guide orb (9000), below the startup loader (10000). */
+  z-index: 9500;
+  background: #000;
+  mix-blend-mode: screen;
+  /* Nothing under the bubbles should be tappable mid-transition. */
+  pointer-events: auto;
+  opacity: 1;
+  transition: opacity 320ms ease-out;
+}
+
+.s4-bubbles.is-leaving {
+  opacity: 0;
+}
+
+.s4-bubbles video {
+  width: 100%;
+  height: 100%;
+  /* Portrait clip on a portrait screen: cover crops rather than letterboxes. */
+  object-fit: cover;
+  display: block;
+}
+
+/* No bubbles, no cover, no delay — the navigation just happens. */
+@media (prefers-reduced-motion: reduce) {
+  .s4-bubbles {
+    display: none;
+  }
+}
