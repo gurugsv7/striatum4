@@ -340,3 +340,57 @@
   margin-top: 26px;
   padding-bottom: 12px;
 }
+
+/* Remove, on an unpaid registration in the hub. Deliberately quiet — it is a
+   correction, not an action anyone should reach for first — and it arms before
+   it fires, because it frees a seat and changes what is owed. */
+.myevents-remove-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.myevents-remove-btn {
+  background: none;
+  border: 1px solid rgba(248, 113, 113, 0.35);
+  color: #f87171;
+  font-family: var(--font-mono-meta);
+  font-size: 9px;
+  letter-spacing: 1.4px;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.myevents-remove-btn:hover {
+  border-color: rgba(248, 113, 113, 0.6);
+}
+
+/* Armed: filled, so the second tap is visibly the committing one. */
+.myevents-remove-btn.is-armed {
+  background: rgba(248, 113, 113, 0.14);
+  border-color: #f87171;
+  color: #fecaca;
+}
+
+.myevents-remove-cancel {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-family: var(--font-mono-meta);
+  font-size: 9px;
+  letter-spacing: 1.4px;
+  cursor: pointer;
+  padding: 6px 4px;
+}
+
+.myevents-remove-note {
+  margin: 8px 0 0;
+  font-family: var(--font-sans-ui);
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}

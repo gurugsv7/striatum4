@@ -40,6 +40,8 @@ export interface RemoteDelegate {
 }
 
 export interface RemoteOrderLine {
+  /** The line's own id, which is what removing one is addressed by. */
+  id: string;
   eventId: string;
   eventName: string;
   eventCode: string;
@@ -155,6 +157,7 @@ function mapOrder(row: any): RemoteOrder {
     userId: row.user_id,
     lines: (row.order_lines ?? []).map(
       (line: any): RemoteOrderLine => ({
+        id: line.id,
         eventId: line.event_id,
         eventName: line.event_name,
         eventCode: line.event_code,
@@ -394,6 +397,19 @@ export async function createOrderRemote(
   // a delegate whose seats were taken and whose cart was then kept, blocking
   // every later checkout.
   return { ok: true, message: 'Order created', data: mapOrder({ ...row, order_lines: [] }) };
+}
+
+/**
+ * Takes one event back out of an unpaid order.
+ *
+ * The server re-checks ownership and that nothing has been paid, and recomputes
+ * what is owed — a combo discount cannot survive the combo being broken up.
+ */
+export async function removeOrderLineRemote(lineId: string): Promise<RemoteResult> {
+  if (!supabase || !getCurrentUser()) return { ok: false, message: 'Please sign in first.' };
+  const { error } = await supabase.rpc('remove_order_line', { p_line_id: lineId });
+  if (error) return { ok: false, message: error.message };
+  return { ok: true, message: 'Registration removed' };
 }
 
 /**

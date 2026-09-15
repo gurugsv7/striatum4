@@ -4177,3 +4177,51 @@ body.s4-desktop-active .s4-assistant-panel {
   height: auto;
   display: block;
 }
+
+/* Remove, on an unpaid registration in the desktop hub. See programme.css for
+   the phone equivalent; same two-step, same restraint. */
+.d-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.d-row-remove {
+  background: none;
+  border: 1px solid rgba(248, 113, 113, 0.35);
+  color: #f87171;
+  font-family: var(--font-mono-meta);
+  font-size: 9px;
+  letter-spacing: 1.3px;
+  padding: 5px 11px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.d-row-remove:hover {
+  border-color: rgba(248, 113, 113, 0.6);
+}
+
+.d-row-remove.is-armed {
+  background: rgba(248, 113, 113, 0.14);
+  border-color: #f87171;
+  color: #fecaca;
+}
+
+.d-row-keep {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-family: var(--font-mono-meta);
+  font-size: 9px;
+  letter-spacing: 1.3px;
+  cursor: pointer;
+  padding: 5px 2px;
+}
+
+.d-row-removenote {
+  margin-top: 8px;
+  max-width: 46ch;
+}

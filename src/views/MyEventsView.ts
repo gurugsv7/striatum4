@@ -1,6 +1,7 @@
 import { appStore } from '../state/appStore.ts';
 import * as registration from '../services/registrationService.ts';
 import { eventContextLine } from '../data/events.ts';
+import { escapeHtml } from '../services/text.ts';
 import type { MyEventEntry, Order } from '../services/registrationService.ts';
 
 /** Delegate credential line under the hero subtitle — never shows an unapproved ID. */
@@ -103,6 +104,59 @@ function confirmedGroup(entries: MyEventEntry[]): string {
   `;
 }
 
+/**
+ * Which line is one tap from being removed.
+ *
+ * Removing a registration frees a seat and changes what is owed, so it asks
+ * twice. Kept per line rather than as a flag so tapping Remove on one row never
+ * arms another.
+ */
+let confirmingLineId: string | null = null;
+
+export function clearRemoveConfirmation(): void {
+  confirmingLineId = null;
+}
+
+/** True when this line is armed and one more tap will remove it. */
+export function removeArmedFor(lineId?: string): boolean {
+  return Boolean(lineId) && confirmingLineId === lineId;
+}
+
+/**
+ * An order nobody has paid for yet is still the delegate's to change; one with
+ * a screenshot against it belongs to the verification queue. The server
+ * enforces this too — the button only reflects it.
+ */
+function isUnpaid(entry: MyEventEntry): boolean {
+  return registration.canEditOrder(entry.order);
+}
+
+function removeControl(entry: MyEventEntry): string {
+  if (!isUnpaid(entry) || !entry.line.id) return '';
+  const armed = confirmingLineId === entry.line.id;
+  return `
+    <div class="myevents-remove-row">
+      <button class="myevents-remove-btn ${armed ? 'is-armed' : ''}"
+              data-remove-line="${entry.line.id}"
+              aria-label="Remove ${escapeHtml(entry.event.name)} from this order">
+        ${armed ? 'TAP AGAIN TO REMOVE' : 'REMOVE'}
+      </button>
+      ${
+        armed
+          ? `<button class="myevents-remove-cancel" data-cancel-remove="1">KEEP IT</button>`
+          : ''
+      }
+    </div>
+    ${
+      armed
+        ? `<p class="myevents-remove-note">
+             This frees the place and recalculates what you owe. You can register
+             it again, or take it as part of a combo.
+           </p>`
+        : ''
+    }`;
+}
+
 function pendingGroup(entries: MyEventEntry[]): string {
   if (!entries.length) return '';
   return `
@@ -116,12 +170,17 @@ function pendingGroup(entries: MyEventEntry[]): string {
             <div class="myevents-row-node myevents-row-node--pending"></div>
             <div class="myevents-row-body">
               <h3 class="myevents-row-title myevents-row-title--headline">${entry.event.name}</h3>
-              <p class="myevents-row-sub">Payment verification pending</p>
+              <p class="myevents-row-sub">${
+                isUnpaid(entry)
+                  ? 'Not paid yet — your place is held until you do.'
+                  : 'Payment verification pending'
+              }</p>
               <div class="myevents-row-context">ORDER ${entry.order.reference}${teamCount(entry.line)}</div>
               <button class="action-link-cyan myevents-inline-action" data-view-order-id="${entry.order.id}">
-                <span>VIEW ORDER</span>
+                <span>${isUnpaid(entry) ? 'PAY NOW' : 'VIEW ORDER'}</span>
                 <span>→</span>
               </button>
+              ${removeControl(entry)}
             </div>
           </div>
         `
@@ -204,7 +263,53 @@ export function renderMyEventsView(): string {
   `;
 }
 
+/**
+ * Wires the two-step Remove.
+ *
+ * Shared by both surfaces, because the desktop hub is a different rendering of
+ * the same list and the behaviour must not drift between them.
+ */
+export function attachRemoveControls(): void {
+  document.querySelectorAll<HTMLButtonElement>('[data-remove-line]').forEach(button => {
+    button.addEventListener('click', () => {
+      const lineId = button.getAttribute('data-remove-line');
+      if (!lineId) return;
+
+      // First tap arms it, second does it.
+      if (confirmingLineId !== lineId) {
+        confirmingLineId = lineId;
+        appStore.refresh();
+        return;
+      }
+
+      button.disabled = true;
+      const entry = registration
+        .getMyEvents()
+        .pending.find(candidate => candidate.line.id === lineId);
+      if (!entry) {
+        confirmingLineId = null;
+        appStore.refresh();
+        return;
+      }
+
+      void registration.removeRegistration(entry.line).then(result => {
+        confirmingLineId = null;
+        appStore.showToast(result.message);
+        appStore.refresh();
+      });
+    });
+  });
+
+  document.querySelectorAll<HTMLButtonElement>('[data-cancel-remove]').forEach(button => {
+    button.addEventListener('click', () => {
+      confirmingLineId = null;
+      appStore.refresh();
+    });
+  });
+}
+
 export function attachMyEventsEvents(): void {
+  attachRemoveControls();
   const btnBrowse = document.getElementById('btn-browse-events-empty');
   if (btnBrowse) {
     btnBrowse.addEventListener('click', () => {

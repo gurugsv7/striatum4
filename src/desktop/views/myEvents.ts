@@ -3,6 +3,9 @@ import * as registration from '../../services/registrationService.ts';
 import type { MyEventEntry, Order } from '../../services/registrationService.ts';
 import { eventContextLine } from '../../data/events.ts';
 import { eyebrow, esc } from '../shell.ts';
+// The confirmation state and the click handling live with the phone hub so the
+// two surfaces cannot disagree about when Remove is offered or what it does.
+import { attachRemoveControls, removeArmedFor } from '../../views/MyEventsView.ts';
 
 /**
  * Desktop my-events.
@@ -70,15 +73,40 @@ function confirmedRow(entry: MyEventEntry): string {
 }
 
 function pendingRow(entry: MyEventEntry): string {
+  // Same rule as the phone: unpaid is the delegate's to change, submitted is
+  // not. Both surfaces read canEditOrder so neither can drift from the server.
+  const unpaid = registration.canEditOrder(entry.order);
+  const armed = removeArmedFor(entry.line.id);
   return `
     <div class="d-row">
       <h3 class="d-row-title">${entry.event.name}</h3>
-      <p class="d-row-meta">Payment verification pending</p>
+      <p class="d-row-meta">${
+        unpaid ? 'Not paid yet &mdash; your place is held until you do.' : 'Payment verification pending'
+      }</p>
       <span class="d-row-meta">ORDER ${entry.order.reference}${teamCount(entry.line)}</span>
       <div class="d-row-foot">
-        <span class="d-state is-muted">AWAITING VERIFICATION</span>
-        <button class="d-row-action" data-view-order-id="${entry.order.id}">VIEW ORDER &rarr;</button>
+        <span class="d-state is-muted">${unpaid ? 'AWAITING PAYMENT' : 'AWAITING VERIFICATION'}</span>
+        <div class="d-row-actions">
+          ${
+            unpaid && entry.line.id
+              ? `<button class="d-row-remove ${armed ? 'is-armed' : ''}" data-remove-line="${entry.line.id}">${
+                  armed ? 'CLICK AGAIN TO REMOVE' : 'REMOVE'
+                }</button>${
+                  armed ? '<button class="d-row-keep" data-cancel-remove="1">KEEP</button>' : ''
+                }`
+              : ''
+          }
+          <button class="d-row-action" data-view-order-id="${entry.order.id}">${
+            unpaid ? 'PAY NOW' : 'VIEW ORDER'
+          } &rarr;</button>
+        </div>
       </div>
+      ${
+        armed
+          ? `<p class="d-row-meta d-row-removenote">This frees the place and recalculates what you owe.
+               You can register it again, or take it as part of a combo.</p>`
+          : ''
+      }
     </div>`;
 }
 
@@ -176,6 +204,7 @@ export function renderDesktopMyEvents(): string {
 }
 
 export function attachDesktopMyEvents(): void {
+  attachRemoveControls();
   document.getElementById('btn-browse-events-empty')?.addEventListener('click', () => {
     appStore.setScreen('explore');
   });

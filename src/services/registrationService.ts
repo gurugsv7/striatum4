@@ -76,6 +76,8 @@ export interface CartItem {
 }
 
 export interface OrderLine {
+  /** Server id for this line. Absent for local-only orders. */
+  id?: string;
   eventId: string;
   /** Snapshotted so historical orders never change when prices or names change. */
   eventName: string;
@@ -237,6 +239,7 @@ function adoptSnapshot(snapshot: remote.RemoteSnapshot): void {
     userId: order.userId,
     reference: order.reference,
     lines: order.lines.map(line => ({
+      id: line.id,
       eventId: line.eventId,
       eventName: line.eventName,
       eventCode: line.eventCode,
@@ -1546,6 +1549,35 @@ export async function revokeDelegate(
   state.delegate.rejectionReason = reason.trim();
   save();
   return { ok: true, message: 'Delegate pass revoked' };
+}
+
+/**
+ * Whether this order is still the delegate's to change.
+ *
+ * Only before anything has been paid. Once a screenshot is in, the order is
+ * evidence sitting in front of an organiser, and the server refuses to touch it
+ * regardless of what the screen offers.
+ */
+export function canEditOrder(order: Order): boolean {
+  return order.status === 'awaiting_payment';
+}
+
+/**
+ * Takes one event back out of an unpaid order.
+ *
+ * Until this existed a delegate who registered the wrong event was stuck with
+ * it: the event is blocked from being registered again while it sits in a live
+ * order, so they could not correct it or buy the combo containing it either.
+ */
+export async function removeRegistration(line: OrderLine): Promise<CartMutationResult> {
+  if (!line.id) return { ok: false, message: 'That registration cannot be removed here.' };
+  if (!isRemote()) return { ok: false, message: 'Please sign in first.' };
+
+  const result = await remote.removeOrderLineRemote(line.id);
+  // The order, the seat and the total all changed server-side; re-read rather
+  // than guessing at the new shape.
+  if (result.ok) await hydrate();
+  return result;
 }
 
 export function listDelegateApplications(): DelegateApplication[] {
