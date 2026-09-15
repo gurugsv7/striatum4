@@ -1267,3 +1267,69 @@
   color: var(--cyan-glow);
   text-shadow: 0 0 10px rgba(42, 241, 250, 0.5);
 }
+
+/* ---------------------------------------------------------------- IGMCRI --
+   The home-college delegate screen. It borrows the payment screen's card,
+   dropzone and timeline wholesale; only the small ledger summarising what is
+   owed, and the line explaining why the button is dead, are its own. */
+
+.delegate-home-ledger {
+  margin-top: 18px;
+  background: var(--bg-card-glass);
+  border: 1px solid rgba(42, 241, 250, 0.18);
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.delegate-home-ledger-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+/* The total is the answer the delegate came for, so it is separated from the
+   facts above it rather than being one more row among equals. */
+.delegate-home-ledger-row.is-total {
+  border-top: 1px solid rgba(42, 241, 250, 0.16);
+  padding-top: 10px;
+  margin-top: 2px;
+}
+
+.delegate-home-ledger-val {
+  font-family: var(--font-sans-ui);
+  font-size: 13px;
+  color: #ffffff;
+}
+
+.delegate-home-price {
+  font-family: var(--font-sans-ui);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--cyan-glow);
+  line-height: 1;
+  text-shadow: 0 0 14px rgba(42, 241, 250, 0.45);
+}
+
+/* Says what is missing, next to the button that is waiting for it. */
+.delegate-home-blocker {
+  margin: 10px 0 0;
+  font-family: var(--font-sans-ui);
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* Shown on the registration form once IGMCRI is picked, so the concession is
+   known before the delegate reaches the screen that applies it. */
+.delegate-home-hint {
+  margin: 10px 2px 0;
+  font-family: var(--font-sans-ui);
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: var(--cyan-200);
+}

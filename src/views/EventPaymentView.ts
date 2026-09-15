@@ -12,8 +12,7 @@ import { escapeHtml } from '../services/text.ts';
  * rewiring of the visual design onto the single pricing/registration authority.
  */
 
-/** Official conclave UPI ID for event registrations checkout payments. */
-const UPI_ID = 'sigmapy@iob';
+import { SYMPOSIUM_UPI_ID as UPI_ID } from '../data/payment.ts';
 
 /** No per-event artwork exists for checkout thumbnails — every line uses the same static art. */
 const ITEM_THUMB_SRC = '/assets/card_reef.jpg';

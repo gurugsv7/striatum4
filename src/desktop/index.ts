@@ -25,6 +25,7 @@ import { renderDesktopCombos, attachDesktopCombos } from './views/combos.ts';
 // They keep their existing markup and handlers, centred in a console frame.
 import { renderDelegateRegistrationView, attachDelegateRegistrationEvents } from '../views/DelegateRegistrationView.ts';
 import { renderDelegatePaymentView, attachDelegatePaymentEvents } from '../views/DelegatePaymentView.ts';
+import { renderDelegateHomeView, attachDelegateHomeEvents } from '../views/DelegateHomeCollegeView.ts';
 import { renderDelegateConfirmView, attachDelegateConfirmEvents } from '../views/DelegateConfirmView.ts';
 import { renderEventPaymentView, attachEventPaymentEvents } from '../views/EventPaymentView.ts';
 import { renderEventConfirmView, attachEventConfirmEvents } from '../views/EventConfirmView.ts';
@@ -66,6 +67,7 @@ const FRAMED: Partial<Record<ScreenType, DesktopView>> = {
   registration: { render: renderRegistrationFormView, attach: attachRegistrationFormEvents, framed: true },
   'delegate-registration': { render: renderDelegateRegistrationView, attach: attachDelegateRegistrationEvents, framed: true },
   'delegate-payment': { render: renderDelegatePaymentView, attach: attachDelegatePaymentEvents, framed: true },
+  'delegate-home': { render: renderDelegateHomeView, attach: attachDelegateHomeEvents, framed: true },
   'delegate-confirm': { render: renderDelegateConfirmView, attach: attachDelegateConfirmEvents, framed: true },
   'event-payment': { render: renderEventPaymentView, attach: attachEventPaymentEvents, framed: true },
   'event-confirm': { render: renderEventConfirmView, attach: attachEventConfirmEvents, framed: true },

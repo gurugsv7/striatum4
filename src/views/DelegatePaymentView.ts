@@ -3,8 +3,7 @@ import { playBubbleTransition } from '../components/BubbleTransition.ts';
 import * as registration from '../services/registrationService.ts';
 import { escapeHtml } from '../services/text.ts';
 
-/** Official conclave UPI ID for delegate pass registration payments. */
-const UPI_ID = 'sigmapy@iob';
+import { SYMPOSIUM_UPI_ID as UPI_ID } from '../data/payment.ts';
 
 export function renderDelegatePaymentView(): string {
   const state = appStore.getState();

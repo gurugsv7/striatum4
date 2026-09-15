@@ -108,6 +108,46 @@ function renderRevokePanel(id: string): string {
   `;
 }
 
+/**
+ * What a delegate actually submitted.
+ *
+ * Until now this console showed a name and a college and nothing else, so an
+ * organiser approved a pass with no sight of the tier, the fee or any evidence
+ * that it had been paid. An IGMCRI claim in particular is only worth as much as
+ * the ID card behind it, so the card is shown beside the claim rather than
+ * somewhere else.
+ */
+function renderDelegateEvidence(app: registration.DelegateApplication): string {
+  const cards: { label: string; path?: string }[] = [];
+  if (app.homeCollege) cards.push({ label: 'IGMCRI STUDENT ID', path: app.idProofPath });
+  if (app.paymentProofPath || (app.feeDue ?? 0) > 0) {
+    cards.push({ label: 'PAYMENT SCREENSHOT', path: app.paymentProofPath });
+  }
+  if (!cards.length) return '';
+
+  return `
+    <div class="admin-delegate-proofs">
+      ${cards
+        .map(card => {
+          const url = registration.readProofByPath(card.path);
+          return `
+            <figure class="admin-delegate-proof">
+              <figcaption class="admin-ledger-key">${card.label}</figcaption>
+              <div class="admin-proof-frame" data-delegate-proof="${escapeHtml(card.path ?? '')}">
+                ${
+                  url
+                    ? `<img src="${url}" alt="${card.label}" class="admin-proof-img" />`
+                    : `<div class="admin-proof-empty">${
+                        card.path ? 'Loading secure image&hellip;' : 'Not supplied.'
+                      }</div>`
+                }
+              </div>
+            </figure>`;
+        })
+        .join('')}
+    </div>`;
+}
+
 function renderDelegateApplication(app: registration.DelegateApplication, id: string | undefined): string {
   const canAct = !!id && (app.status === 'pending' || app.status === 'approved');
 
@@ -131,6 +171,20 @@ function renderDelegateApplication(app: registration.DelegateApplication, id: st
             <span class="admin-ledger-key">EMAIL</span>
             <span class="admin-ledger-val">${escapeHtml(app.email)}</span>
           </div>
+          ${app.tier ? `
+            <div class="admin-ledger-row">
+              <span class="admin-ledger-key">TIER</span>
+              <span class="admin-ledger-val admin-ledger-val--cyan">${escapeHtml(app.tier)}</span>
+            </div>
+          ` : ''}
+          ${app.feeDue !== undefined ? `
+            <div class="admin-ledger-row">
+              <span class="admin-ledger-key">FEE DUE</span>
+              <span class="admin-ledger-val">${
+                app.feeDue > 0 ? registration.formatINR(app.feeDue) : 'None'
+              }${app.homeCollege ? ' &middot; IGMCRI rate' : ''}</span>
+            </div>
+          ` : ''}
           ${app.yearOfStudy ? `
             <div class="admin-ledger-row">
               <span class="admin-ledger-key">YEAR</span>
@@ -154,6 +208,8 @@ function renderDelegateApplication(app: registration.DelegateApplication, id: st
             <span class="admin-ledger-val">${formatTimestamp(app.submittedAt)}</span>
           </div>
         </div>
+
+        ${renderDelegateEvidence(app)}
 
         ${canAct ? `
           <div class="admin-action-row">
@@ -673,6 +729,8 @@ export function attachAdminEvents(): void {
   // visible in the console so the verifier gets the actual image, not a
   // misleading empty placeholder on the first render.
   void registration.warmProofImages(registration.listAllOrdersForAdmin().filter(order => order.proof).map(order => order.id));
+  // Delegate evidence lives at its own paths rather than under an order id.
+  void registration.warmDelegateProofs();
 
   const btnBack = document.getElementById('btn-admin-back');
   if (btnBack) {

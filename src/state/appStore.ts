@@ -9,6 +9,8 @@ export type ScreenType =
   | 'event-details'
   | 'delegate-registration'
   | 'delegate-payment'
+  /** IGMCRI students: ID card, and 100 on Tier 2 rather than the full fee. */
+  | 'delegate-home'
   | 'delegate-confirm'
   | 'event-payment'
   | 'event-confirm'
@@ -37,6 +39,9 @@ export const DELEGATE_PASS_TIERS: Record<PassTier, { label: string; fee: number 
   SYNEXA: { label: 'SYNEXA', fee: 600 }
 };
 
+/** The college IGMCRI students pick, and the only one that earns the concession. */
+export const HOME_COLLEGE = 'Indira Gandhi Medical College & Research Institute (IGMCRI)';
+
 export interface DelegateFormData {
   tier: PassTier;
   fullName: string;
@@ -45,6 +50,18 @@ export interface DelegateFormData {
   college: string;
   course: string;
   yearOfStudy: string;
+  /**
+   * Picked IGMCRI from the college list.
+   *
+   * Held apart from the college text so the two can never drift, and so the
+   * server is told a plain yes or no rather than being asked to recognise a
+   * college from however it was typed. It is still only a claim — the student
+   * ID card is what an organiser actually checks.
+   */
+  homeCollege: boolean;
+  /** Student ID card, staged until the application is filed. */
+  idProofUrl: string | null;
+  idProofName: string | null;
 }
 
 export interface StagedPayment {
@@ -135,7 +152,10 @@ class AppStore {
       email: '',
       college: '',
       course: '',
-      yearOfStudy: ''
+      yearOfStudy: '',
+      homeCollege: false,
+      idProofUrl: null,
+      idProofName: null
     },
     delegatePayment: {
       orderId: '',
@@ -268,6 +288,12 @@ class AppStore {
     this.setDelegateForm({ tier });
   }
 
+  /** Stages the student ID card. Uploaded only when the application is filed. */
+  setDelegateIdProof(url: string | null, name: string | null): void {
+    this.state.delegateForm = { ...this.state.delegateForm, idProofUrl: url, idProofName: name };
+    this.notify();
+  }
+
   setDelegateScreenshot(url: string | null, name: string | null): void {
     this.state.delegatePayment.screenshotUrl = url;
     this.state.delegatePayment.screenshotName = name;
@@ -287,12 +313,29 @@ class AppStore {
    */
   async confirmDelegateRegistration(onApproved?: () => void): Promise<boolean> {
     const form = this.state.delegateForm;
+    const staged = this.state.delegatePayment;
+    const fee = registration.delegateFee(form.tier, form.homeCollege);
+    const mimeOf = (url: string) => (url.startsWith('data:image/png') ? 'image/png' : 'image/jpeg');
+
     const result = await registration.applyForDelegate({
       fullName: form.fullName.trim(),
       institution: form.college.trim(),
       email: form.email.trim(),
       yearOfStudy: form.yearOfStudy || undefined,
-      phone: form.phone.trim() || undefined
+      phone: form.phone.trim() || undefined,
+      tier: form.tier,
+      homeCollege: form.homeCollege,
+      // The card is only collected from those claiming the concession, and the
+      // screenshot only where something is actually owed. The server insists on
+      // each of them under the same conditions.
+      idProof:
+        form.homeCollege && form.idProofUrl
+          ? { dataUrl: form.idProofUrl, mimeType: mimeOf(form.idProofUrl) }
+          : undefined,
+      paymentProof:
+        fee > 0 && staged.screenshotUrl
+          ? { dataUrl: staged.screenshotUrl, mimeType: mimeOf(staged.screenshotUrl) }
+          : undefined
     });
 
     // Only report success once the server has actually accepted it. Announcing

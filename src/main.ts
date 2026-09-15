@@ -19,6 +19,7 @@ import { mountStartupLoader } from './components/StartupLoader.ts';
 
 import { appStore, AppState, ScreenType } from './state/appStore.ts';
 import { playBubbleTransition } from './components/BubbleTransition.ts';
+import { renderDelegateHomeView, attachDelegateHomeEvents } from './views/DelegateHomeCollegeView.ts';
 import { initAuth, onAuthChange } from './services/authService.ts';
 import { pathFor, routeFromPath, routeRequiresAuth, titleFor, Route } from './services/router.ts';
 import * as registrationService from './services/registrationService.ts';
@@ -73,6 +74,7 @@ const VIEWS: Record<ScreenType, { render: () => string; attach: () => void }> = 
   admin: { render: renderAdminView, attach: attachAdminEvents },
   'delegate-registration': { render: renderDelegateRegistrationView, attach: attachDelegateRegistrationEvents },
   'delegate-payment': { render: renderDelegatePaymentView, attach: attachDelegatePaymentEvents },
+  'delegate-home': { render: renderDelegateHomeView, attach: attachDelegateHomeEvents },
   'delegate-confirm': { render: renderDelegateConfirmView, attach: attachDelegateConfirmEvents },
   'event-payment': { render: renderEventPaymentView, attach: attachEventPaymentEvents },
   'event-confirm': { render: renderEventConfirmView, attach: attachEventConfirmEvents },

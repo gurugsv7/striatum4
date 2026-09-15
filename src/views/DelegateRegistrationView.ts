@@ -1,4 +1,4 @@
-import { appStore } from '../state/appStore.ts';
+import { appStore, HOME_COLLEGE } from '../state/appStore.ts';
 import { escapeHtml } from '../services/text.ts';
 
 /**
@@ -205,16 +205,43 @@ export function renderDelegateRegistrationView(): string {
                 </svg>
               </div>
               <div class="input-card-col">
-                <label class="input-card-lbl" for="delegate-college">College / Institution</label>
-                <input 
-                  type="text" 
-                  id="delegate-college" 
-                  class="input-card-core" 
-                  placeholder="Enter your college or institution" 
-                  value="${escapeHtml(form.college)}" 
+                <label class="input-card-lbl" for="delegate-college-choice">College / Institution</label>
+                <select class="input-card-select" id="delegate-college-choice">
+                  <option value="" ${!form.homeCollege && !form.college ? 'selected' : ''}>Select your college</option>
+                  <option value="home" ${form.homeCollege ? 'selected' : ''}>${escapeHtml(HOME_COLLEGE)}</option>
+                  <option value="other" ${!form.homeCollege && form.college ? 'selected' : ''}>Another college</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Only shown once "Another college" is chosen; an IGMCRI student
+                 never retypes a name the site already knows. -->
+            <div class="input-card-box" id="delegate-college-other-box" ${form.homeCollege || !form.college ? 'hidden' : ''}>
+              <div class="input-card-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <path d="M3 21h18M3 10h18M5 10v11M9 10v11M15 10v11M19 10v11M12 2 2 7h20L12 2z"/>
+                </svg>
+              </div>
+              <div class="input-card-col">
+                <label class="input-card-lbl" for="delegate-college">Which college?</label>
+                <input
+                  type="text"
+                  id="delegate-college"
+                  class="input-card-core"
+                  placeholder="Enter your college or institution"
+                  value="${escapeHtml(form.homeCollege ? '' : form.college)}"
                 />
               </div>
             </div>
+
+            ${
+              form.homeCollege
+                ? `<p class="delegate-home-hint">
+                     IGMCRI students pay ${form.tier === 'SYNEXA' ? '&#8377;100' : 'no delegate fee'}.
+                     Your student ID card is asked for on the next step.
+                   </p>`
+                : ''
+            }
 
             <!-- Split 2-col: Course & Year -->
             <div class="input-card-split-row">
@@ -310,7 +337,13 @@ export function attachDelegateRegistrationEvents(): void {
     const fullName = (document.getElementById('delegate-fullname') as HTMLInputElement)?.value ?? '';
     const phone = (document.getElementById('delegate-phone') as HTMLInputElement)?.value ?? '';
     const email = (document.getElementById('delegate-email') as HTMLInputElement)?.value ?? '';
-    const college = (document.getElementById('delegate-college') as HTMLInputElement)?.value ?? '';
+    const choice = (document.getElementById('delegate-college-choice') as HTMLSelectElement)?.value ?? '';
+    const homeCollege = choice === 'home';
+    // One field is the source of truth for the other, so a delegate can never be
+    // recorded as an IGMCRI student under somebody else's college name.
+    const college = homeCollege
+      ? HOME_COLLEGE
+      : (document.getElementById('delegate-college') as HTMLInputElement)?.value ?? '';
     const course = (document.getElementById('delegate-course') as HTMLSelectElement)?.value ?? '';
     const yearOfStudy = (document.getElementById('delegate-year') as HTMLSelectElement)?.value ?? '';
 
@@ -320,7 +353,8 @@ export function attachDelegateRegistrationEvents(): void {
       email,
       college,
       course,
-      yearOfStudy
+      yearOfStudy,
+      homeCollege
     });
   };
 
@@ -360,7 +394,17 @@ export function attachDelegateRegistrationEvents(): void {
       return;
     }
 
-    appStore.setScreen('delegate-payment');
+    // IGMCRI's own students settle up on their own screen: nothing to pay on
+    // Tier 1, 100 on Tier 2, and a student ID card either way.
+    appStore.setScreen(st.homeCollege ? 'delegate-home' : 'delegate-payment');
+  });
+
+  // Reveal the text box the moment "Another college" is chosen; waiting for the
+  // next render would leave the delegate looking at a field that had not
+  // appeared yet.
+  document.getElementById('delegate-college-choice')?.addEventListener('change', () => {
+    saveFormState();
+    appStore.refresh();
   });
 }
 

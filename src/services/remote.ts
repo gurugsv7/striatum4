@@ -27,6 +27,16 @@ export interface RemoteDelegate {
   rejectionReason?: string;
   submittedAt: number;
   reviewedAt?: number;
+  /** Pass tier, as chosen and paid for. */
+  tier?: 'AQUALUME' | 'SYNEXA';
+  /** Claims to study at IGMCRI. The ID card is what settles it. */
+  homeCollege: boolean;
+  /** What the server decided this delegate owes. */
+  feeDue?: number;
+  /** Stored student ID card, when one was required. */
+  idProofPath?: string;
+  /** Stored payment screenshot, when a fee was owed. */
+  paymentProofPath?: string;
 }
 
 export interface RemoteOrderLine {
@@ -128,6 +138,11 @@ function mapDelegate(row: any): RemoteDelegate {
     status: row.status,
     delegateId: row.delegate_id ?? undefined,
     rejectionReason: row.rejection_reason ?? undefined,
+    tier: row.tier ?? undefined,
+    homeCollege: Boolean(row.home_college),
+    feeDue: row.fee_due ?? undefined,
+    idProofPath: row.id_proof_path ?? undefined,
+    paymentProofPath: row.payment_proof_path ?? undefined,
     submittedAt: ms(row.submitted_at),
     reviewedAt: row.reviewed_at ? ms(row.reviewed_at) : undefined
   };
@@ -251,32 +266,79 @@ export interface RemoteResult<T = void> {
 }
 
 /** Files a delegate application. Approval remains manual and server-side. */
+/** Puts one image in the caller's own folder and returns its stored path. */
+async function uploadDelegateFile(
+  kind: 'id' | 'pay',
+  file: { blob: Blob; mimeType: string }
+): Promise<{ ok: true; path: string } | { ok: false; message: string }> {
+  const user = getCurrentUser();
+  if (!supabase || !user) return { ok: false, message: 'Please sign in first.' };
+
+  const extension = file.mimeType === 'image/png' ? 'png' : 'jpg';
+  // Same bucket and same per-user folder as order proofs, so the policies that
+  // already keep those private apply unchanged. upsert lets a delegate replace
+  // a bad photo without orphaning the first one.
+  const path = `${user.id}/delegate-${kind}.${extension}`;
+
+  const { error } = await supabase.storage
+    .from(PROOF_BUCKET)
+    .upload(path, file.blob, { contentType: file.mimeType, upsert: true });
+
+  if (error) return { ok: false, message: error.message };
+  return { ok: true, path };
+}
+
+/**
+ * Files the delegate application.
+ *
+ * The evidence is uploaded first and the RPC is given only the paths, which it
+ * re-checks against storage before trusting them. The fee is never sent: the
+ * server derives it from the tier and the home-college claim, so a crafted
+ * request cannot award itself the IGMCRI rate.
+ */
 export async function applyForDelegateRemote(input: {
   fullName: string;
   institution: string;
   email: string;
   yearOfStudy?: string;
   phone?: string;
+  tier: 'AQUALUME' | 'SYNEXA';
+  homeCollege: boolean;
+  idProof?: { blob: Blob; mimeType: string; size: number };
+  paymentProof?: { blob: Blob; mimeType: string; size: number };
 }): Promise<RemoteResult> {
   const user = getCurrentUser();
   if (!supabase || !user) return { ok: false, message: 'Please sign in first.' };
 
-  const { error } = await supabase.from('delegate_applications').insert({
-    user_id: user.id,
-    full_name: input.fullName,
-    institution: input.institution,
-    email: input.email,
-    year_of_study: input.yearOfStudy ?? null,
-    phone: input.phone ?? null
+  let idPath: string | null = null;
+  let payPath: string | null = null;
+
+  if (input.idProof) {
+    const uploaded = await uploadDelegateFile('id', input.idProof);
+    if (!uploaded.ok) return { ok: false, message: uploaded.message };
+    idPath = uploaded.path;
+  }
+  if (input.paymentProof) {
+    const uploaded = await uploadDelegateFile('pay', input.paymentProof);
+    if (!uploaded.ok) return { ok: false, message: uploaded.message };
+    payPath = uploaded.path;
+  }
+
+  const { error } = await supabase.rpc('apply_for_delegate', {
+    p_full_name: input.fullName,
+    p_institution: input.institution,
+    p_email: input.email,
+    p_year_of_study: input.yearOfStudy ?? null,
+    p_phone: input.phone ?? null,
+    p_tier: input.tier,
+    p_home_college: input.homeCollege,
+    p_id_proof_path: idPath,
+    p_payment_path: payPath,
+    p_payment_mime: input.paymentProof?.mimeType ?? null,
+    p_payment_size: input.paymentProof?.size ?? null
   });
 
-  if (error) {
-    // The partial unique index blocks a second live application.
-    if (error.code === '23505') {
-      return { ok: false, message: 'You already have a delegate application on file.' };
-    }
-    return { ok: false, message: error.message };
-  }
+  if (error) return { ok: false, message: error.message };
   return { ok: true, message: 'Delegate application submitted for verification' };
 }
 

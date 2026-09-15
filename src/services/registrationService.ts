@@ -12,6 +12,7 @@ import * as remote from './remote.ts';
 import { isSupabaseConfigured } from './supabaseClient.ts';
 import { getCurrentUser } from './authService.ts';
 import { isFullDayWorkshop, LunchChoice } from './workshop.ts';
+import type { PassTier } from '../state/appStore.ts';
 import {
   COMBO_OFFERS,
   COMBO_DEADLINE_DISPLAY,
@@ -141,6 +142,16 @@ export interface DelegateApplication {
   submittedAt: number;
   reviewedAt?: number;
   rejectionReason?: string;
+  /** Tier applied and paid for. */
+  tier?: PassTier;
+  /** Claimed to be an IGMCRI student; the ID card is what settles it. */
+  homeCollege?: boolean;
+  /** What the server decided was owed. */
+  feeDue?: number;
+  /** Stored student ID card, for the organiser reviewing the claim. */
+  idProofPath?: string;
+  /** Stored payment screenshot. */
+  paymentProofPath?: string;
 }
 
 interface PersistedState {
@@ -381,20 +392,62 @@ export function hasActiveDelegatePass(): boolean {
  * Files a delegate application. Approval is manual and happens server-side, so
  * no Delegate ID is issued here.
  */
+/**
+ * What a delegate owes, for display only.
+ *
+ * The server computes this again in delegate_fee() and that is the figure that
+ * counts. This exists so a screen can say what to pay before asking for it.
+ */
+export function delegateFee(tier: PassTier, homeCollege: boolean): number {
+  if (homeCollege) return tier === 'SYNEXA' ? 100 : 0;
+  return tier === 'SYNEXA' ? 600 : 500;
+}
+
 export async function applyForDelegate(input: {
   fullName: string;
   institution: string;
   email: string;
   yearOfStudy?: string;
   phone?: string;
+  tier: PassTier;
+  homeCollege: boolean;
+  /** Student ID card. Required of anyone claiming the IGMCRI rate. */
+  idProof?: { dataUrl: string; mimeType: string };
+  /** Payment screenshot. Required wherever the fee is above zero. */
+  paymentProof?: { dataUrl: string; mimeType: string };
 }): Promise<{ ok: boolean; message: string }> {
   if (isSupabaseConfigured()) {
     if (!getCurrentUser()) {
       return { ok: false, message: 'Please sign in before applying for a Delegate Pass.' };
     }
+
+    // Images travel as blobs, the same shape order proofs already use.
+    const toUpload = (proof?: { dataUrl: string; mimeType: string }) => {
+      if (!proof) return undefined;
+      const blob = dataUrlToBlob(proof.dataUrl, proof.mimeType);
+      if (!blob || blob.size <= 0 || blob.size > PROOF_MAX_BYTES) return null;
+      return { blob, mimeType: proof.mimeType, size: blob.size };
+    };
+
+    const idProof = toUpload(input.idProof);
+    const paymentProof = toUpload(input.paymentProof);
+    if (idProof === null || paymentProof === null) {
+      return { ok: false, message: 'That image could not be read. Please upload it again.' };
+    }
+
     // A failed server write is reported, never quietly downgraded to a local
     // copy an organiser would never see.
-    const result = await remote.applyForDelegateRemote(input);
+    const result = await remote.applyForDelegateRemote({
+      fullName: input.fullName,
+      institution: input.institution,
+      email: input.email,
+      yearOfStudy: input.yearOfStudy,
+      phone: input.phone,
+      tier: input.tier,
+      homeCollege: input.homeCollege,
+      idProof,
+      paymentProof
+    });
     if (result.ok) await hydrate();
     return result;
   }
@@ -1233,6 +1286,46 @@ export function readProofImage(orderId: string): string | null {
 }
 
 /**
+ * A displayable link to any stored object, by its path.
+ *
+ * Order proofs are keyed by order id because that is how they are named.
+ * Delegate evidence is not: an application carries two files, so they are
+ * reached by path instead. Same cache, same signing, same render-safe shape —
+ * returns null now and notifies listeners once the link arrives.
+ */
+export function readProofByPath(path: string | undefined): string | null {
+  if (!path || !isRemote()) return null;
+  const cached = signedProofUrls.get(path);
+  if (cached && (signedProofExpiry.get(path) ?? 0) > Date.now()) return cached;
+  void warmProofByPath(path);
+  return null;
+}
+
+const warmingPaths = new Set<string>();
+
+async function warmProofByPath(path: string): Promise<void> {
+  const fresh = signedProofUrls.has(path) && (signedProofExpiry.get(path) ?? 0) > Date.now();
+  if (fresh || warmingPaths.has(path)) return;
+  warmingPaths.add(path);
+  const url = await remote.getProofUrl(path);
+  warmingPaths.delete(path);
+  if (url) {
+    signedProofUrls.set(path, url);
+    signedProofExpiry.set(path, Date.now() + PROOF_URL_CACHE_MS);
+    listeners.forEach(fn => fn());
+  }
+}
+
+/** Warms every delegate proof the console is about to render. */
+export async function warmDelegateProofs(): Promise<void> {
+  if (!isRemote()) return;
+  const paths = remoteDelegates
+    .flatMap(d => [d.idProofPath, d.paymentProofPath])
+    .filter((p): p is string => Boolean(p));
+  await Promise.all(paths.map(warmProofByPath));
+}
+
+/**
  * Preloads signed payment-proof URLs for a verification console. Keeping this
  * explicit prevents the first admin render from settling on a false
  * "missing" state while the private Storage URL is being negotiated.
@@ -1467,7 +1560,12 @@ export function listDelegateApplications(): DelegateApplication[] {
       delegateId: d.delegateId,
       submittedAt: d.submittedAt,
       reviewedAt: d.reviewedAt,
-      rejectionReason: d.rejectionReason
+      rejectionReason: d.rejectionReason,
+      tier: d.tier,
+      homeCollege: d.homeCollege,
+      feeDue: d.feeDue,
+      idProofPath: d.idProofPath,
+      paymentProofPath: d.paymentProofPath
     }));
   }
   return state.delegate ? [{ ...state.delegate }] : [];
