@@ -59,6 +59,14 @@ export interface DelegateFormData {
    * ID card is what an organiser actually checks.
    */
   homeCollege: boolean;
+  /**
+   * Which option the college picker is on.
+   *
+   * Kept explicitly rather than inferred from the other fields. Working it out
+   * from "is a college typed yet" meant that choosing "Another college" hid the
+   * very box you had to type into, so the choice could never be completed.
+   */
+  collegeChoice: '' | 'home' | 'other';
   /** Student ID card, staged until the application is filed. */
   idProofUrl: string | null;
   idProofName: string | null;
@@ -154,6 +162,7 @@ class AppStore {
       course: '',
       yearOfStudy: '',
       homeCollege: false,
+      collegeChoice: '',
       idProofUrl: null,
       idProofName: null
     },

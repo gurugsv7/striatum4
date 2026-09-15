@@ -207,16 +207,16 @@ export function renderDelegateRegistrationView(): string {
               <div class="input-card-col">
                 <label class="input-card-lbl" for="delegate-college-choice">College / Institution</label>
                 <select class="input-card-select" id="delegate-college-choice">
-                  <option value="" ${!form.homeCollege && !form.college ? 'selected' : ''}>Select your college</option>
-                  <option value="home" ${form.homeCollege ? 'selected' : ''}>${escapeHtml(HOME_COLLEGE)}</option>
-                  <option value="other" ${!form.homeCollege && form.college ? 'selected' : ''}>Another college</option>
+                  <option value="" ${form.collegeChoice === '' ? 'selected' : ''}>Select your college</option>
+                  <option value="home" ${form.collegeChoice === 'home' ? 'selected' : ''}>${escapeHtml(HOME_COLLEGE)}</option>
+                  <option value="other" ${form.collegeChoice === 'other' ? 'selected' : ''}>Another college</option>
                 </select>
               </div>
             </div>
 
             <!-- Only shown once "Another college" is chosen; an IGMCRI student
                  never retypes a name the site already knows. -->
-            <div class="input-card-box" id="delegate-college-other-box" ${form.homeCollege || !form.college ? 'hidden' : ''}>
+            <div class="input-card-box" id="delegate-college-other-box" ${form.collegeChoice === 'other' ? '' : 'hidden'}>
               <div class="input-card-icon">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                   <path d="M3 21h18M3 10h18M5 10v11M9 10v11M15 10v11M19 10v11M12 2 2 7h20L12 2z"/>
@@ -337,7 +337,8 @@ export function attachDelegateRegistrationEvents(): void {
     const fullName = (document.getElementById('delegate-fullname') as HTMLInputElement)?.value ?? '';
     const phone = (document.getElementById('delegate-phone') as HTMLInputElement)?.value ?? '';
     const email = (document.getElementById('delegate-email') as HTMLInputElement)?.value ?? '';
-    const choice = (document.getElementById('delegate-college-choice') as HTMLSelectElement)?.value ?? '';
+    const choice = ((document.getElementById('delegate-college-choice') as HTMLSelectElement)?.value ??
+      '') as '' | 'home' | 'other';
     const homeCollege = choice === 'home';
     // One field is the source of truth for the other, so a delegate can never be
     // recorded as an IGMCRI student under somebody else's college name.
@@ -354,7 +355,8 @@ export function attachDelegateRegistrationEvents(): void {
       college,
       course,
       yearOfStudy,
-      homeCollege
+      homeCollege,
+      collegeChoice: choice
     });
   };
 
