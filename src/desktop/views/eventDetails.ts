@@ -203,6 +203,19 @@ function renderParticipationChoice(event: SymposiumEvent): string {
     </div>`;
 }
 
+/** See the mobile view: an abstract-first event does take entries, by email. */
+function noRegistrationNote(event: SymposiumEvent): string {
+  const abstractFirst = Boolean(event.abstractDeadline || event.submissionDeadline);
+  if (!abstractFirst) {
+    return event.name + ' is an open conclave activity — no delegate registration is taken through this app.';
+  }
+  const where = event.submissionEmail ? ' Send it to ' + event.submissionEmail + '.' : '';
+  return (
+    'Entries for ' + event.name + ' start with an abstract, not a payment.' + where +
+    ' The fee is payable only once your abstract is selected, and the organisers will tell you how.'
+  );
+}
+
 function renderConsole(event: SymposiumEvent): string {
   const price = resolvePrice(event, participationFor(event));
   const capacity = registration.getCapacity(event.id);
@@ -233,9 +246,7 @@ function renderConsole(event: SymposiumEvent): string {
       <div class="d-console-card d-hud">
         ${
           cta === 'not_registerable'
-            ? `<p class="d-lede" style="color: var(--text-silver);">
-                 ${event.name} is an open conclave activity &mdash; no delegate registration is taken through this app.
-               </p>`
+            ? `<p class="d-lede" style="color: var(--text-silver);">${noRegistrationNote(event)}</p>`
             : `
         <div class="d-price-row">
           <div class="d-price-main">

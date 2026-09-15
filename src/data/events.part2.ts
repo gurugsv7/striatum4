@@ -28,7 +28,7 @@ export const EVENTS_PART_2: SymposiumEvent[] = [
     format: 'Symposium',
     participation: 'team',
     teamSize: { min: 2, max: 6 },
-    pricing: { team: 400, unit: 'per_team' },
+    pricing: { team: 400, unit: 'per_team', note: 'Payable only after the abstract is selected. Submission is free.' },
     delegatePassRequirement: 'unspecified',
     eligibility: [
       'MBBS students',
@@ -102,8 +102,10 @@ export const EVENTS_PART_2: SymposiumEvent[] = [
         ]
       }
     ],
-    status: 'open',
-    registerable: true,
+    // Abstract first: submissions come by email, and only a selected entry
+    // pays. Nothing is registered or charged through the site.
+    status: 'not_registerable',
+    registerable: false,
     keywords: ['symposium', 'presentation']
   },
 
@@ -120,7 +122,7 @@ export const EVENTS_PART_2: SymposiumEvent[] = [
     format: 'Case Presentation',
     participation: 'either',
     teamSize: { min: 1, max: 2 },
-    pricing: { flat: 400, note: 'Payable by those selected for oral presentation. Abstract submission is free.' },
+    pricing: { flat: 400, note: 'Payable only after selection for oral presentation, by a solo presenter or a team alike. Abstract submission is free.' },
     delegatePassRequirement: 'not_required_for_submission',
     rules: [
       'Only one delegate from a team presents.',
@@ -198,8 +200,10 @@ export const EVENTS_PART_2: SymposiumEvent[] = [
         ]
       }
     ],
-    status: 'open',
-    registerable: true,
+    // Abstract first: submissions come by email, and only a selected entry
+    // pays. Nothing is registered or charged through the site.
+    status: 'not_registerable',
+    registerable: false,
     keywords: ['case presentation', 'case', 'clinical']
   },
 
@@ -474,8 +478,10 @@ export const EVENTS_PART_2: SymposiumEvent[] = [
         ]
       }
     ],
-    status: 'open',
-    registerable: true,
+    // Abstract first: submissions come by email, and only a selected entry
+    // pays. Nothing is registered or charged through the site.
+    status: 'not_registerable',
+    registerable: false,
     keywords: ['ideathon', 'innovation', 'startup', 'device', 'ai', 'digital health']
   },
 

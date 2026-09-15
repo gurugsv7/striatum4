@@ -253,6 +253,30 @@ function renderParticipationChoice(event: SymposiumEvent): string {
   `;
 }
 
+/**
+ * What to say when an event takes no registration here.
+ *
+ * Two different reasons look the same to the CTA. BIOVERSE is simply open to
+ * walk in. The abstract-first events — the symposium, the case presentation,
+ * the ideathon — do take entries, by email, and only a selected entry pays;
+ * telling those delegates "no registration is taken" would read as "nothing to
+ * do". An abstract deadline is what separates the two.
+ */
+function noRegistrationNote(event: SymposiumEvent): string {
+  const abstractFirst = Boolean(event.abstractDeadline || event.submissionDeadline);
+  if (!abstractFirst) {
+    return event.name + ' is an open conclave activity — no delegate registration is taken through this app.';
+  }
+  const where = event.submissionEmail
+    ? ' Send it to ' + event.submissionEmail + '.'
+    : '';
+  return (
+    'Entries for ' + event.name + ' start with an abstract, not a payment.' +
+    where +
+    ' The fee is payable only once your abstract is selected, and the organisers will tell you how.'
+  );
+}
+
 function renderPrimaryAction(event: SymposiumEvent): string {
   const cta = registration.getCtaState(event.id);
   const label = registration.CTA_LABELS[cta];
@@ -265,9 +289,7 @@ function renderPrimaryAction(event: SymposiumEvent): string {
   if (cta === 'not_registerable') {
     return `
       <div class="details-action-block">
-        <div class="non-registerable-note">
-          ${event.name} is an open conclave activity — no delegate registration is taken through this app.
-        </div>
+        <div class="non-registerable-note">${noRegistrationNote(event)}</div>
       </div>
     `;
   }
