@@ -405,6 +405,7 @@ export const EVENTS_PART_2: SymposiumEvent[] = [
       'Judges\' decision is final.'
     ],
     abstractDeadline: '3 October 2026',
+    submissionEmail: 'striatum04@gmail.com',
     submissionInstructions: [
       'Submit as PDF with: Title of the Innovation; Background/Problem Statement; Statement of Innovation; Description of the Innovation; Methodology/Approach; Expected Outcomes/Impact; Feasibility & Scalability; Keywords (3 to 5).',
       'Also include: participant name, teammate names, college name, college registration number, year of study, course.'
@@ -412,7 +413,7 @@ export const EVENTS_PART_2: SymposiumEvent[] = [
     prizes: { totalValue: 10000, notes: 'Top 3 ideas receive prizes and certificates. Participation certificates are provided to all presenters.' },
     coordinators: [{ name: 'Esha', phone: '9789821884' }, { name: 'Yuvashri', phone: '6381811767' }],
     needsConfirmation: [
-      'Brochure still contains placeholder fields: "Submit your ideas to EMAIL", "Payment Link" and "QR Code for registration". The submission email is intentionally omitted from published content pending organiser confirmation.'
+      'Brochure still contains placeholder fields for "Payment Link" and "QR Code for registration". Neither is published: the fee is collected only after an abstract is selected, and the organisers arrange that directly.'
     ],
     sections: [
       {
@@ -447,6 +448,7 @@ export const EVENTS_PART_2: SymposiumEvent[] = [
       {
         title: 'SUBMISSION',
         items: [
+          'Email: striatum04@gmail.com',
           'Abstract deadline: 3 October 2026',
           'Registration fee ₹500 per team is payable only after abstract selection; initial submission is free.'
         ]
