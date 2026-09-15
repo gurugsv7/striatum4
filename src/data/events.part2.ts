@@ -847,10 +847,8 @@ export const EVENTS_PART_2: SymposiumEvent[] = [
     format: 'Mystery Room',
     participation: 'team',
     teamSize: { min: 3, max: 3 },
-    // No entry fee. A Tier 2 (SYNEXA) Delegate Pass is the only requirement,
-    // which is what the event's own information panel has always said.
-    pricing: { flat: 0, unit: 'per_team' },
-    delegatePassRequirement: 'required',
+    pricing: { team: 200, unit: 'per_team' },
+    delegatePassRequirement: 'not_required',
     rules: [
       'Mobile phones and electronic devices prohibited.',
       'External assistance prohibited.',
@@ -878,10 +876,9 @@ export const EVENTS_PART_2: SymposiumEvent[] = [
       {
         title: 'IMPORTANT INFORMATION',
         facts: [
-          { label: 'Registration fee', value: 'None' },
+          { label: 'Registration fee', value: '₹200 per team' },
           { label: 'Team size', value: '3' },
-          { label: 'Registration tier', value: 'Tier 2 (SYNEXA) required' },
-          { label: 'Delegate Pass', value: 'Required' }
+          { label: 'Delegate Pass', value: 'Not required' }
         ]
       }
     ],
@@ -904,7 +901,9 @@ export const EVENTS_PART_2: SymposiumEvent[] = [
     format: 'Treasure Hunt',
     participation: 'team',
     teamSize: { min: 3, max: 3 },
-    pricing: { team: 200, unit: 'per_team' },
+    // No entry fee. A Tier 2 (SYNEXA) Delegate Pass is the only requirement,
+    // which is what the brochure line in the description has always said.
+    pricing: { flat: 0, unit: 'per_team' },
     delegatePassRequirement: 'required',
     rules: [
       'Teams must follow instructions to proceed to each next clue.',
@@ -936,10 +935,11 @@ export const EVENTS_PART_2: SymposiumEvent[] = [
       {
         title: 'IMPORTANT INFORMATION',
         facts: [
-          { label: 'Registration fee', value: '₹200 per team' },
+          { label: 'Registration fee', value: 'None' },
           { label: 'Team size', value: '3' },
           { label: 'Prize pool', value: '₹2,000' },
-          { label: 'Delegate Pass', value: 'Not required' }
+          { label: 'Registration tier', value: 'Tier 2 (SYNEXA) required' },
+          { label: 'Delegate Pass', value: 'Required' }
         ]
       }
     ],
