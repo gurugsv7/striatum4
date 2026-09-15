@@ -857,9 +857,11 @@ export const EVENTS_PART_1: SymposiumEvent[] = [
     isoDate: '2026-10-18',
     // Reporting time only; round timings and venue are unpublished.
     reportingTime: '8:00 AM',
-    participation: 'team',
+    participation: 'either',
     teamSize: { min: 1, max: 3 },
-    pricing: { entry: 700, spot: 850, unit: 'per_team' },
+    // Spot prices are not modelled: the engine carries either phase fees or
+    // per-person/per-team fees, not both. They are published as facts below.
+    pricing: { individual: 400, team: 700 },
     delegatePassRequirement: 'not_required',
     eligibility: [
       'Open to students from second year through CRRI.',
@@ -919,8 +921,8 @@ export const EVENTS_PART_1: SymposiumEvent[] = [
           { label: 'Date', value: '18 October 2026' },
           { label: 'Reporting time', value: '8:00 AM' },
           { label: 'Team size', value: 'Exactly 3 members' },
-          { label: 'Entry fee', value: '₹700 per team' },
-          { label: 'Spot registration fee', value: '₹850 per team' },
+          { label: 'Entry fee', value: 'Individual ₹400 / Team ₹700' },
+          { label: 'Spot registration fee', value: 'Individual ₹450 / Team ₹850' },
           { label: 'Prize pool', value: '₹40,000' },
           { label: 'Delegate Pass', value: 'Not required for quizzes' }
         ]

@@ -165,7 +165,11 @@ export function comboEvents(combo: ComboOffer): ComboEventView[] {
   return combo.eventIds.map(id => {
     const event = EVENTS.find(candidate => candidate.id === id);
     if (!event) return { id, name: id, code: id, price: null };
-    const price = resolvePrice(event, event.participation === 'team' ? 'team' : 'individual');
+    // A combo buys team entries, so anything that has teams is priced as a
+    // team. AQUAQUEST is why this matters: it accepts a lone entrant at 400,
+    // and pricing the bundle off that would have shown a "normal" total below
+    // the combo total, i.e. a negative saving.
+    const price = resolvePrice(event, event.participation === 'individual' ? 'individual' : 'team');
     return {
       id,
       name: event.name,

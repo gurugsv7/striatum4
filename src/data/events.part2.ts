@@ -120,7 +120,7 @@ export const EVENTS_PART_2: SymposiumEvent[] = [
     format: 'Case Presentation',
     participation: 'either',
     teamSize: { min: 1, max: 2 },
-    pricing: { individual: 300, team: 400 },
+    pricing: { flat: 400, note: 'Payable by those selected for oral presentation. Abstract submission is free.' },
     delegatePassRequirement: 'not_required_for_submission',
     rules: [
       'Only one delegate from a team presents.',
@@ -189,7 +189,7 @@ export const EVENTS_PART_2: SymposiumEvent[] = [
       {
         title: 'IMPORTANT INFORMATION',
         facts: [
-          { label: 'Registration fee', value: 'Individual ₹300 / Team of 2 ₹400' },
+          { label: 'Registration fee', value: '₹400, payable once selected for oral presentation' },
           { label: 'Team size', value: '1–2' },
           { label: 'Prize pool', value: '₹10,000 (₹5,000 per domain)' },
           { label: 'Abstract deadline', value: '3 October 2026' },

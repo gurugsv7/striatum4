@@ -611,6 +611,24 @@ export function rosterFor(orderId: string, eventId: string): RosterEntryPerson[]
  * first, validated, and the resulting intent travels with the item. The old
  * "add the id, ask questions later" path is gone.
  */
+/**
+ * Individual or team, decided by the roster rather than by a default.
+ *
+ * Mirrors what create_order does server-side, so the cart shows the fee that
+ * will actually be charged. AQUAQUEST is the case that needs it: one person
+ * pays 400 and a team pays 700, and defaultParticipation() would have said
+ * "team" for both because the event is a team event that happens to accept a
+ * lone entrant.
+ */
+function participationFromRoster(
+  intent: EventRegistrationIntent,
+  event: SymposiumEvent
+): Participation {
+  if (event.participation === 'individual') return 'individual';
+  const largest = intent.teams.reduce((most, team) => Math.max(most, team.participants.length), 0);
+  return largest > 1 ? 'team' : 'individual';
+}
+
 export function addRegistration(
   intent: EventRegistrationIntent,
   participation?: Participation
@@ -623,7 +641,7 @@ export function addRegistration(
     return { ok: false, message: validation.issues[0]?.message ?? 'This registration is incomplete.' };
   }
 
-  return addToCart(intent.eventId, participation, intent.lunchChoice, {
+  return addToCart(intent.eventId, participation ?? participationFromRoster(intent, event), intent.lunchChoice, {
     quantity: intent.teams.length,
     intent
   });
@@ -703,9 +721,11 @@ export function replaceRegistration(intent: EventRegistrationIntent): CartMutati
     return { ok: false, message: validation.issues[0]?.message ?? 'This registration is incomplete.' };
   }
 
+  const event = getEvent(intent.eventId);
   item.intent = intent;
   item.lunchChoice = intent.lunchChoice;
   item.quantity = intent.teams.length > 1 ? intent.teams.length : undefined;
+  if (event) item.participation = participationFromRoster(intent, event);
   save();
   return { ok: true, message: 'Registration updated' };
 }
