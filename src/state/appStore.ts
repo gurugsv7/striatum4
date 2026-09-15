@@ -285,7 +285,7 @@ class AppStore {
    * the verification console. The pass is NOT active at this point — an
    * organiser still has to approve it, and only then is a Delegate ID issued.
    */
-  async confirmDelegateRegistration(): Promise<boolean> {
+  async confirmDelegateRegistration(onApproved?: () => void): Promise<boolean> {
     const form = this.state.delegateForm;
     const result = await registration.applyForDelegate({
       fullName: form.fullName.trim(),
@@ -298,7 +298,12 @@ class AppStore {
     // Only report success once the server has actually accepted it. Announcing
     // it first would repeat the fake-receipt mistake in a different place.
     this.showToast(result.message);
-    if (result.ok) this.setScreen('delegate-confirm');
+    // The caller may want to choreograph the move; falling back to going
+    // straight there keeps every other call site unchanged.
+    if (result.ok) {
+      if (onApproved) onApproved();
+      else this.setScreen('delegate-confirm');
+    }
     return result.ok;
   }
 

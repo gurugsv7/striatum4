@@ -1,4 +1,5 @@
 import { appStore } from '../state/appStore.ts';
+import { playBubbleTransition } from '../components/BubbleTransition.ts';
 import * as registration from '../services/registrationService.ts';
 import { escapeHtml } from '../services/text.ts';
 
@@ -274,7 +275,16 @@ export function attachDelegatePaymentEvents(): void {
       return;
     }
     if (btnSubmit) btnSubmit.disabled = true;
-    appStore.confirmDelegateRegistration();
+    void appStore
+      .confirmDelegateRegistration(() =>
+        // Bubbles over the payment screen; the pass fades up behind them.
+        playBubbleTransition(() => appStore.setScreen('delegate-confirm'))
+      )
+      .then(ok => {
+        // A refused application left the button dead, so there was no way to
+        // try again without reloading. On success the screen has moved on.
+        if (!ok && btnSubmit) btnSubmit.disabled = false;
+      });
   });
 }
 
