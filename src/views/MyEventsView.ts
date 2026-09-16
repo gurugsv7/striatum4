@@ -131,6 +131,16 @@ function isUnpaid(entry: MyEventEntry): boolean {
   return registration.canEditOrder(entry.order);
 }
 
+/**
+ * An entry that owes an abstract rather than money.
+ *
+ * "Not paid yet" is the wrong thing to tell someone whose entry costs nothing;
+ * what is actually outstanding is the file.
+ */
+function isUnsubmittedFree(entry: MyEventEntry): boolean {
+  return isUnpaid(entry) && entry.order.total === 0;
+}
+
 function removeControl(entry: MyEventEntry): string {
   if (!isUnpaid(entry) || !entry.line.id) return '';
   const armed = confirmingLineId === entry.line.id;
@@ -171,13 +181,17 @@ function pendingGroup(entries: MyEventEntry[]): string {
             <div class="myevents-row-body">
               <h3 class="myevents-row-title myevents-row-title--headline">${entry.event.name}</h3>
               <p class="myevents-row-sub">${
-                isUnpaid(entry)
+                isUnsubmittedFree(entry)
+                  ? 'Not submitted yet — attach your abstract to complete this entry.'
+                  : isUnpaid(entry)
                   ? 'Not paid yet — your place is held until you do.'
                   : 'Payment verification pending'
               }</p>
               <div class="myevents-row-context">ORDER ${entry.order.reference}${teamCount(entry.line)}</div>
               <button class="action-link-cyan myevents-inline-action" data-view-order-id="${entry.order.id}">
-                <span>${isUnpaid(entry) ? 'PAY NOW' : 'VIEW ORDER'}</span>
+                <span>${
+                  isUnsubmittedFree(entry) ? 'FINISH SUBMITTING' : isUnpaid(entry) ? 'PAY NOW' : 'VIEW ORDER'
+                }</span>
                 <span>→</span>
               </button>
               ${removeControl(entry)}

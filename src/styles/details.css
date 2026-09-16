@@ -557,3 +557,19 @@
   padding-top: 14px;
   border-top: 1px solid rgba(42, 241, 250, 0.1);
 }
+
+/* This one states a fee, so it reads as information rather than fine print. */
+.delegate-required-notice.is-abstract-first {
+  color: var(--text-muted);
+  line-height: 1.5;
+  align-items: flex-start;
+}
+
+.delegate-required-notice.is-abstract-first b {
+  color: var(--cyan-glow);
+  font-weight: 600;
+}
+
+.delegate-required-notice.is-abstract-first .info-icon {
+  margin-top: 2px;
+}

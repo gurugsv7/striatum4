@@ -100,7 +100,14 @@ function renderDeadlines(event: SymposiumEvent): string {
   const rows: { label: string; value: string }[] = [];
   if (event.abstractDeadline) rows.push({ label: 'ABSTRACT DEADLINE', value: event.abstractDeadline });
   if (event.submissionDeadline) rows.push({ label: 'SUBMISSION DEADLINE', value: event.submissionDeadline });
-  if (event.submissionEmail) rows.push({ label: 'SUBMIT TO', value: event.submissionEmail });
+  // Where the abstract is uploaded here, the published address would send a
+  // delegate to do the one thing this screen has just taken over. The address
+  // is still in the brochure's own submission instructions below.
+  if (event.requiresAbstract) {
+    rows.push({ label: 'SUBMIT', value: 'Upload it here, with your entry' });
+  } else if (event.submissionEmail) {
+    rows.push({ label: 'SUBMIT TO', value: event.submissionEmail });
+  }
   if (!rows.length) return '';
 
   return `

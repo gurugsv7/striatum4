@@ -70,6 +70,9 @@ export function renderEventConfirmView(): string {
   const orderDisplayCode = `ORDER <span class="cyan-accent">S4</span> / ${escapeHtml(orderRefNum)}`;
   const orderRefNo = order ? `S4P${orderRefNum}1276` : 'S4P00381276';
   const totalPaid = order ? formatINR(order.total) : '₹1,800';
+  // A free entry was submitted, not paid for, and was confirmed on the spot
+  // rather than queued behind a screenshot somebody has to look at.
+  const isFree = Boolean(order) && order!.total === 0;
 
   // Build items list
   let items: ManifestItem[] = [];
@@ -252,7 +255,7 @@ export function renderEventConfirmView(): string {
             </div>
             <div class="manifest-metric-content">
               <span class="manifest-metric-val">${totalPaid}</span>
-              <span class="manifest-metric-lbl">PAID</span>
+              <span class="manifest-metric-lbl">${isFree ? 'SUBMITTED' : 'PAID'}</span>
             </div>
           </div>
 
@@ -355,8 +358,14 @@ export function renderEventConfirmView(): string {
             <div class="confirm-notice-pipe"></div>
 
             <div class="confirm-notice-text-col">
-              <span class="confirm-notice-title">Registrations received</span>
-              <span class="confirm-notice-sub">Payment verification pending.</span>
+              <span class="confirm-notice-title">${
+                isFree ? 'Abstract received' : 'Registrations received'
+              }</span>
+              <span class="confirm-notice-sub">${
+                isFree
+                  ? 'Nothing to pay.'
+                  : 'Payment verification pending.'
+              }</span>
             </div>
           </div>
 
@@ -403,7 +412,7 @@ export function renderEventConfirmView(): string {
                 <line x1="16" x2="8" y1="17" y2="17"/>
                 <line x1="10" x2="8" y1="9" y2="9"/>
               </svg>
-              <span>View payment details</span>
+              <span>View ${isFree ? 'submission' : 'payment'} details</span>
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M5 12h14m-7-7 7 7-7 7"/>
               </svg>

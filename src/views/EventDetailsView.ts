@@ -110,7 +110,14 @@ function renderDeadlineRail(event: SymposiumEvent): string {
   const rows: { label: string; value: string }[] = [];
   if (event.abstractDeadline) rows.push({ label: 'ABSTRACT DEADLINE', value: event.abstractDeadline });
   if (event.submissionDeadline) rows.push({ label: 'SUBMISSION DEADLINE', value: event.submissionDeadline });
-  if (event.submissionEmail) rows.push({ label: 'SUBMIT TO', value: event.submissionEmail });
+  // Where the abstract is uploaded here, the published address would send a
+  // delegate to do the one thing this screen has just taken over. The address
+  // is still in the brochure's own submission instructions below.
+  if (event.requiresAbstract) {
+    rows.push({ label: 'SUBMIT', value: 'Upload it here, with your entry' });
+  } else if (event.submissionEmail) {
+    rows.push({ label: 'SUBMIT TO', value: event.submissionEmail });
+  }
   if (!rows.length) return '';
 
   return `
@@ -296,13 +303,13 @@ function renderAbstractFirstNote(event: SymposiumEvent): string {
     ? '&#8377;' + fee.toLocaleString('en-IN') + ' is payable only if your entry is selected.'
     : 'The fee is payable only if your entry is selected.';
   return `
-    <div class="delegate-required-notice">
+    <div class="delegate-required-notice is-abstract-first">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="info-icon">
         <circle cx="12" cy="12" r="10"/>
         <line x1="12" y1="16" x2="12" y2="12"/>
         <line x1="12" y1="8" x2="12.01" y2="8"/>
       </svg>
-      <span>Submitting is free. ${tail}</span>
+      <span><b>Submitting is free.</b> ${tail}</span>
     </div>`;
 }
 

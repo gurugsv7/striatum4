@@ -76,16 +76,24 @@ function pendingRow(entry: MyEventEntry): string {
   // Same rule as the phone: unpaid is the delegate's to change, submitted is
   // not. Both surfaces read canEditOrder so neither can drift from the server.
   const unpaid = registration.canEditOrder(entry.order);
+  // What is outstanding on a free entry is the abstract, not the money.
+  const unsubmitted = unpaid && entry.order.total === 0;
   const armed = removeArmedFor(entry.line.id);
   return `
     <div class="d-row">
       <h3 class="d-row-title">${entry.event.name}</h3>
       <p class="d-row-meta">${
-        unpaid ? 'Not paid yet &mdash; your place is held until you do.' : 'Payment verification pending'
+        unsubmitted
+          ? 'Not submitted yet &mdash; attach your abstract to complete this entry.'
+          : unpaid
+          ? 'Not paid yet &mdash; your place is held until you do.'
+          : 'Payment verification pending'
       }</p>
       <span class="d-row-meta">ORDER ${entry.order.reference}${teamCount(entry.line)}</span>
       <div class="d-row-foot">
-        <span class="d-state is-muted">${unpaid ? 'AWAITING PAYMENT' : 'AWAITING VERIFICATION'}</span>
+        <span class="d-state is-muted">${
+          unsubmitted ? 'AWAITING ABSTRACT' : unpaid ? 'AWAITING PAYMENT' : 'AWAITING VERIFICATION'
+        }</span>
         <div class="d-row-actions">
           ${
             unpaid && entry.line.id
@@ -97,7 +105,7 @@ function pendingRow(entry: MyEventEntry): string {
               : ''
           }
           <button class="d-row-action" data-view-order-id="${entry.order.id}">${
-            unpaid ? 'PAY NOW' : 'VIEW ORDER'
+            unsubmitted ? 'FINISH SUBMITTING' : unpaid ? 'PAY NOW' : 'VIEW ORDER'
           } &rarr;</button>
         </div>
       </div>

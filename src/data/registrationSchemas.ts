@@ -227,12 +227,17 @@ export function schemaFor(eventId: string): EventRegistrationSchema | null {
     ? { ...base, ...explicit, eventId, foodPreference: base.foodPreference }
     : base;
 
-  // Submission deadlines are shown, never collected. The brochure sends those
-  // to the organisers' inbox, and this app does not change that workflow.
+  // Deadlines are shown, never collected. Where the abstract is uploaded with
+  // the registration, saying "not through this site" would send a delegate
+  // away from the step that is about to ask them for it.
   const deadlineNotes: string[] = [];
   if (event.abstractDeadline) deadlineNotes.push('Abstract deadline: ' + event.abstractDeadline);
   if (event.submissionDeadline) deadlineNotes.push('Submission deadline: ' + event.submissionDeadline);
-  if (event.submissionEmail) deadlineNotes.push('Submit to ' + event.submissionEmail + ' — not through this site.');
+  if (event.requiresAbstract) {
+    deadlineNotes.push('Upload your abstract on the next step, with this entry.');
+  } else if (event.submissionEmail) {
+    deadlineNotes.push('Submit to ' + event.submissionEmail + ' — not through this site.');
+  }
 
   const withNotes: EventRegistrationSchema = {
     ...merged,

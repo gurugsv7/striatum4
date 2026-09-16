@@ -144,7 +144,13 @@ export function renderCartView(): string {
         </h1>
 
         <p class="explore-subtitle">
-          ${count === 0 ? 'No events selected yet.' : `${count} event${count > 1 ? 's' : ''} awaiting payment.`}
+          ${
+            count === 0
+              ? 'No events selected yet.'
+              : `${count} event${count > 1 ? 's' : ''} awaiting ${
+                  pricing.total === 0 ? 'submission' : 'payment'
+                }.`
+          }
         </p>
       </section>
 
@@ -212,7 +218,7 @@ export function renderCartView(): string {
           id="btn-proceed-to-payment"
           ${isBlocked ? 'disabled' : ''}
         >
-          <span>PROCEED TO PAYMENT</span>
+          <span>${pricing.total === 0 ? 'PROCEED TO SUBMIT' : 'PROCEED TO PAYMENT'}</span>
         </button>
       `
       }

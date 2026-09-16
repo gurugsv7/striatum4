@@ -117,7 +117,9 @@ export function renderDesktopCart(): string {
           <div style="display: flex; flex-direction: column; gap: 13px;">
             ${eyebrow('02', 'CART')}
             <h1 class="d-display">Your selected events<span class="d-dot">.</span></h1>
-            <p class="d-lede">${count} event${count > 1 ? 's' : ''} awaiting payment.</p>
+            <p class="d-lede">${count} event${count > 1 ? 's' : ''} awaiting ${
+        pricing.total === 0 ? 'submission' : 'payment'
+      }.</p>
           </div>
 
           <div class="d-cart-lines">
@@ -162,7 +164,7 @@ export function renderDesktopCart(): string {
             }
 
             <button class="d-btn" id="btn-proceed-to-payment" ${blocked ? 'disabled' : ''}>
-              <span>PROCEED TO PAYMENT</span>
+              <span>${pricing.total === 0 ? 'PROCEED TO SUBMIT' : 'PROCEED TO PAYMENT'}</span>
               ${icon('arrow', 18, 2)}
             </button>
 
