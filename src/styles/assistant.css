@@ -27,3 +27,61 @@
 body.s4-guide-hidden #s4-assistant {
   display: none;
 }
+
+/* ---------------------------------------------------------------------------
+   Answer furniture: lists, a quieter aside, and follow-up chips the guide
+   offers inside a reply so there is always a next thing to press.
+   --------------------------------------------------------------------------- */
+.s4-assistant-list {
+  margin: 7px 0 0;
+  padding-left: 16px;
+  list-style: disc;
+}
+
+.s4-assistant-list.is-ordered {
+  list-style: decimal;
+}
+
+.s4-assistant-list li {
+  margin-top: 4px;
+  line-height: 1.45;
+}
+
+.s4-assistant-note {
+  margin-top: 8px;
+  color: var(--text-muted);
+  font-size: 10.5px;
+  line-height: 1.45;
+}
+
+.s4-assistant-inline {
+  color: var(--cyan-glow);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(42, 241, 250, 0.35);
+}
+
+.s4-assistant-followups {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.s4-assistant-followups button {
+  border: 1px solid rgba(42, 241, 250, 0.22);
+  background: rgba(1, 12, 22, 0.55);
+  color: var(--cyan-200);
+  padding: 6px 9px;
+  border-radius: 999px;
+  font-family: var(--font-sans-ui);
+  font-size: 10.5px;
+  line-height: 1.2;
+  cursor: pointer;
+  text-align: left;
+}
+
+.s4-assistant-followups button:hover,
+.s4-assistant-followups button:focus-visible {
+  border-color: var(--cyan-glow);
+  color: var(--cyan-100);
+}

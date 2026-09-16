@@ -365,6 +365,16 @@
 .key-facts-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
 .key-facts-grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
 
+/*
+ * On a phone, four equal columns leave about 66px for the value -- narrower
+ * than a single word like "Symposium" (69px) or "Presentation" (92px), so they
+ * were breaking mid-word. Two rows of two gives each value room to sit on one
+ * line. Above this width four columns fit, so they stay.
+ */
+@media (max-width: 560px) {
+  .key-facts-grid.cols-4 { grid-template-columns: repeat(2, 1fr); }
+}
+
 .key-fact-cell {
   display: flex;
   flex-direction: column;
