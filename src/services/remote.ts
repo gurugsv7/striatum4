@@ -479,6 +479,22 @@ export async function submitPaymentProofRemote(
 }
 
 /**
+ * Finishes an order with nothing to pay.
+ *
+ * There is no screenshot to send, so this is the delegate saying the entry is
+ * complete. The server still checks that every abstract the order owes has
+ * actually been attached.
+ */
+export async function submitFreeOrderRemote(orderId: string): Promise<RemoteResult> {
+  const user = getCurrentUser();
+  if (!supabase || !user) return { ok: false, message: 'Please sign in first.' };
+
+  const { error } = await supabase.rpc('submit_free_order', { p_order_id: orderId });
+  if (error) return { ok: false, message: error.message };
+  return { ok: true, message: 'Abstract submitted' };
+}
+
+/**
  * Short-lived signed link for a stored proof. There is no public URL — this is
  * the only way an image comes back, and it expires.
  */

@@ -40,6 +40,8 @@ export const EVENTS_PART_2: SymposiumEvent[] = [
       'Academic misconduct may lead to disqualification.',
       'Judges\' decision is final.'
     ],
+    requiresAbstract: true,
+    abstractFirst: true,
     abstractDeadline: '3 October 2026',
     submissionEmail: 'striatum04@gmail.com',
     submissionInstructions: [
@@ -104,8 +106,8 @@ export const EVENTS_PART_2: SymposiumEvent[] = [
     ],
     // Abstract first: submissions come by email, and only a selected entry
     // pays. Nothing is registered or charged through the site.
-    status: 'not_registerable',
-    registerable: false,
+    status: 'open',
+    registerable: true,
     keywords: ['symposium', 'presentation']
   },
 
@@ -132,6 +134,8 @@ export const EVENTS_PART_2: SymposiumEvent[] = [
       'Case must have been followed up.',
       'Participant must provide a letter confirming the case belongs to the hospital, signed by the HOD.'
     ],
+    requiresAbstract: true,
+    abstractFirst: true,
     abstractDeadline: '3 October 2026',
     submissionDeadline: '10 October 2026',
     submissionEmail: 'striatum04@gmail.com',
@@ -202,8 +206,8 @@ export const EVENTS_PART_2: SymposiumEvent[] = [
     ],
     // Abstract first: submissions come by email, and only a selected entry
     // pays. Nothing is registered or charged through the site.
-    status: 'not_registerable',
-    registerable: false,
+    status: 'open',
+    registerable: true,
     keywords: ['case presentation', 'case', 'clinical']
   },
 
@@ -406,6 +410,8 @@ export const EVENTS_PART_2: SymposiumEvent[] = [
       'Report at least 15 minutes before the event.',
       'Judges\' decision is final.'
     ],
+    requiresAbstract: true,
+    abstractFirst: true,
     abstractDeadline: '3 October 2026',
     submissionEmail: 'striatum04@gmail.com',
     submissionInstructions: [
@@ -484,8 +490,8 @@ export const EVENTS_PART_2: SymposiumEvent[] = [
     ],
     // Abstract first: submissions come by email, and only a selected entry
     // pays. Nothing is registered or charged through the site.
-    status: 'not_registerable',
-    registerable: false,
+    status: 'open',
+    registerable: true,
     keywords: ['ideathon', 'innovation', 'startup', 'device', 'ai', 'digital health']
   },
 

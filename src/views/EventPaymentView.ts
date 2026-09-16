@@ -337,6 +337,66 @@ function renderPaymentAndUploadSteps(order: Order, hasProof: boolean, screenshot
   `;
 }
 
+/**
+ * The step that replaces payment when there is nothing to pay.
+ *
+ * LUMINARA, THE DIAGNOSTIC ABYSS and NEURONOVA are entered by abstract; the fee
+ * only ever arrives if the entry is selected, and the organisers collect it
+ * themselves. So this screen has no QR and no screenshot — the abstract already
+ * attached above is the whole submission, and this is the delegate saying they
+ * are done.
+ */
+function renderFreeSubmissionStep(order: Order): string {
+  const outstanding = registration.abstractsOutstanding(order);
+  const named = registration
+    .abstractFirstLines(order)
+    .map(line => escapeHtml(line.eventName))
+    .join(', ');
+
+  return `
+    <div class="timeline-step-block">
+      <div class="timeline-bead"></div>
+
+      <div class="timeline-step-header">
+        <span class="step-label-tag">02 <span style="opacity: 0.5;">/</span> SUBMISSION</span>
+        <span style="font-family: var(--font-mono-meta); font-size: 8px; letter-spacing: 1.5px; color: var(--text-dim);">NOTHING TO PAY</span>
+      </div>
+
+      <div class="free-submit-card">
+        <div class="free-submit-amount">
+          <span class="free-submit-amount-label">TOTAL</span>
+          <span class="free-submit-amount-value">Free</span>
+        </div>
+        <p class="free-submit-note">
+          ${named ? named + ' takes' : 'This event takes'} an abstract, not a payment.
+          Your entry is complete once the abstract is attached above. If it is
+          selected, the organisers will tell you what to pay and how.
+        </p>
+      </div>
+    </div>
+
+    <div class="timeline-step-block button-step-block">
+      <div class="timeline-bead" style="top: 20px;"></div>
+
+      <button class="beveled-cyan-btn" id="btn-submit-free-order" ${
+        outstanding.length ? 'disabled aria-disabled="true"' : ''
+      }>
+        <span>Submit My Abstract</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <path d="M5 12h14m-7-7 7 7-7 7"/>
+        </svg>
+      </button>
+      ${
+        outstanding.length
+          ? `<p class="abstract-blocker">Attach the abstract for ${outstanding
+              .map(line => escapeHtml(line.eventName))
+              .join(', ')} before submitting.</p>`
+          : ''
+      }
+    </div>
+  `;
+}
+
 function renderStatusSection(order: Order): string {
   if (order.status === 'under_review' || order.status === 'payment_submitted') {
     const proofImage = registration.readProofImage(order.id);
@@ -406,6 +466,9 @@ export function renderEventPaymentView(): string {
 
   const hasProof = !!payment.screenshotUrl;
   const showPaymentFlow = order.status === 'awaiting_payment' || order.status === 'rejected';
+  // An order that charges nothing is submitted, not paid for, and the screen
+  // says so throughout rather than asking for money it does not want.
+  const isFree = registration.isFreeOrder(order);
 
   return `
     <div class="screen-content mockup-flow-page">
@@ -421,16 +484,25 @@ export function renderEventPaymentView(): string {
           <div class="timeline-bead"></div>
 
           <div class="timeline-step-header">
-            <span class="step-label-tag">03 <span style="opacity: 0.5;">/</span> PAYMENT</span>
+            <span class="step-label-tag">03 <span style="opacity: 0.5;">/</span> ${
+              isFree ? 'SUBMISSION' : 'PAYMENT'
+            }</span>
           </div>
 
           <h1 class="hero-display-title">
-            Complete<br />
-            your registration<span class="cyan-dot">.</span>
+            ${
+              isFree
+                ? 'Submit<br />your abstract<span class="cyan-dot">.</span>'
+                : 'Complete<br />your registration<span class="cyan-dot">.</span>'
+            }
           </h1>
 
           <p class="hero-display-sub">
-            Review, pay and upload to confirm your slots.
+            ${
+              isFree
+                ? 'Attach your abstract to complete your entry. There is nothing to pay.'
+                : 'Review, pay and upload to confirm your slots.'
+            }
           </p>
         </div>
 
@@ -463,7 +535,13 @@ export function renderEventPaymentView(): string {
         </div>
 
         ${renderRejectionNotice(order)}
-        ${showPaymentFlow ? renderPaymentAndUploadSteps(order, hasProof, payment.screenshotUrl, payment.screenshotName) : ''}
+        ${
+          showPaymentFlow
+            ? isFree
+              ? renderFreeSubmissionStep(order)
+              : renderPaymentAndUploadSteps(order, hasProof, payment.screenshotUrl, payment.screenshotName)
+            : ''
+        }
         ${!showPaymentFlow ? renderStatusSection(order) : ''}
 
       </div>
@@ -563,6 +641,23 @@ export function attachEventPaymentEvents(): void {
   });
 
   if (!order) return;
+
+  const btnFree = document.getElementById('btn-submit-free-order') as HTMLButtonElement | null;
+  btnFree?.addEventListener('click', async () => {
+    if (btnFree.disabled || !order) return;
+
+    btnFree.disabled = true;
+    btnFree.classList.add('is-submitting');
+
+    const res = await registration.submitFreeOrder(order.id);
+    appStore.showToast(res.message);
+    if (res.ok) {
+      await playBubbleTransition(() => appStore.openOrderConfirmation(order.id));
+    } else {
+      btnFree.disabled = false;
+      btnFree.classList.remove('is-submitting');
+    }
+  });
 
   btnSubmit?.addEventListener('click', async () => {
     if (btnSubmit.disabled) return;

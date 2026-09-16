@@ -54,6 +54,15 @@ export function resolvePrice(
 ): ResolvedPrice {
   const p = event.pricing;
 
+  // Entering an abstract-first event costs nothing. Its published fee is what a
+  // selected entry pays the organisers later, so it stays on the event for the
+  // page to quote — it is simply not what this registration charges. The server
+  // prices these lines at zero too; this only keeps the screen honest before
+  // the order exists.
+  if (event.abstractFirst) {
+    return { amount: 0, display: formatINR(0), basis: 'Abstract submission', unspecified: false };
+  }
+
   if (p.unspecified) {
     return { amount: null, display: 'Not specified', basis: '', unspecified: true };
   }

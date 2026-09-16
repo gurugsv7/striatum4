@@ -336,3 +336,46 @@
   color: var(--text-muted);
   text-align: center;
 }
+
+/* ---------------------------------------------------------------------------
+   Free submission, where the payment card would otherwise be.
+   Deliberately quieter than the QR card: there is no action in it, it only
+   states that the entry costs nothing and why.
+   --------------------------------------------------------------------------- */
+.free-submit-card {
+  background: rgba(1, 10, 18, 0.7);
+  border: 1px solid rgba(42, 241, 250, 0.18);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.free-submit-amount {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(42, 241, 250, 0.12);
+}
+
+.free-submit-amount-label {
+  font-family: var(--font-mono-meta);
+  font-size: 8.5px;
+  letter-spacing: 1.6px;
+  color: var(--text-dim);
+}
+
+.free-submit-amount-value {
+  font-family: var(--font-serif-display);
+  font-size: 28px;
+  line-height: 1;
+  color: var(--cyan-glow);
+}
+
+.free-submit-note {
+  margin: 12px 0 0;
+  font-family: var(--font-sans-ui);
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--text-muted);
+}

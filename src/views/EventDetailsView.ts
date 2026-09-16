@@ -256,11 +256,11 @@ function renderParticipationChoice(event: SymposiumEvent): string {
 /**
  * What to say when an event takes no registration here.
  *
- * Two different reasons look the same to the CTA. BIOVERSE is simply open to
- * walk in. The abstract-first events — the symposium, the case presentation,
- * the ideathon — do take entries, by email, and only a selected entry pays;
- * telling those delegates "no registration is taken" would read as "nothing to
- * do". An abstract deadline is what separates the two.
+ * Only BIOVERSE reaches this now — it is simply open to walk in. The
+ * abstract-first events used to land here too, and were the reason for the
+ * second branch: they do take entries, and "no registration is taken" read to
+ * those delegates as "nothing to do". They take their abstract in the app now,
+ * so the branch remains only for an event closed the same way later.
  */
 function noRegistrationNote(event: SymposiumEvent): string {
   const abstractFirst = Boolean(event.abstractDeadline || event.submissionDeadline);
@@ -277,9 +277,38 @@ function noRegistrationNote(event: SymposiumEvent): string {
   );
 }
 
+/**
+ * What the button under an abstract-first event should say.
+ *
+ * "REGISTER" would be a small lie: nothing is bought here, and a delegate who
+ * has just read the fee above it would expect to be asked for it next.
+ */
+function primaryLabel(event: SymposiumEvent, cta: registration.CtaState): string {
+  if (event.abstractFirst && cta === 'add_to_cart') return 'SUBMIT ABSTRACT';
+  return registration.CTA_LABELS[cta];
+}
+
+/** Why the button above it costs nothing. */
+function renderAbstractFirstNote(event: SymposiumEvent): string {
+  if (!event.abstractFirst) return '';
+  const fee = event.pricing.team ?? event.pricing.flat ?? event.pricing.individual;
+  const tail = fee
+    ? '&#8377;' + fee.toLocaleString('en-IN') + ' is payable only if your entry is selected.'
+    : 'The fee is payable only if your entry is selected.';
+  return `
+    <div class="delegate-required-notice">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="info-icon">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="16" x2="12" y2="12"/>
+        <line x1="12" y1="8" x2="12.01" y2="8"/>
+      </svg>
+      <span>Submitting is free. ${tail}</span>
+    </div>`;
+}
+
 function renderPrimaryAction(event: SymposiumEvent): string {
   const cta = registration.getCtaState(event.id);
-  const label = registration.CTA_LABELS[cta];
+  const label = primaryLabel(event, cta);
 
   // A missing Delegate ID does NOT block adding to the cart — it is caught before
   // checkout, so the delegate can still assemble their selection while the
@@ -300,6 +329,7 @@ function renderPrimaryAction(event: SymposiumEvent): string {
       <button class="btn-chamfer-primary btn-register-event-slot state-${cta}" id="btn-event-primary-action" ${disabled ? 'disabled' : ''}>
         <span>${label}</span>
       </button>
+      ${renderAbstractFirstNote(event)}
       ${renderDelegateNotice(event)}
     </div>
   `;

@@ -134,6 +134,16 @@ export interface SymposiumEvent {
    * abstractDeadline, so neither can quietly drift from the other.
    */
   requiresAbstract?: boolean;
+  /**
+   * Entering costs nothing: the entry is an abstract, and the published fee is
+   * payable only if that abstract is selected — collected by the organisers,
+   * not here.
+   *
+   * Mirrors events.abstract_first, which is what actually prices the line at
+   * zero. `pricing` still carries the published fee so the page can say what a
+   * selected entry will pay.
+   */
+  abstractFirst?: boolean;
   submissionDeadline?: string;
   submissionEmail?: string;
   submissionInstructions?: string[];

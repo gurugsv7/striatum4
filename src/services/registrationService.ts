@@ -1376,6 +1376,44 @@ export interface SubmitProofResult {
   message: string;
 }
 
+/** An order that charges nothing, so it is completed rather than paid for. */
+export function isFreeOrder(order: Order): boolean {
+  return order.total === 0;
+}
+
+/** Events in this order that are entered by abstract rather than bought. */
+export function abstractFirstLines(order: Order): OrderLine[] {
+  return order.lines.filter(line => getEvent(line.eventId)?.abstractFirst);
+}
+
+/**
+ * Submits an order with nothing to pay.
+ *
+ * The counterpart to submitPaymentProof for a free entry: there is no
+ * screenshot, so what completes it is the abstract. The server re-checks that
+ * before confirming, so this cannot be rushed past by a crafted call.
+ */
+export async function submitFreeOrder(orderId: string): Promise<SubmitProofResult> {
+  if (!isRemote()) return { ok: false, message: 'Please sign in first.' };
+
+  const order = state.orders.find(o => o.id === orderId);
+  if (!order) return { ok: false, message: 'Order not found.' };
+  if (order.total !== 0) return { ok: false, message: 'This order has a balance to pay.' };
+
+  const outstanding = abstractsOutstanding(order);
+  if (outstanding.length) {
+    return {
+      ok: false,
+      message:
+        'Attach the abstract for ' + outstanding.map(line => line.eventName).join(', ') + ' first.'
+    };
+  }
+
+  const result = await remote.submitFreeOrderRemote(orderId);
+  if (result.ok) await hydrate();
+  return result;
+}
+
 /**
  * Attaches a verified screenshot to an order and moves it into manual review.
  * Only an order awaiting payment or sent back for re-upload accepts a submission,

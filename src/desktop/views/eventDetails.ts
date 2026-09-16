@@ -220,7 +220,9 @@ function renderConsole(event: SymposiumEvent): string {
   const price = resolvePrice(event, participationFor(event));
   const capacity = registration.getCapacity(event.id);
   const cta = registration.getCtaState(event.id);
-  const label = registration.CTA_LABELS[cta];
+  // "REGISTER" would be a small lie where nothing is bought.
+  const label =
+    event.abstractFirst && cta === 'add_to_cart' ? 'SUBMIT ABSTRACT' : registration.CTA_LABELS[cta];
   const disabled = cta === 'full' || cta === 'closed' || cta === 'not_registerable';
 
   const filled =
