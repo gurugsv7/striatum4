@@ -1,7 +1,7 @@
 import { appStore } from '../../state/appStore.ts';
-import { SymposiumEvent, EventSection, CATEGORY_LABELS } from '../../data/eventTypes.ts';
+import { SymposiumEvent, EventSection, CATEGORY_LABELS, PASS_TIER_RANK } from '../../data/eventTypes.ts';
 import { eventContextLine } from '../../data/events.ts';
-import { resolvePrice, defaultParticipation, formatINR, Participation } from '../../services/pricing.ts';
+import { resolvePrice, defaultParticipation, formatINR, feeSummary, Participation } from '../../services/pricing.ts';
 import * as registration from '../../services/registrationService.ts';
 import { startEventRegistration } from '../../views/RegistrationFormView.ts';
 import { icon, slotButton } from '../shell.ts';
@@ -176,7 +176,9 @@ function renderDelegateNotice(event: SymposiumEvent): string {
           ? 'Your Delegate Pass has been revoked. Contact the organisers to restore access.'
           : status === 'rejected'
           ? 'Your delegate application needs attention before you can register for this event.'
-          : 'A <a href="#delegate" id="d-need-delegate">Delegate Pass</a> is required for this event.';
+          : `A ${
+              event.requiredTier ? `<strong>Tier ${PASS_TIER_RANK[event.requiredTier]} (${event.requiredTier})</strong> ` : ''
+            }<a href="#delegate" id="d-need-delegate">Delegate Pass</a> is required for this event.`;
       return `<div class="d-notice is-blocking">${info}<p>${body}</p></div>`;
     }
     case 'not_required':
@@ -260,7 +262,9 @@ function renderConsole(event: SymposiumEvent): string {
         <div class="d-price-row">
           <div class="d-price-main">
             <span class="d-hud-label">${price.unspecified ? 'FEE' : 'YOUR FEE'}</span>
-            <span class="d-price-value">${price.unspecified ? '—' : price.display}</span>
+            <span class="d-price-value">${
+              price.unspecified ? '&mdash;' : feeSummary(event, participationFor(event)).value
+            }</span>
             <span class="d-price-basis">${price.unspecified ? 'NOT YET PUBLISHED' : price.basis}</span>
           </div>
           ${

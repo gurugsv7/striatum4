@@ -914,6 +914,7 @@ export const EVENTS_PART_2: SymposiumEvent[] = [
     // which is what the brochure line in the description has always said.
     pricing: { flat: 0, unit: 'per_team' },
     delegatePassRequirement: 'required',
+    requiredTier: 'SYNEXA',
     rules: [
       'Teams must follow instructions to proceed to each next clue.',
       'Mobile phones and electronic devices are prohibited.',

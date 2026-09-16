@@ -1,4 +1,4 @@
-import { SymposiumEvent, EventPricing } from '../data/eventTypes.ts';
+import { SymposiumEvent, EventPricing, PASS_TIER_RANK } from '../data/eventTypes.ts';
 
 /**
  * Registration pricing phase.
@@ -136,15 +136,49 @@ export function lowestPrice(event: SymposiumEvent): number | null {
   return Math.min(...candidates);
 }
 
+/**
+ * "Tier 2 pass", for an event a pass tier unlocks.
+ *
+ * MEDMAZE costs nothing and reads as "Free" everywhere, which is true and
+ * useless: it invited anyone to press Register and be refused at checkout for
+ * a reason no card had mentioned. What gates it is the pass, so that is what
+ * the fee position says.
+ */
+export function tierLabel(event: SymposiumEvent): string {
+  return event.requiredTier ? `Tier ${PASS_TIER_RANK[event.requiredTier]} pass` : '';
+}
+
 /** Compact card price label. Returns '' when no fee is published. */
 export function priceLabel(event: SymposiumEvent): string {
+  const tier = tierLabel(event);
   const low = lowestPrice(event);
-  if (low === null) return '';
+  if (low === null) return tier;
+  if (low === 0 && tier) return tier;
   const p = event.pricing;
   const hasRange =
     (p.earlyBird !== undefined && p.lateBird !== undefined) ||
     (p.entry !== undefined && p.spot !== undefined) ||
     (p.individual !== undefined && p.team !== undefined);
   const suffix = p.unit === 'per_team' ? ' per team' : '';
-  return hasRange ? `${formatINR(low)} onwards${suffix}` : `${formatINR(low)}${suffix}`;
+  const base = hasRange ? `${formatINR(low)} onwards${suffix}` : `${formatINR(low)}${suffix}`;
+  return tier ? `${base} \u00b7 ${tier}` : base;
+}
+
+/**
+ * What the fee cell should say, which is not always an amount.
+ *
+ * Returns the tier where one gates the event and there is nothing to pay, so
+ * the most prominent number on the page is not a "Free" that misleads.
+ */
+export function feeSummary(
+  event: SymposiumEvent,
+  participation: Participation = defaultParticipation(event),
+  phase: PricingPhase = CURRENT_PRICING_PHASE
+): { value: string; caption: string } {
+  const price = resolvePrice(event, participation, phase);
+  const tier = tierLabel(event);
+  if (tier && price.amount === 0) {
+    return { value: tier, caption: `${event.requiredTier} \u00b7 no entry fee` };
+  }
+  return { value: price.display, caption: tier ? `${price.basis} \u00b7 ${tier}` : price.basis };
 }

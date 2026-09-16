@@ -3,7 +3,7 @@ import { CATEGORY_LABELS, EventCategory, SymposiumEvent } from '../data/eventTyp
 import { DELEGATE_PASS_TIERS } from '../state/appStore.ts';
 import { appStore } from '../state/appStore.ts';
 import { routeFromPath } from '../services/router.ts';
-import { resolvePrice, formatINR } from '../services/pricing.ts';
+import { resolvePrice, formatINR, tierLabel } from '../services/pricing.ts';
 import { isFullDayWorkshop } from '../services/workshop.ts';
 import { REGISTRATION_CONTACT, STRIATUM_COMMUNITY_URL, telNumber } from '../data/contacts.ts';
 import '../styles/assistant.css';
@@ -29,7 +29,9 @@ import { escapeHtml as esc } from '../services/text.ts';
 function eventLine(event: SymposiumEvent): string {
   const time = event.startTime ? ` · ${event.startTime}${event.endTime ? `–${event.endTime}` : ''}` : '';
   const price = resolvePrice(event);
-  const cost = price.unspecified ? '' : ` · ${price.display}`;
+  const tier = tierLabel(event);
+  // A pass-gated event reads as its requirement, not as "Free".
+  const cost = tier && price.amount === 0 ? ` · ${tier}` : price.unspecified ? '' : ` · ${price.display}`;
   return `<a class="s4-assistant-result" data-route="/event/${encodeURIComponent(event.id)}" href="/event/${encodeURIComponent(
     event.id
   )}"><span><b>${esc(event.name)}</b><small>${esc(event.date ?? 'Date to be announced')}${time} · ${esc(

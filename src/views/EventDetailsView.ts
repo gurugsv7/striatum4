@@ -1,7 +1,7 @@
 import { appStore } from '../state/appStore.ts';
-import { SymposiumEvent, EventSection, CATEGORY_LABELS } from '../data/eventTypes.ts';
+import { SymposiumEvent, EventSection, CATEGORY_LABELS, PASS_TIER_RANK } from '../data/eventTypes.ts';
 import { eventContextLine } from '../data/events.ts';
-import { resolvePrice, defaultParticipation, formatINR, Participation } from '../services/pricing.ts';
+import { resolvePrice, defaultParticipation, formatINR, feeSummary, Participation } from '../services/pricing.ts';
 import * as registration from '../services/registrationService.ts';
 import { startEventRegistration } from '../views/RegistrationFormView.ts';
 import { telNumber, whatsappNumber } from '../data/contacts.ts';
@@ -78,7 +78,8 @@ function renderKeyFacts(event: SymposiumEvent): string {
   }
 
   if (!price.unspecified) {
-    cells.push({ label: 'FEE', value: price.display, caption: price.basis });
+    const fee = feeSummary(event);
+    cells.push({ label: 'FEE', value: fee.value, caption: fee.caption });
   } else if (event.prizes?.totalValue) {
     cells.push({ label: 'PRIZE POOL', value: formatINR(event.prizes.totalValue) });
   }
@@ -224,7 +225,9 @@ function renderDelegateNotice(event: SymposiumEvent): string {
           ? 'Your Delegate Pass has been revoked. Contact the organisers to restore access.'
           : status === 'rejected'
           ? 'Your delegate application needs attention before you can register for this event.'
-          : 'A <a href="#delegate" id="link-need-delegate" class="cyan-link">Delegate Pass</a> is required for this event.';
+          : `A ${
+              event.requiredTier ? `<b>Tier ${PASS_TIER_RANK[event.requiredTier]} (${event.requiredTier})</b> ` : ''
+            }<a href="#delegate" id="link-need-delegate" class="cyan-link">Delegate Pass</a> is required for this event.`;
       return `<div class="delegate-required-notice is-blocking">${icon}<span>${body}</span></div>`;
     }
     case 'not_required':

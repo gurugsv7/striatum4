@@ -25,6 +25,20 @@ export type DelegatePassRequirement =
   | 'not_required_for_submission'
   | 'unspecified';
 
+/** The two Delegate Pass tiers, by the names printed on the pass. */
+export type PassTierName = 'AQUALUME' | 'SYNEXA';
+
+/**
+ * Which tier a name is, for screens that have to say it in a word.
+ *
+ * "SYNEXA" means nothing to someone who has not read the delegate page;
+ * "Tier 2" does.
+ */
+export const PASS_TIER_RANK: Record<PassTierName, number> = {
+  AQUALUME: 1,
+  SYNEXA: 2
+};
+
 export type EventStatus = 'open' | 'closed' | 'coming_soon' | 'full' | 'not_registerable';
 
 /** How a participant enters the event. */
@@ -120,6 +134,14 @@ export interface SymposiumEvent {
 
   pricing: EventPricing;
   delegatePassRequirement: DelegatePassRequirement;
+  /**
+   * The tier that unlocks this event, where the brochure names one.
+   *
+   * Mirrors event_registration_rules.required_tier, which is what actually
+   * refuses the order. Stated here so a card can say "Tier 2 pass" instead of
+   * a bare "Free" that invites everyone to try.
+   */
+  requiredTier?: PassTierName;
 
   eligibility?: string[];
   skills?: string[];
