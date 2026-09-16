@@ -31,6 +31,18 @@ export const REGISTRATION_CONTACT: OrganiserContact = {
 };
 
 /**
+ * The studio that built the site, for the Credits page.
+ *
+ * Separate from WEBSITE_CONTACTS on purpose: a delegate with a registration
+ * problem should reach the council, not the developer. This is here for anyone
+ * asking about the work itself.
+ */
+export const DEVELOPER_CONTACT: OrganiserContact = {
+  name: 'Built by GSV',
+  phone: '7448865095'
+};
+
+/**
  * Who to ask about the site itself.
  *
  * Registration, payment and anything that goes wrong on a screen reaches these

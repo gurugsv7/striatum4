@@ -1,4 +1,5 @@
 import { appStore } from '../state/appStore.ts';
+import { DEVELOPER_CONTACT, telNumber, whatsappNumber } from '../data/contacts.ts';
 
 export function renderCreditsView(): string {
   return `
@@ -34,6 +35,21 @@ export function renderCreditsView(): string {
             <h2 class="legal-clause-heading">DIGITAL EXPERIENCE</h2>
             <p class="legal-paragraph">Built by GSV created the website experience, registration journey and event discovery interface for the IGMCRI medical conclave.</p>
             <p class="legal-paragraph">Explore the team behind this work at <a class="credits-external-link" href="https://www.builtbygsv.in/" target="_blank" rel="noopener">Built by GSV</a>.</p>
+            ${
+              DEVELOPER_CONTACT.phone
+                ? `<div class="credits-contact">
+                    <span class="credits-contact-label">ABOUT THIS WEBSITE</span>
+                    <div class="credits-contact-actions">
+                      <a class="incharge-action" href="tel:${telNumber(DEVELOPER_CONTACT.phone)}">CALL</a>
+                      <a class="incharge-action" href="https://wa.me/${whatsappNumber(DEVELOPER_CONTACT.phone)}"
+                         target="_blank" rel="noopener noreferrer">WHATSAPP</a>
+                    </div>
+                    <p class="credits-contact-note">
+                      For registration or event questions, please use the conclave contacts instead.
+                    </p>
+                  </div>`
+                : ''
+            }
           </div>
         </section>
       </div>

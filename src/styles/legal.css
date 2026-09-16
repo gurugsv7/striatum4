@@ -160,3 +160,36 @@
   font-size: 8px;
   letter-spacing: 1.2px;
 }
+
+/* ---------------------------------------------------------------------------
+   The studio contact on Credits. Deliberately quiet, and it says outright that
+   conclave questions belong elsewhere, so it does not become a support line.
+   --------------------------------------------------------------------------- */
+.credits-contact {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(42, 241, 250, 0.12);
+}
+
+.credits-contact-label {
+  display: block;
+  font-family: var(--font-mono-meta);
+  font-size: 8.5px;
+  letter-spacing: 1.6px;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+
+.credits-contact-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.credits-contact-note {
+  margin: 10px 0 0;
+  font-family: var(--font-sans-ui);
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
