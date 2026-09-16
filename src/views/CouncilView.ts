@@ -1,5 +1,6 @@
 import { appStore } from '../state/appStore.ts';
 import { escapeHtml } from '../services/text.ts';
+import { telNumber, whatsappNumber } from '../data/contacts.ts';
 import { COUNCIL_TIERS, COUNCIL_BODY, COUNCIL_COUNT, CouncilTier } from '../data/council.ts';
 
 /**
@@ -41,7 +42,18 @@ function renderTier(tier: CouncilTier, isLead: boolean): string {
             member => `
           <div class="council-entry">
             <dt class="council-role">${escapeHtml(member.role)}</dt>
-            <dd class="council-name">${escapeHtml(member.name)}</dd>
+            <dd class="council-name">
+              <span>${escapeHtml(member.name)}</span>
+              ${
+                member.phone
+                  ? `<span class="council-actions">
+                      <a class="incharge-action" href="tel:${telNumber(member.phone)}">CALL</a>
+                      <a class="incharge-action" href="https://wa.me/${whatsappNumber(member.phone)}"
+                         target="_blank" rel="noopener noreferrer">WHATSAPP</a>
+                    </span>`
+                  : ''
+              }
+            </dd>
           </div>`
           )
           .join('')}

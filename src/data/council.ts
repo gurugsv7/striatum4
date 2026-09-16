@@ -1,10 +1,10 @@
 /**
  * SIGMA'26 — the students' council, exactly as the council document lists it.
  *
- * Roles and names only. The document also carries a personal mobile number for
- * every member; those are deliberately not here. An event in-charge publishes a
- * number because delegates need to reach them about that event, which is not
- * the same as putting eighteen students' phones on a public page.
+ * Roles, names and the contact number printed beside each name in the council
+ * document. The numbers were held back when this page was first built; the
+ * organisers have since asked for them to be published, which is their call to
+ * make about their own council.
  *
  * "Accommodation" is spelled correctly here; the source document has it with
  * one M.
@@ -13,6 +13,8 @@
 export interface CouncilMember {
   role: string;
   name: string;
+  /** As printed in the council document, digits only. */
+  phone?: string;
 }
 
 export interface CouncilTier {
@@ -31,17 +33,17 @@ export const COUNCIL_TIERS: CouncilTier[] = [
     index: '01',
     title: 'PRESIDENT',
     blurb: 'Heads the association and the conclave.',
-    members: [{ role: 'President', name: 'Rajakumar J' }]
+    members: [{ role: 'President', name: 'Rajakumar J', phone: '8925200429' }]
   },
   {
     index: '02',
     title: 'ADVISORY BOARD',
     blurb: 'Oversees the association alongside the president.',
     members: [
-      { role: 'Vice President', name: 'Mohammed Faham V.T' },
-      { role: 'Joint Secretary', name: 'Sudarshan JV' },
-      { role: 'Treasurer', name: 'Aswin E' },
-      { role: 'Public Relations', name: 'Potrivelan P' }
+      { role: 'Vice President', name: 'Mohammed Faham V.T', phone: '8714733484' },
+      { role: 'Joint Secretary', name: 'Sudarshan JV', phone: '9487834797' },
+      { role: 'Treasurer', name: 'Aswin E', phone: '7806825939' },
+      { role: 'Public Relations', name: 'Potrivelan P', phone: '9080616925' }
     ]
   },
   {
@@ -49,19 +51,19 @@ export const COUNCIL_TIERS: CouncilTier[] = [
     title: 'EXECUTIVE BOARD',
     blurb: 'Runs the portfolios the conclave is built from.',
     members: [
-      { role: 'General Secretary', name: 'Mugeshraj R' },
-      { role: 'Cultural Secretary', name: 'Themozhi Yazhini A' },
-      { role: 'Academic Secretary', name: 'Kaviya Dharshini K' },
-      { role: 'Sports Secretary', name: 'Thirumurugan S' },
-      { role: 'Fine Arts Secretary', name: 'Jenna Mariam Joji' },
-      { role: 'Literature and Debate Secretary', name: 'Dhroov Chikara' },
-      { role: 'Social Service Secretary', name: 'Donisha M' },
-      { role: 'Photography Secretary', name: 'Hari Pranav MN' },
-      { role: 'Chief Designer', name: 'Krishna Kumar R' },
-      { role: 'Technical Secretary', name: 'Vignesh D' },
-      { role: 'Awards and Accommodation Secretary', name: 'Sudikksha Rhashmi S' },
-      { role: 'Food and Transport Secretary', name: 'Devraj Kumar' },
-      { role: 'Anti-Ragging and Students Wellness Secretary', name: 'Srivarsan J' }
+      { role: 'General Secretary', name: 'Mugeshraj R', phone: '6381280244' },
+      { role: 'Cultural Secretary', name: 'Themozhi Yazhini A', phone: '9843125704' },
+      { role: 'Academic Secretary', name: 'Kaviya Dharshini K', phone: '6380592296' },
+      { role: 'Sports Secretary', name: 'Thirumurugan S', phone: '9952764586' },
+      { role: 'Fine Arts Secretary', name: 'Jenna Mariam Joji', phone: '7558022834' },
+      { role: 'Literature and Debate Secretary', name: 'Dhroov Chikara', phone: '8279471806' },
+      { role: 'Social Service Secretary', name: 'Donisha M', phone: '7845280168' },
+      { role: 'Photography Secretary', name: 'Hari Pranav MN', phone: '9366622308' },
+      { role: 'Chief Designer', name: 'Krishna Kumar R', phone: '9790019936' },
+      { role: 'Technical Secretary', name: 'Vignesh D', phone: '9042059951' },
+      { role: 'Awards and Accommodation Secretary', name: 'Sudikksha Rhashmi S', phone: '9042705767' },
+      { role: 'Food and Transport Secretary', name: 'Devraj Kumar', phone: '7631387585' },
+      { role: 'Anti-Ragging and Students Wellness Secretary', name: 'Srivarsan J', phone: '8903494521' }
     ]
   }
 ];

@@ -5,7 +5,7 @@ import { appStore } from '../state/appStore.ts';
 import { routeFromPath } from '../services/router.ts';
 import { resolvePrice, formatINR, tierLabel } from '../services/pricing.ts';
 import { isFullDayWorkshop } from '../services/workshop.ts';
-import { REGISTRATION_CONTACT, STRIATUM_COMMUNITY_URL, telNumber } from '../data/contacts.ts';
+import { WEBSITE_CONTACTS, STRIATUM_COMMUNITY_URL, telNumber } from '../data/contacts.ts';
 import '../styles/assistant.css';
 
 import { escapeHtml as esc } from '../services/text.ts';
@@ -189,14 +189,18 @@ function venue(): string {
 }
 
 function contact(): string {
-  return `<p>For registration and combo enquiries, contact <b>${esc(REGISTRATION_CONTACT.name)}</b>${
-    REGISTRATION_CONTACT.phone
-      ? ` — <a class="s4-assistant-inline" href="tel:${telNumber(REGISTRATION_CONTACT.phone)}">${esc(
-          REGISTRATION_CONTACT.phone
-        )}</a>`
-      : ''
-  }.</p>
-  <p>Every event also lists its own in-charges on its page, with their numbers.</p>
+  return `<p>Registration, payment and anything wrong with the site reaches these three:</p>
+  <ul class="s4-assistant-list">
+    ${WEBSITE_CONTACTS.filter(person => person.phone)
+      .map(
+        person =>
+          `<li><b>${esc(person.name)}</b> &middot; ${esc(person.role)} &mdash; <a class="s4-assistant-inline" href="tel:${telNumber(
+            person.phone as string
+          )}">${esc(person.phone as string)}</a></li>`
+      )
+      .join('')}
+  </ul>
+  <p class="s4-assistant-note">Every event also lists its own in-charges on its page, with their numbers.</p>
   <a class="s4-assistant-link" href="${STRIATUM_COMMUNITY_URL}" target="_blank" rel="noopener noreferrer">Join the STRIATUM WhatsApp community <b>↗</b></a>`;
 }
 

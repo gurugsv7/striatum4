@@ -30,6 +30,24 @@ export const REGISTRATION_CONTACT: OrganiserContact = {
   phone: '7806825939'
 };
 
+/**
+ * Who to ask about the site itself.
+ *
+ * Registration, payment and anything that goes wrong on a screen reaches these
+ * three rather than the in-charge of whichever event the delegate happened to
+ * be looking at. Names, roles and numbers are the council's own, from the
+ * SIGMA'26 council document.
+ */
+export interface WebsiteContact extends OrganiserContact {
+  role: string;
+}
+
+export const WEBSITE_CONTACTS: WebsiteContact[] = [
+  { name: 'Vignesh D', role: 'Technical Secretary', phone: '9042059951' },
+  { name: 'Kaviya Dharshini K', role: 'Academic Secretary', phone: '6380592296' },
+  { name: 'Aswin E', role: 'Treasurer', phone: '7806825939' }
+];
+
 /** Digits only, with the Indian country code, for a wa.me link. */
 export function whatsappNumber(phone: string): string {
   const digits = phone.replace(/\D/g, '');

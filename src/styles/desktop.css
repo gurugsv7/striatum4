@@ -4338,3 +4338,26 @@ body.s4-desktop-active .s4-assistant-panel {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
+
+/* Three query contacts instead of one, each with the role that explains them. */
+.d-combo-contact-person {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-top: 10px;
+  margin-top: 10px;
+  border-top: 1px solid rgba(42, 241, 250, 0.12);
+}
+
+.d-combo-contact-person:first-of-type {
+  padding-top: 0;
+  margin-top: 6px;
+  border-top: 0;
+}
+
+.d-combo-contact-role {
+  font-family: var(--font-mono-meta);
+  font-size: 8.5px;
+  letter-spacing: 1.3px;
+  color: var(--text-dim);
+}

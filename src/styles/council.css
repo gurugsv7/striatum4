@@ -185,3 +185,22 @@
   letter-spacing: 1.4px;
   color: var(--text-dim);
 }
+
+/* ---------------------------------------------------------------------------
+   Contact actions beside a council name.
+   The numbers are published at the organisers' request, so each name carries
+   the same CALL / WHATSAPP pair an event in-charge does.
+   --------------------------------------------------------------------------- */
+.council-actions,
+.d-council-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+/* The name is a <span> now, so the line has to be re-established. */
+.council-name > span:first-child,
+.d-council-name > span:first-child {
+  display: block;
+}

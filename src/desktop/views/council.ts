@@ -1,6 +1,7 @@
 import { appStore } from '../../state/appStore.ts';
 import { eyebrow, esc } from '../shell.ts';
 import { COUNCIL_TIERS, COUNCIL_BODY, COUNCIL_COUNT } from '../../data/council.ts';
+import { telNumber, whatsappNumber } from '../../data/contacts.ts';
 
 /**
  * Desktop council.
@@ -20,7 +21,18 @@ function tierGrid(index: number): string {
       member => `
       <div class="d-council-entry">
         <dt class="d-council-role">${esc(member.role)}</dt>
-        <dd class="d-council-name">${esc(member.name)}</dd>
+        <dd class="d-council-name">
+          <span>${esc(member.name)}</span>
+          ${
+            member.phone
+              ? `<span class="d-council-actions">
+                  <a class="incharge-action" href="tel:${telNumber(member.phone)}">CALL</a>
+                  <a class="incharge-action" href="https://wa.me/${whatsappNumber(member.phone)}"
+                     target="_blank" rel="noopener noreferrer">WA</a>
+                </span>`
+              : ''
+          }
+        </dd>
       </div>`
     )
     .join('');

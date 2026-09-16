@@ -10,7 +10,7 @@ import {
   comboSavings,
   isComboOpen
 } from '../../data/combos.ts';
-import { REGISTRATION_CONTACT, telNumber, whatsappNumber } from '../../data/contacts.ts';
+import { WEBSITE_CONTACTS, telNumber, whatsappNumber } from '../../data/contacts.ts';
 import { startComboRegistration } from '../../views/RegistrationFormView.ts';
 import { eyebrow, icon } from '../shell.ts';
 
@@ -157,19 +157,23 @@ export function renderDesktopCombos(): string {
           <b>COMBO PRICING IS APPLIED WHEN THE ORDER IS CREATED</b>
           <span>EVERY EVENT KEEPS ITS OWN CAPACITY AND DELEGATE PASS RULES</span>
         </div>
-        ${
-          REGISTRATION_CONTACT.phone
-            ? `<div class="d-combo-contact">
-                <span class="d-hud-label">REGISTRATION &amp; COMBOS</span>
-                <span class="d-combo-contact-name">${REGISTRATION_CONTACT.name}</span>
-                <div class="d-combo-contact-actions">
-                  <a class="incharge-action" href="tel:${telNumber(REGISTRATION_CONTACT.phone)}">CALL</a>
-                  <a class="incharge-action" href="https://wa.me/${whatsappNumber(REGISTRATION_CONTACT.phone)}"
-                     target="_blank" rel="noopener noreferrer">WHATSAPP</a>
-                </div>
-              </div>`
-            : ''
-        }
+        <div class="d-combo-contact">
+          <span class="d-hud-label">QUERIES &middot; REGISTRATION, COMBOS &amp; THE WEBSITE</span>
+          ${WEBSITE_CONTACTS.filter(person => person.phone)
+            .map(
+              person => `
+            <div class="d-combo-contact-person">
+              <span class="d-combo-contact-name">${person.name}</span>
+              <span class="d-combo-contact-role">${person.role}</span>
+              <div class="d-combo-contact-actions">
+                <a class="incharge-action" href="tel:${telNumber(person.phone as string)}">CALL</a>
+                <a class="incharge-action" href="https://wa.me/${whatsappNumber(person.phone as string)}"
+                   target="_blank" rel="noopener noreferrer">WHATSAPP</a>
+              </div>
+            </div>`
+            )
+            .join('')}
+        </div>
       </footer>
     </div>`;
 }

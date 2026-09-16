@@ -857,3 +857,29 @@
   color: var(--text-dim);
   text-align: right;
 }
+
+/* ---------------------------------------------------------------------------
+   Three people answer queries now, not one, so each gets their own row with
+   the role that explains why you would ring them.
+   --------------------------------------------------------------------------- */
+.combo-contact-person {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-top: 12px;
+  margin-top: 12px;
+  border-top: 1px solid rgba(42, 241, 250, 0.12);
+}
+
+.combo-contact-person:first-of-type {
+  padding-top: 0;
+  margin-top: 8px;
+  border-top: 0;
+}
+
+.combo-contact-role {
+  font-family: var(--font-mono-meta);
+  font-size: 8.5px;
+  letter-spacing: 1.3px;
+  color: var(--text-dim);
+}
