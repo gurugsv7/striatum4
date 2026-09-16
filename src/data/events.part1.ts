@@ -332,7 +332,7 @@ export const EVENTS_PART_1: SymposiumEvent[] = [
     endTime: '4:00 PM',
     slots: 30,
     participation: 'individual',
-    pricing: { earlyBird: 800, lateBird: 1000, unit: 'per_person' },
+    pricing: { earlyBird: 1000, lateBird: 1200, unit: 'per_person' },
     delegatePassRequirement: 'required',
     skills: [
       'Mechanism and conduct of labour',
