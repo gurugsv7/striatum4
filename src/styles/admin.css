@@ -484,3 +484,40 @@
   text-align: center;
   padding: 16px 10px;
 }
+
+/* ---------------------------------------------------------------------------
+   The abstract attached to an order line.
+   The markup shipped without styles, so the link fell back to the browser's
+   default blue in the middle of a cyan console.
+   --------------------------------------------------------------------------- */
+.admin-abstract-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0 0 12px;
+  font-family: var(--font-mono-meta);
+  font-size: 9.5px;
+}
+
+.admin-abstract-link {
+  font-family: var(--font-sans-ui);
+  font-size: 12.5px;
+  color: var(--cyan-glow);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(42, 241, 250, 0.35);
+  padding-bottom: 1px;
+  align-self: flex-start;
+  word-break: break-all;
+}
+
+.admin-abstract-link:hover,
+.admin-abstract-link:focus-visible {
+  border-bottom-color: var(--cyan-glow);
+}
+
+/* No link yet: the signed URL is still being fetched. */
+.admin-abstract-pending {
+  font-family: var(--font-sans-ui);
+  font-size: 12.5px;
+  color: var(--text-dim);
+}
