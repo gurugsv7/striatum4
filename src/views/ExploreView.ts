@@ -9,6 +9,7 @@ import {
   allEventDates
 } from '../data/events.ts';
 import { priceLabel } from '../services/pricing.ts';
+import { escapeHtml } from '../services/text.ts';
 import * as registration from '../services/registrationService.ts';
 
 /** Secondary filters from the filter sheet. The primary category pills are separate. */
@@ -210,20 +211,80 @@ function renderFilterSheet(): string {
   `;
 }
 
-export function renderExploreView(): string {
-  const state = appStore.getState();
+interface ExploreResults {
+  filtered: SymposiumEvent[];
+  matchesAnywhere: SymposiumEvent[];
+  hasQuery: boolean;
+}
 
+function computeResults(state: ReturnType<typeof appStore.getState>): ExploreResults {
   const filtered = EVENTS.filter(
     event =>
       matchesCategoryFilter(event, state.activeCategory) &&
       matchesSearch(event, state.searchQuery) &&
       passesSecondaryFilters(event)
   );
-
   const hasQuery = Boolean(state.searchQuery.trim());
-  const matchesAnywhere = hasQuery
-    ? EVENTS.filter(e => matchesSearch(e, state.searchQuery) && passesSecondaryFilters(e))
-    : [];
+  return {
+    filtered,
+    hasQuery,
+    matchesAnywhere: hasQuery
+      ? EVENTS.filter(e => matchesSearch(e, state.searchQuery) && passesSecondaryFilters(e))
+      : []
+  };
+}
+
+/** Everything inside `.explore-result-meta`. */
+function resultMetaInner(results: ExploreResults, filterCount: number): string {
+  return `
+        <span>${results.filtered.length} ${results.filtered.length === 1 ? 'EVENT' : 'EVENTS'}</span>
+        ${filterCount ? `<button class="action-link-cyan" id="btn-clear-filters-inline">CLEAR REFINEMENTS</button>` : ''}`;
+}
+
+/** Everything inside `.explore-cards-timeline`. */
+function resultsInner(
+  state: ReturnType<typeof appStore.getState>,
+  results: ExploreResults
+): string {
+  const { filtered, matchesAnywhere, hasQuery } = results;
+  return `
+        <div class="explore-timeline-rail"></div>
+
+        ${filtered.map((event, index) => renderEventCard(event, index)).join('')}
+
+        ${
+          filtered.length === 0
+            ? `<div class="empty-search-state">
+                ${
+                  matchesAnywhere.length > 0 && state.activeCategory !== 'ALL'
+                    ? `<p>Nothing in <strong>${state.activeCategory}</strong>${
+                        hasQuery ? ' for "' + escapeHtml(state.searchQuery) + '"' : ''
+                      }.</p>
+                       <p style="margin-top: 6px; font-size: 12px; color: var(--text-dim);">
+                         ${matchesAnywhere.length} matching event${
+                        matchesAnywhere.length > 1 ? 's' : ''
+                      } in other categories.
+                       </p>
+                       <button class="action-link-cyan" id="btn-show-all-matches" style="margin-top: 14px;">
+                         Show all ${matchesAnywhere.length} results &rarr;
+                       </button>`
+                    : `<p>No events match${hasQuery ? ' "' + escapeHtml(state.searchQuery) + '"' : ' these filters'}.</p>
+                       <p style="margin-top: 6px; font-size: 12px; color: var(--text-dim);">
+                         Try a specialty like ortho, ECG, nephrology &mdash; or a format like paper, poster, quiz.
+                       </p>
+                       <button class="action-link-cyan" id="btn-reset-filters" style="margin-top: 14px;">
+                         Reset search &amp; filters
+                       </button>`
+                }
+              </div>`
+            : ''
+        }`;
+}
+
+export function renderExploreView(): string {
+  const state = appStore.getState();
+  const results = computeResults(state);
+  const { filtered } = results;
 
   const filterCount = appStore.activeFilterCount();
   const cartCount = registration.cartCount();
@@ -287,7 +348,7 @@ export function renderExploreView(): string {
             id="explore-search-input"
             class="search-input-box"
             placeholder="Search ortho, ECG, paper, quiz…"
-            value="${state.searchQuery.replace(/"/g, '&quot;')}"
+            value="${escapeHtml(state.searchQuery)}"
             autocomplete="off"
             spellcheck="false"
           />
@@ -320,44 +381,11 @@ export function renderExploreView(): string {
         }).join('')}
       </div>
 
-      <div class="explore-result-meta">
-        <span>${filtered.length} ${filtered.length === 1 ? 'EVENT' : 'EVENTS'}</span>
-        ${filterCount ? `<button class="action-link-cyan" id="btn-clear-filters-inline">CLEAR REFINEMENTS</button>` : ''}
+      <div class="explore-result-meta">${resultMetaInner(results, filterCount)}
       </div>
 
       <!-- Results on the expedition rail -->
-      <div class="explore-cards-timeline">
-        <div class="explore-timeline-rail"></div>
-
-        ${filtered.map((event, index) => renderEventCard(event, index)).join('')}
-
-        ${
-          filtered.length === 0
-            ? `<div class="empty-search-state">
-                ${
-                  matchesAnywhere.length > 0 && state.activeCategory !== 'ALL'
-                    ? `<p>Nothing in <strong>${state.activeCategory}</strong>${
-                        hasQuery ? ' for "' + state.searchQuery + '"' : ''
-                      }.</p>
-                       <p style="margin-top: 6px; font-size: 12px; color: var(--text-dim);">
-                         ${matchesAnywhere.length} matching event${
-                        matchesAnywhere.length > 1 ? 's' : ''
-                      } in other categories.
-                       </p>
-                       <button class="action-link-cyan" id="btn-show-all-matches" style="margin-top: 14px;">
-                         Show all ${matchesAnywhere.length} results →
-                       </button>`
-                    : `<p>No events match${hasQuery ? ' "' + state.searchQuery + '"' : ' these filters'}.</p>
-                       <p style="margin-top: 6px; font-size: 12px; color: var(--text-dim);">
-                         Try a specialty like ortho, ECG, nephrology — or a format like paper, poster, quiz.
-                       </p>
-                       <button class="action-link-cyan" id="btn-reset-filters" style="margin-top: 14px;">
-                         Reset search &amp; filters
-                       </button>`
-                }
-              </div>`
-            : ''
-        }
+      <div class="explore-cards-timeline">${resultsInner(state, results)}
       </div>
 
       <!-- Footer -->
@@ -374,32 +402,8 @@ export function renderExploreView(): string {
   `;
 }
 
-export function attachExploreEvents(): void {
-  const searchInput = document.getElementById('explore-search-input') as HTMLInputElement | null;
-  searchInput?.addEventListener('input', e => {
-    appStore.setSearchQuery((e.target as HTMLInputElement).value);
-  });
-
-  document.getElementById('btn-clear-search')?.addEventListener('click', () => {
-    appStore.setSearchQuery('');
-    (document.getElementById('explore-search-input') as HTMLInputElement | null)?.focus();
-  });
-
-  document.getElementById('btn-explore-cart')?.addEventListener('click', () => {
-    appStore.setScreen('cart');
-  });
-
-  document.getElementById('btn-filter-tune')?.addEventListener('click', () => {
-    appStore.setFilterSheetOpen(true);
-  });
-
-  document.querySelectorAll<HTMLButtonElement>('.filter-chip-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const category = btn.getAttribute('data-category');
-      if (category) appStore.setActiveCategory(category);
-    });
-  });
-
+/** Handlers for controls that live inside the repainted result area. */
+function wireResultControls(): void {
   document.querySelectorAll<HTMLElement>('[data-open-event-id]').forEach(el => {
     el.addEventListener('click', e => {
       e.stopPropagation();
@@ -421,7 +425,81 @@ export function attachExploreEvents(): void {
   document.getElementById('btn-clear-filters-inline')?.addEventListener('click', () => {
     appStore.clearFilters();
   });
+}
 
+/** Adds or removes the ✕ without touching the input beside it. */
+function syncClearButton(query: string): void {
+  const pill = document.querySelector('.search-input-pill');
+  const input = document.getElementById('explore-search-input');
+  if (!pill || !input) return;
+  const existing = document.getElementById('btn-clear-search');
+  if (query && !existing) {
+    input.insertAdjacentHTML(
+      'afterend',
+      `<button id="btn-clear-search" class="clear-search-btn" title="Clear search">&#10005;</button>`
+    );
+    attachClearSearch();
+  } else if (!query && existing) {
+    existing.remove();
+  }
+}
+
+function attachClearSearch(): void {
+  document.getElementById('btn-clear-search')?.addEventListener('click', () => {
+    appStore.setSearchQuery('');
+    (document.getElementById('explore-search-input') as HTMLInputElement | null)?.focus();
+  });
+}
+
+/**
+ * Repaint the results, and nothing else.
+ *
+ * The app paints a screen by replacing #app's innerHTML. That is right for
+ * navigation and ruinous for typing: the search field itself is destroyed and
+ * rebuilt on every keystroke, so fast typing races the rebuild and loses
+ * characters, and a held Backspace stops repeating because the element the
+ * browser was repeating into no longer exists. Searching therefore updates the
+ * list in place and leaves the field alone.
+ */
+function refreshResults(): void {
+  const state = appStore.getState();
+  const results = computeResults(state);
+
+  const timeline = document.querySelector('.explore-cards-timeline');
+  if (timeline) timeline.innerHTML = resultsInner(state, results);
+
+  const meta = document.querySelector('.explore-result-meta');
+  if (meta) meta.innerHTML = resultMetaInner(results, appStore.activeFilterCount());
+
+  syncClearButton(state.searchQuery);
+  wireResultControls();
+}
+
+export function attachExploreEvents(): void {
+  const searchInput = document.getElementById('explore-search-input') as HTMLInputElement | null;
+  searchInput?.addEventListener('input', e => {
+    appStore.setSearchQuery((e.target as HTMLInputElement).value, false);
+    refreshResults();
+  });
+
+  attachClearSearch();
+
+  document.getElementById('btn-explore-cart')?.addEventListener('click', () => {
+    appStore.setScreen('cart');
+  });
+
+  document.getElementById('btn-filter-tune')?.addEventListener('click', () => {
+    appStore.setFilterSheetOpen(true);
+  });
+
+  document.querySelectorAll<HTMLButtonElement>('.filter-chip-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const category = btn.getAttribute('data-category');
+      if (category) appStore.setActiveCategory(category);
+    });
+  });
+
+  wireResultControls();
   attachFilterSheetEvents();
 }
 

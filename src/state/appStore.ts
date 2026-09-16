@@ -385,9 +385,16 @@ class AppStore {
     this.notify();
   }
 
-  setSearchQuery(query: string): void {
+  /**
+   * `notify: false` records the query without repainting the app.
+   *
+   * Explore repaints its own result list while someone is typing. A full
+   * repaint would replace the search field itself on every keystroke, which is
+   * what made typing feel heavy and dropped characters.
+   */
+  setSearchQuery(query: string, notify = true): void {
     this.state.searchQuery = query;
-    this.notify();
+    if (notify) this.notify();
   }
 
   setActiveCategory(category: string): void {
