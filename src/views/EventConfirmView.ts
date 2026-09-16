@@ -70,9 +70,12 @@ export function renderEventConfirmView(): string {
   const orderDisplayCode = `ORDER <span class="cyan-accent">S4</span> / ${escapeHtml(orderRefNum)}`;
   const orderRefNo = order ? `S4P${orderRefNum}1276` : 'S4P00381276';
   const totalPaid = order ? formatINR(order.total) : '₹1,800';
-  // A free entry was submitted, not paid for, and was confirmed on the spot
-  // rather than queued behind a screenshot somebody has to look at.
+  // Two different things, and only one of them is about an abstract. A free
+  // order confirmed itself rather than queueing behind a screenshot, which is
+  // true of MEDMAZE on a Tier 2 pass as much as of a symposium entry; only the
+  // latter has an abstract to acknowledge.
   const isFree = Boolean(order) && order!.total === 0;
+  const isAbstractEntry = Boolean(order) && registration.abstractFirstLines(order!).length > 0;
 
   // Build items list
   let items: ManifestItem[] = [];
@@ -255,7 +258,7 @@ export function renderEventConfirmView(): string {
             </div>
             <div class="manifest-metric-content">
               <span class="manifest-metric-val">${totalPaid}</span>
-              <span class="manifest-metric-lbl">${isFree ? 'SUBMITTED' : 'PAID'}</span>
+              <span class="manifest-metric-lbl">${isAbstractEntry ? 'SUBMITTED' : 'PAID'}</span>
             </div>
           </div>
 
@@ -359,7 +362,7 @@ export function renderEventConfirmView(): string {
 
             <div class="confirm-notice-text-col">
               <span class="confirm-notice-title">${
-                isFree ? 'Abstract received' : 'Registrations received'
+                isAbstractEntry ? 'Abstract received' : 'Registrations received'
               }</span>
               <span class="confirm-notice-sub">${
                 isFree
@@ -412,7 +415,7 @@ export function renderEventConfirmView(): string {
                 <line x1="16" x2="8" y1="17" y2="17"/>
                 <line x1="10" x2="8" y1="9" y2="9"/>
               </svg>
-              <span>View ${isFree ? 'submission' : 'payment'} details</span>
+              <span>View ${isAbstractEntry ? 'submission' : 'payment'} details</span>
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M5 12h14m-7-7 7 7-7 7"/>
               </svg>
