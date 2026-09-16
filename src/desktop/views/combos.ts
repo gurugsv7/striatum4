@@ -7,6 +7,7 @@ import {
   combosOfKind,
   comboEvents,
   comboNormalTotal,
+  comboPayable,
   comboSavings,
   isComboOpen
 } from '../../data/combos.ts';
@@ -58,7 +59,7 @@ function renderCombo(combo: ComboOffer): string {
             ${index > 0 ? '<span class="d-combo-join" aria-hidden="true"></span>' : ''}
             <div class="d-combo-node">
               <span class="d-combo-node-dot"></span>
-              <span class="d-combo-node-name">${event.name}</span>
+              <button class="d-combo-node-name d-combo-node-link-btn" type="button" data-combo-event-id="${event.id}">${event.name}</button>
               <span class="d-combo-node-meta">
                 ${event.code}${event.date ? ' &middot; ' + event.date : ''}${
                 event.price !== null
@@ -74,7 +75,7 @@ function renderCombo(combo: ComboOffer): string {
         <div class="d-combo-foot">
           <div class="d-combo-ledger">
             <span class="d-combo-normal">${formatINR(normal)}</span>
-            <span class="d-combo-price">${formatINR(combo.publishedComboTotal)}</span>
+            <span class="d-combo-price">${formatINR(comboPayable(combo))}</span>
             <span class="d-combo-save">SAVE ${formatINR(comboSavings(combo))}</span>
           </div>
 
@@ -179,6 +180,15 @@ export function renderDesktopCombos(): string {
 }
 
 export function attachDesktopCombos(): void {
+  // A combo names its events; pressing one should open it, not dead-end.
+  document.querySelectorAll<HTMLElement>('[data-combo-event-id]').forEach(el => {
+    el.addEventListener('click', event => {
+      event.stopPropagation();
+      const id = el.getAttribute('data-combo-event-id');
+      if (id) appStore.openEvent(id);
+    });
+  });
+
   document.getElementById('d-combos-open-cart')?.addEventListener('click', () => {
     appStore.setScreen('cart');
   });

@@ -883,3 +883,23 @@
   letter-spacing: 1.3px;
   color: var(--text-dim);
 }
+
+/* A combo names its events; each name opens that event, so it looks pressable
+   without becoming a second button competing with REGISTER COMBO. */
+.combo-node-link-btn {
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(42, 241, 250, 0.28);
+}
+
+.combo-node-link-btn:hover,
+.combo-node-link-btn:focus-visible {
+  color: var(--cyan-glow);
+  border-bottom-color: var(--cyan-glow);
+}

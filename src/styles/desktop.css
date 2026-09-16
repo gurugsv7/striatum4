@@ -4361,3 +4361,22 @@ body.s4-desktop-active .s4-assistant-panel {
   letter-spacing: 1.3px;
   color: var(--text-dim);
 }
+
+/* Combo event names open their event. */
+.d-combo-node-link-btn {
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(42, 241, 250, 0.28);
+}
+
+.d-combo-node-link-btn:hover,
+.d-combo-node-link-btn:focus-visible {
+  color: var(--cyan-glow);
+  border-bottom-color: var(--cyan-glow);
+}

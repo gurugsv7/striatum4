@@ -7,6 +7,7 @@ import {
   combosOfKind,
   comboEvents,
   comboNormalTotal,
+  comboPayable,
   comboSavings,
   isComboOpen
 } from '../data/combos.ts';
@@ -59,7 +60,9 @@ function renderCombo(combo: ComboOffer): string {
               <span class="combo-node-dot"></span>
               ${index < events.length - 1 ? '<span class="combo-node-link"></span>' : ''}
               <div class="combo-node-body">
-                <h3 class="combo-node-name">${event.name}</h3>
+                <h3 class="combo-node-name">
+                  <button class="combo-node-link-btn" type="button" data-combo-event-id="${event.id}">${event.name}</button>
+                </h3>
                 <div class="combo-node-meta">
                   <span>${event.code}</span>
                   ${event.date ? `<span class="combo-dot-sep">&middot;</span><span>${event.date}</span>` : ''}
@@ -84,7 +87,7 @@ function renderCombo(combo: ComboOffer): string {
           </div>
           <div class="combo-ledger-row is-combo">
             <span class="combo-ledger-label">COMBO</span>
-            <span class="combo-ledger-price">${formatINR(combo.publishedComboTotal)}</span>
+            <span class="combo-ledger-price">${formatINR(comboPayable(combo))}</span>
           </div>
           <div class="combo-save">SAVE ${formatINR(comboSavings(combo))}</div>
         </div>
@@ -215,6 +218,15 @@ export function renderCombosView(): string {
 }
 
 export function attachCombosEvents(): void {
+  // A combo names its events; pressing one should open it, not dead-end.
+  document.querySelectorAll<HTMLElement>('[data-combo-event-id]').forEach(el => {
+    el.addEventListener('click', event => {
+      event.stopPropagation();
+      const id = el.getAttribute('data-combo-event-id');
+      if (id) appStore.openEvent(id);
+    });
+  });
+
   document.getElementById('btn-combos-cart')?.addEventListener('click', () => {
     appStore.setScreen('cart');
   });

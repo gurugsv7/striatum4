@@ -55,8 +55,10 @@ export const COMBO_OFFERS: ComboOffer[] = [
     kind: 'workshop',
     eventIds: ['s4-05', 's4-01'],
     teamsPerEvent: 1,
-    publishedNormalTotal: 2000,
-    publishedComboTotal: 1800
+    // GENESIS went 800 -> 1,000, so both totals move with it. The saving is
+    // the organisers' 200 and does not.
+    publishedNormalTotal: 2200,
+    publishedComboTotal: 2000
   },
   {
     id: 'combo-stitchreef-trauma',
@@ -79,8 +81,9 @@ export const COMBO_OFFERS: ComboOffer[] = [
     kind: 'workshop',
     eventIds: ['s4-05', 's4-02', 's4-09'],
     teamsPerEvent: 1,
-    publishedNormalTotal: 2600,
-    publishedComboTotal: 2400
+    // GENESIS went 800 -> 1,000.
+    publishedNormalTotal: 2800,
+    publishedComboTotal: 2600
   },
   {
     id: 'combo-rythmica-glowcode',
@@ -149,6 +152,22 @@ export const COMBO_OFFERS: ComboOffer[] = [
 /** Savings the organisers published for a combo. */
 export function comboSavings(combo: ComboOffer): number {
   return combo.publishedNormalTotal - combo.publishedComboTotal;
+}
+
+/**
+ * What the delegate will actually be charged.
+ *
+ * Derived from the live catalogue rather than read from publishedComboTotal,
+ * because the two drift apart the moment an event's fee changes: raising
+ * GENESIS left every GENESIS combo advertising its old price while
+ * create_order, which reads the same catalogue this does, charged the new one.
+ *
+ * The saving is the organisers' own figure and is what discount_rules applies,
+ * so it is the one part that does not move.
+ */
+export function comboPayable(combo: ComboOffer): number {
+  const normal = comboNormalTotal(combo);
+  return normal === null ? combo.publishedComboTotal : normal - comboSavings(combo);
 }
 
 export interface ComboEventView {
