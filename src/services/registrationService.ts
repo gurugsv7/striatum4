@@ -568,7 +568,12 @@ function blockingReason(eventId: string, quantity: number, lunchChoice?: LunchCh
     return event.name + ' is already in an order awaiting verification.';
   }
   if (isInCart(eventId)) return event.name + ' is already in your cart.';
-  if (quantity > 1 && event.participation !== 'team') {
+  // Several team entries at once only makes sense where teams exist at all --
+  // which is not the same as the event being team-only. AQUAQUEST takes a lone
+  // entrant or a team of up to three, so `participation` is 'either', and
+  // testing that here refused the four-team bundle the organisers actually
+  // sell. create_order asks whether team_max is at least 2; so does this.
+  if (quantity > 1 && (event.teamSize?.max ?? 1) < 2) {
     return event.name + ' is registered per person, not per team.';
   }
   // Every team in a bulk entry needs its own place.
