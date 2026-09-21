@@ -33,3 +33,15 @@ create policy delegate_admin on public.delegate_applications for update
 drop policy if exists payment_proofs_select_admin on storage.objects;
 create policy payment_proofs_select_finance on storage.objects for select
   using (bucket_id = 'payment-proofs' and public.is_finance_admin());
+
+-- Keep the existing atomic transitions, but change their authorization check
+-- from any admin to the finance allowlist without duplicating their bodies.
+do $$
+declare
+  fn text;
+begin
+  foreach fn in array array['public.approve_order(uuid)'::text, 'public.reject_order(uuid,text)'::text]
+  loop
+    execute replace(pg_get_functiondef(fn::regprocedure), 'is_admin()', 'is_finance_admin()');
+  end loop;
+end $$;
