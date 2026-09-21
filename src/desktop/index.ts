@@ -31,6 +31,7 @@ import { renderDelegateConfirmView, attachDelegateConfirmEvents } from '../views
 import { renderEventPaymentView, attachEventPaymentEvents } from '../views/EventPaymentView.ts';
 import { renderEventConfirmView, attachEventConfirmEvents } from '../views/EventConfirmView.ts';
 import { renderAdminView, attachAdminEvents } from '../views/AdminView.ts';
+import { renderAdminRegistrationsView, attachAdminRegistrationsEvents } from '../views/AdminRegistrationsView.ts';
 import { renderAdminGateView, attachAdminGateEvents } from '../views/AdminGateView.ts';
 import { renderPrivacyView, attachPrivacyEvents, renderTermsView, attachTermsEvents } from '../views/LegalView.ts';
 import { renderCreditsView, attachCreditsEvents } from '../views/CreditsView.ts';
@@ -77,10 +78,11 @@ const FRAMED: Partial<Record<ScreenType, DesktopView>> = {
   terms: { render: renderTermsView, attach: attachTermsEvents, framed: true },
   credits: { render: renderCreditsView, attach: attachCreditsEvents, framed: true },
   admin: { render: renderAdminView, attach: attachAdminEvents, framed: true, wide: true }
+  , 'admin-registrations': { render: renderAdminRegistrationsView, attach: attachAdminRegistrationsEvents, framed: true, wide: true }
 };
 
 function viewFor(screen: ScreenType): DesktopView {
-  if (screen === 'admin' && !registration.isAdmin()) {
+  if ((screen === 'admin' || screen === 'admin-registrations') && !registration.isAdmin()) {
     return { render: renderAdminGateView, attach: attachAdminGateEvents, framed: true };
   }
   return BESPOKE[screen] ?? FRAMED[screen] ?? BESPOKE.home!;

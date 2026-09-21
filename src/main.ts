@@ -61,6 +61,7 @@ import {
   attachRegistrationFormEvents
 } from './views/RegistrationFormView.ts';
 import { mountStriatumAssistant } from './components/StriatumAssistant.ts';
+import { renderAdminRegistrationsView, attachAdminRegistrationsEvents } from './views/AdminRegistrationsView.ts';
 
 const VIEWS: Record<ScreenType, { render: () => string; attach: () => void }> = {
   onboarding: { render: renderOnboardingView, attach: attachOnboardingEvents },
@@ -74,6 +75,7 @@ const VIEWS: Record<ScreenType, { render: () => string; attach: () => void }> = 
   programme: { render: renderProgrammeView, attach: attachProgrammeEvents },
   profile: { render: renderProfileView, attach: attachProfileEvents },
   admin: { render: renderAdminView, attach: attachAdminEvents },
+  'admin-registrations': { render: renderAdminRegistrationsView, attach: attachAdminRegistrationsEvents },
   'delegate-registration': { render: renderDelegateRegistrationView, attach: attachDelegateRegistrationEvents },
   'delegate-payment': { render: renderDelegatePaymentView, attach: attachDelegatePaymentEvents },
   'delegate-home': { render: renderDelegateHomeView, attach: attachDelegateHomeEvents },
@@ -216,7 +218,7 @@ function renderApp(state: AppState): void {
   // Admin access is decided server-side by is_admin(); this only mirrors it so
   // a non-organiser sees an explanation instead of an empty console.
   const view =
-    state.currentScreen === 'admin' && !registrationService.isAdmin()
+    (state.currentScreen === 'admin' || state.currentScreen === 'admin-registrations') && !registrationService.isAdmin()
       ? { render: renderAdminGateView, attach: attachAdminGateEvents }
       : VIEWS[state.currentScreen] ?? VIEWS.home;
 
