@@ -229,9 +229,16 @@ export function isRemote(): boolean {
 }
 
 let isAdminUser = false;
+const FINANCE_ADMIN_EMAILS = new Set(['financesigma26@gmail.com', 'gurugsv777@gmail.com']);
 let remoteCapacities: Record<string, Capacity> = {};
 export function isAdmin(): boolean {
   return isAdminUser;
+}
+
+/** Finance evidence and approval controls are restricted to these accounts. */
+export function isFinanceAdmin(): boolean {
+  const email = getCurrentUser()?.email?.toLowerCase();
+  return !!email && FINANCE_ADMIN_EMAILS.has(email);
 }
 
 function adoptSnapshot(snapshot: remote.RemoteSnapshot): void {

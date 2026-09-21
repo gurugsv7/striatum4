@@ -4,9 +4,8 @@ import { formatINR } from '../services/pricing.ts';
 import { escapeHtml } from '../services/text.ts';
 
 /**
- * Manual verification console. This reads and mutates the same localStorage-backed
- * registrationService used by the rest of the app -- there is no server-side admin
- * yet, and this screen builds no fake login. See the closing note rendered below.
+ * Server-backed organiser console. The registration service hydrates this view
+ * from Supabase; localStorage is only the offline cache for the existing app.
  *
  * Module-level UI state, since the whole app re-renders from scratch on every
  * state change and none of this belongs in the shared appStore.
@@ -706,6 +705,7 @@ function renderOrdersSection(): string {
 /* -------------------------------------------------------------------- root -- */
 
 export function renderAdminView(): string {
+  const finance = registration.isFinanceAdmin();
   return `
     <div class="screen-content no-bottom-nav">
 
@@ -725,22 +725,20 @@ export function renderAdminView(): string {
           <span class="section-name">VERIFICATION</span>
         </div>
         <h1 class="explore-heading">
-          Payment verification<span class="cyan-period">.</span>
+          ${finance ? 'Operations console' : 'Registration dashboard'}<span class="cyan-period">.</span>
         </h1>
         <p class="explore-subtitle">
-          Registrations, delegate applications and payment proofs — all verified by hand.
+          ${finance ? 'Registrations, delegate applications and payment proofs — all verified by hand.' : 'Event registrations and participant rosters, read-only.'}
         </p>
       </section>
 
       ${renderOverviewSection()}
       ${renderRosterSection()}
-      ${renderDelegateSection()}
-      ${renderOrdersSection()}
+      ${finance ? renderDelegateSection() : ''}
+      ${finance ? renderOrdersSection() : ''}
 
       <p class="admin-footnote">
-        This console reads the registrations persisted on this device only. A production
-        deployment needs a server-side admin surface with real authentication — this screen
-        builds no login of its own.
+        ${finance ? 'Payment evidence and approval controls are restricted to the finance team.' : 'Registration data is read-only for organiser accounts.'}
       </p>
 
     </div>
@@ -751,11 +749,13 @@ export function attachAdminEvents(): void {
   // Private Storage proofs resolve asynchronously. Warm every proof currently
   // visible in the console so the verifier gets the actual image, not a
   // misleading empty placeholder on the first render.
-  void registration.warmProofImages(registration.listAllOrdersForAdmin().filter(order => order.proof).map(order => order.id));
+  if (registration.isFinanceAdmin()) {
+    void registration.warmProofImages(registration.listAllOrdersForAdmin().filter(order => order.proof).map(order => order.id));
   // Delegate evidence and abstracts live at their own paths rather than under
   // an order id, so they are warmed by path.
-  void registration.warmDelegateProofs();
-  void registration.warmAbstracts();
+    void registration.warmDelegateProofs();
+    void registration.warmAbstracts();
+  }
 
   const btnBack = document.getElementById('btn-admin-back');
   if (btnBack) {
