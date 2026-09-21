@@ -14,7 +14,7 @@ $$;
 
 drop policy if exists orders_select on public.orders;
 create policy orders_select on public.orders for select
-  using ((user_id = auth.uid()) or public.is_finance_admin());
+  using ((user_id = auth.uid()) or public.is_admin());
 
 drop policy if exists orders_admin on public.orders;
 create policy orders_admin on public.orders for update
@@ -23,7 +23,7 @@ create policy orders_admin on public.orders for update
 
 drop policy if exists delegate_select on public.delegate_applications;
 create policy delegate_select on public.delegate_applications for select
-  using ((user_id = auth.uid()) or public.is_finance_admin());
+  using ((user_id = auth.uid()) or public.is_admin());
 
 drop policy if exists delegate_admin on public.delegate_applications;
 create policy delegate_admin on public.delegate_applications for update
