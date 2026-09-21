@@ -47,6 +47,7 @@ const STATIC_ROUTES: Record<string, ScreenType> = {
   '/register': 'registration',
   '/profile': 'profile',
   '/admin': 'admin',
+  '/admin/registrations': 'admin-registrations',
   '/privacy': 'privacy',
   '/terms': 'terms',
   '/council': 'council',
@@ -74,6 +75,7 @@ const SCREEN_TO_PATH: Partial<Record<ScreenType, string>> = {
   registration: '/register',
   profile: '/profile',
   admin: '/admin',
+  'admin-registrations': '/admin/registrations',
   privacy: '/privacy',
   terms: '/terms',
   council: '/council',
@@ -141,6 +143,8 @@ export function titleFor(screen: ScreenType, eventName?: string): string {
       return 'Profile' + suffix;
     case 'admin':
       return 'Verification console' + suffix;
+    case 'admin-registrations':
+      return 'Event registrations' + suffix;
     case 'privacy':
       return 'Privacy policy' + suffix;
     case 'terms':

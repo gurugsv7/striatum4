@@ -730,6 +730,7 @@ export function renderAdminView(): string {
         <p class="explore-subtitle">
           ${finance ? 'Registrations, delegate applications and payment proofs — all verified by hand.' : 'Event registrations and participant rosters, read-only.'}
         </p>
+        <button class="action-link-cyan" id="btn-open-registration-dashboard" style="margin-top: 16px;">OPEN EVENT REGISTRATION DASHBOARD →</button>
       </section>
 
       ${renderOverviewSection()}
@@ -761,6 +762,7 @@ export function attachAdminEvents(): void {
   if (btnBack) {
     btnBack.addEventListener('click', () => appStore.setScreen('profile'));
   }
+  document.getElementById('btn-open-registration-dashboard')?.addEventListener('click', () => appStore.setScreen('admin-registrations'));
 
   document.querySelectorAll<HTMLButtonElement>('[data-roster-filter]').forEach(btn => {
     btn.addEventListener('click', () => {

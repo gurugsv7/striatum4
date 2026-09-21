@@ -21,6 +21,7 @@ export type ScreenType =
   | 'programme'
   | 'profile'
   | 'admin'
+  | 'admin-registrations'
   | 'privacy'
   | 'terms'
   | 'council'
