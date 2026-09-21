@@ -3,6 +3,10 @@ import { redirect } from "next/navigation";
 import { getOptionalUser } from "@/lib/auth/guards";
 import { VerifyCodeForm } from "@/components/auth/VerifyCodeForm";
 
+// This page reads the cookie-bound Supabase session and must never be
+// prerendered during a deployment build.
+export const dynamic = "force-dynamic";
+
 /**
  * Fallback manual verification: if a magic-link email is opened on a
  * different device/browser than it was requested from, /auth/callback's code
