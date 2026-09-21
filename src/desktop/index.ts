@@ -85,6 +85,9 @@ function viewFor(screen: ScreenType): DesktopView {
   if ((screen === 'admin' || screen === 'admin-registrations') && !registration.isAdmin()) {
     return { render: renderAdminGateView, attach: attachAdminGateEvents, framed: true };
   }
+  if (screen === 'admin' && !registration.isFinanceAdmin()) {
+    return { render: renderAdminRegistrationsView, attach: attachAdminRegistrationsEvents, framed: true, wide: true };
+  }
   return BESPOKE[screen] ?? FRAMED[screen] ?? BESPOKE.home!;
 }
 

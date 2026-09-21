@@ -220,6 +220,8 @@ function renderApp(state: AppState): void {
   const view =
     (state.currentScreen === 'admin' || state.currentScreen === 'admin-registrations') && !registrationService.isAdmin()
       ? { render: renderAdminGateView, attach: attachAdminGateEvents }
+      : state.currentScreen === 'admin' && !registrationService.isFinanceAdmin()
+        ? { render: renderAdminRegistrationsView, attach: attachAdminRegistrationsEvents }
       : VIEWS[state.currentScreen] ?? VIEWS.home;
 
   syncUrlAndTitle(state);
