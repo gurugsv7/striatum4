@@ -15,7 +15,7 @@ import type { DelegateRow, ProfileRow } from '@/lib/types/database';
 // Typed errors
 // ---------------------------------------------------------------------------
 export type AuthErrorCode = 'UNAUTHENTICATED' | 'NOT_ADMIN' | 'NOT_DELEGATE' | 'PROFILE_MISSING';
-export const FINANCE_ADMIN_EMAIL = 'financesigma26@gmail.com';
+export const FINANCE_ADMIN_EMAILS = ['financesigma26@gmail.com', 'gurugsv777@gmail.com'] as const;
 
 export class AuthError extends Error {
   code: AuthErrorCode;
@@ -104,7 +104,7 @@ export async function requireAdmin(roles?: AdminRole[]): Promise<AuthedAdmin> {
 /** Payment evidence and finance mutations are restricted to the finance account. */
 export async function requireFinanceAdmin(): Promise<AuthedAdmin> {
   const admin = await requireAdmin();
-  if (admin.email.toLowerCase() !== FINANCE_ADMIN_EMAIL) {
+  if (!FINANCE_ADMIN_EMAILS.includes(admin.email.toLowerCase() as (typeof FINANCE_ADMIN_EMAILS)[number])) {
     throw new AuthError('NOT_ADMIN', 'Finance access required.');
   }
   return admin;

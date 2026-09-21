@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { ADMIN_ROLE_LABELS, type AdminRole } from '@/lib/types/enums';
 import { AdminSidebar } from './AdminSidebar';
 import { SignOutButton } from './SignOutButton';
+import { FINANCE_ADMIN_EMAILS } from '@/lib/auth/guards';
 
 export interface AdminShellProps {
   adminEmail: string;
@@ -13,7 +14,7 @@ export interface AdminShellProps {
 export function AdminShell({ adminEmail, adminRole, children }: AdminShellProps) {
   return (
     <div className="flex min-h-screen bg-abyss-900 text-ice-100">
-      <AdminSidebar adminRole={adminRole} isFinance={adminEmail.toLowerCase() === 'financesigma26@gmail.com'} />
+      <AdminSidebar isFinance={FINANCE_ADMIN_EMAILS.includes(adminEmail.toLowerCase() as (typeof FINANCE_ADMIN_EMAILS)[number])} />
       <div className="flex min-h-screen flex-1 flex-col lg:pl-0">
         <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-3 border-b border-line-100 bg-abyss-900/95 px-4 pl-16 backdrop-blur lg:pl-6">
           <p className="truncate text-[13px] text-ice-500">

@@ -13,7 +13,7 @@ as $$
     from auth.users u
     join admin_users au on au.user_id = u.id
     where u.id = p_uid
-      and lower(u.email) = 'financesigma26@gmail.com'
+      and lower(u.email) in ('financesigma26@gmail.com', 'gurugsv777@gmail.com')
   );
 $$;
 

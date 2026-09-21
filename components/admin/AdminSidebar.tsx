@@ -24,7 +24,6 @@ import {
   X,
 } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
-import type { AdminRole } from '@/lib/types/enums';
 
 interface NavItem {
   href: string;
@@ -87,7 +86,7 @@ function NavLinks({ pathname, onNavigate, isFinance }: { pathname: string; onNav
   );
 }
 
-export function AdminSidebar({ adminRole, isFinance }: { adminRole: AdminRole; isFinance: boolean }) {
+export function AdminSidebar({ isFinance }: { isFinance: boolean }) {
   const pathname = usePathname();
   const [drawerOpen, setDrawerOpen] = useState(false);
 

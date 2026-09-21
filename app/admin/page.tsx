@@ -7,7 +7,7 @@ import { feeLabel } from '@/lib/format/currency';
 import { StatCard } from '@/components/admin/StatCard';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { SectionHeader } from '@/components/ui/SectionHeader';
-import { requireAdmin, FINANCE_ADMIN_EMAIL } from '@/lib/auth/guards';
+import { requireAdmin, FINANCE_ADMIN_EMAILS } from '@/lib/auth/guards';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,7 +15,7 @@ export default async function AdminOverviewPage() {
   const admin = await requireAdmin();
   const [counters, queueResult] = await Promise.all([
     getDashboardCounters(),
-    admin.email.toLowerCase() === FINANCE_ADMIN_EMAIL
+    FINANCE_ADMIN_EMAILS.includes(admin.email.toLowerCase() as (typeof FINANCE_ADMIN_EMAILS)[number])
       ? listPaymentQueue({ status: 'PENDING_REVIEW', page: 1, pageSize: 12 })
       : Promise.resolve({ rows: [], total: 0, page: 1, pageSize: 12 }),
   ]);
@@ -73,7 +73,7 @@ export default async function AdminOverviewPage() {
         <StatCard label="Checked-In Participants" value={counters.checkedInParticipants} href="/admin/checkin" />
       </div>
 
-      {admin.email.toLowerCase() === FINANCE_ADMIN_EMAIL ? <div className="flex flex-col gap-4">
+      {FINANCE_ADMIN_EMAILS.includes(admin.email.toLowerCase() as (typeof FINANCE_ADMIN_EMAILS)[number]) ? <div className="flex flex-col gap-4">
         <SectionHeader
           eyebrow="LIVE QUEUE"
           heading="Payments needing review"
