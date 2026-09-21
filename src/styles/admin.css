@@ -159,6 +159,53 @@
   margin-top: 26px;
 }
 
+/* Event registration directory shares the Explore expedition atmosphere. */
+.admin-registrations-screen {
+  min-height: 100%;
+  background:
+    linear-gradient(180deg, rgba(1, 6, 14, 0.7), rgba(1, 6, 14, 0.92)),
+    url('/art_ocean_floor_clean.png') center top / cover fixed no-repeat;
+}
+
+.admin-event-search-row {
+  margin-top: 14px;
+  margin-bottom: 14px;
+}
+
+.admin-registration-entry {
+  cursor: pointer;
+}
+
+.admin-registration-entry:focus-visible .event-card,
+.admin-registration-entry:hover .event-card {
+  border-color: rgba(42, 241, 250, 0.55);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.5), 0 0 16px rgba(42, 241, 250, 0.2);
+}
+
+.admin-registration-event-card {
+  margin-bottom: 0;
+}
+
+.admin-registration-event-card .btn-view-event {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--cyan-glow);
+  font-family: var(--font-mono-meta);
+  font-size: 9px;
+  letter-spacing: 1.2px;
+}
+
+.admin-registration-event-card .circle-arrow-icon {
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(42, 241, 250, 0.45);
+  border-radius: 50%;
+}
+
 .admin-toggle-row {
   display: flex;
   gap: 8px;
