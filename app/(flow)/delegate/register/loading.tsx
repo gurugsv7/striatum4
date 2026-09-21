@@ -1,0 +1,17 @@
+import { FocusedFlowHeader } from "@/components/shell/FocusedFlowHeader";
+import { PageContainer } from "@/components/shell/PageContainer";
+import { Skeleton } from "@/components/ui/Skeleton";
+
+export default function Loading() {
+  return (
+    <div className="min-h-dvh bg-abyss-900">
+      <FocusedFlowHeader />
+      <PageContainer className="flex flex-col gap-6 py-8">
+        <Skeleton className="h-4 w-40" />
+        <Skeleton className="h-16 w-full" />
+        <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-64 w-full rounded-lg" />
+      </PageContainer>
+    </div>
+  );
+}

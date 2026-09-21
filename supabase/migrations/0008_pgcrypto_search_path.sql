@@ -1,0 +1,160 @@
+-- ============================================================================
+-- STRIATUM 4.0 — 0008_pgcrypto_search_path.sql
+--
+-- THE BUG
+-- -----------------------------------------------------------------------
+-- 0007_search_path_hardening.sql pinned random_token(integer) to
+-- `search_path = pg_catalog, public`, on the assumption — taken from
+-- 0001_init.sql's `create extension if not exists pgcrypto;` with no
+-- schema clause — that pgcrypto lives in the `public` schema. On the
+-- actual hosted Supabase project it does not: Supabase provisions new
+-- projects with pgcrypto (and the other bundled extensions) installed into
+-- a dedicated `extensions` schema, not `public`. Verified directly against
+-- the live database:
+--
+--   select random_token(32);
+--     -> ERROR: function gen_random_bytes(integer) does not exist
+--   select p.proconfig from pg_proc p where p.proname = 'random_token';
+--     -> {search_path=pg_catalog,public}
+--   select extnamespace::regnamespace from pg_extension where extname = 'pgcrypto';
+--     -> extensions
+--   select pronamespace::regnamespace from pg_proc where proname = 'gen_random_bytes';
+--     -> extensions
+--
+-- random_token() generates delegates.verification_token (via
+-- approve_delegate_payment()) and qr_credentials.token (via
+-- approve_event_payment(), confirm_free_event_registration(), and
+-- approve_free_event_registration()) — every one of those four callers
+-- inherits this bug because they all call random_token(32) rather than
+-- gen_random_bytes() directly (confirmed below). So every delegate
+-- approval and every event QR issuance currently fails at the moment of
+-- issuance on the live database.
+--
+-- THE FIX — search_path, not schema-qualification
+-- -----------------------------------------------------------------------
+-- Two ways to make gen_random_bytes() resolve:
+--
+--   (a) `alter function random_token(integer)
+--        set search_path = pg_catalog, extensions, public;`
+--       — add `extensions` to the pinned path, ahead of `public`.
+--
+--   (b) `create or replace function random_token(...) ... as $$ select
+--        translate(encode(extensions.gen_random_bytes(n), 'base64'), ...) $$;`
+--       — schema-qualify the call in the body instead.
+--
+-- This migration uses (a). Rationale: (b) hard-codes the assumption that
+-- pgcrypto lives in `extensions`, which is true on THIS hosted Supabase
+-- project today but is not guaranteed by Postgres, by Supabase's own
+-- CLI/local-dev tooling, or by any other environment this codebase might
+-- run against — a fresh database created from 0001_init.sql's unqualified
+-- `create extension if not exists pgcrypto;` installs pgcrypto into
+-- `public`, and `extensions.gen_random_bytes` would not exist there,
+-- breaking local dev / `supabase db reset` outright. (a) tolerates either
+-- layout: whichever of `extensions` or `public` actually holds pgcrypto on
+-- a given database, `gen_random_bytes` resolves, because both schemas are
+-- on the search path and `pg_catalog` is listed first only for builtins
+-- (encode, translate) to win any theoretical shadowing. This is exactly
+-- the same tradeoff 0007 already reasoned through for pinning
+-- random_token in the first place (pg_catalog first, then the schema that
+-- resolves the extension) — this migration only corrects the *second*
+-- schema in that list from a wrong assumption (public) to a path that
+-- covers both real-world layouts (extensions, then public). Confirmed
+-- this genuinely satisfies both targets:
+--   - hosted Supabase (pgcrypto in `extensions`): gen_random_bytes found
+--     via the `extensions` entry.
+--   - fresh local db from 0001_init.sql (pgcrypto in `public`, no schema
+--     clause): gen_random_bytes found via the `public` entry.
+-- No function signature, return type, volatility, or body changes —
+-- ALTER FUNCTION ... SET only touches the function's pinned search_path
+-- config, exactly as 0007 did for this same function.
+--
+-- AUDIT FOR THE SAME BUG ELSEWHERE
+-- -----------------------------------------------------------------------
+-- Every function defined across 0002_functions.sql, 0005_free_event_approval.sql,
+-- and 0006_function_hardening.sql (which reproduces 0002/0005's bodies
+-- verbatim) was read in full and checked for unqualified calls to any
+-- pgcrypto routine (gen_random_bytes, digest, crypt, gen_salt, hmac) or to
+-- uuid_generate_v4 (uuid-ossp) or any citext function/operator:
+--
+--   random_token(n)                        -> gen_random_bytes(n)  [THE BUG — fixed above]
+--   is_admin / is_admin_role               -> no crypto/uuid/citext calls
+--   issue_delegate_id / issue_registration_code -> nextval/lpad only (pg_catalog)
+--   notify / audit                         -> plain inserts, no crypto/uuid/citext
+--   approve_delegate_payment               -> calls random_token(32); issue_delegate_id()
+--   reject_delegate_payment                -> no crypto/uuid/citext calls
+--   approve_event_payment                  -> calls random_token(32)
+--   reject_event_payment                   -> no crypto/uuid/citext calls
+--   confirm_free_event_registration        -> calls random_token(32)
+--   redeem_event_qr                        -> no crypto/uuid/citext calls (looks up by token text)
+--   publish_results / unpublish_results    -> no crypto/uuid/citext calls
+--   approve_free_event_registration        -> calls random_token(32)
+--   reject_free_event_registration         -> no crypto/uuid/citext calls
+--   set_updated_at (0001)                  -> now() only, pinned search_path = '' since 0007
+--   handle_new_auth_user (0001)            -> plain insert, pinned search_path = public
+--
+-- gen_random_uuid() IS in pg_catalog on PostgreSQL 13+ (confirmed, not
+-- assumed — it was folded into core well before the 13 release and no
+-- longer needs pgcrypto at all); every use of it in this codebase
+-- (0001_init.sql's `id uuid primary key default gen_random_uuid()` column
+-- defaults, 0002's `qr_redeem_result` handling has none) is a column
+-- DEFAULT expression, not a function body — default expressions resolve
+-- their function reference to a fixed OID at the time the column is
+-- defined (like a check constraint), so they are not subject to a
+-- session's or a function's search_path at all, and are unaffected by
+-- this bug class either way.
+--
+-- uuid_generate_v4() / the uuid-ossp extension: not installed (0001 only
+-- installs pgcrypto and citext) and not referenced anywhere in
+-- supabase/migrations/**.
+--
+-- citext: used only as a column TYPE (profiles.email, delegate_applications.email,
+-- team_members.email) — never as a function/operator call inside any
+-- SECURITY DEFINER function body — so no function's pinned search_path
+-- needs to reach the schema citext lives in. (It happens to live in
+-- `public` either way, per 0007's own note, and every affected function
+-- already carries `public` on its search_path regardless.)
+--
+-- Conclusion: random_token(integer) was the ONLY function with this bug.
+-- Every other issuance path (delegate approval, event payment approval,
+-- free-event confirmation, free-event admin approval) calls
+-- random_token() rather than gen_random_bytes() directly, so fixing this
+-- one function fixes all of them — no other ALTER/CREATE OR REPLACE is
+-- needed in this migration.
+--
+-- 0001_init.sql — left unchanged, deliberately
+-- -----------------------------------------------------------------------
+-- Not touched. `create extension if not exists pgcrypto;` (no schema
+-- clause) is safe to leave as-is:
+--   - It is a no-op against the live database (the extension already
+--     exists there; IF NOT EXISTS short-circuits), so there is nothing to
+--     conflict with on the already-migrated project.
+--   - The fix above (search_path = pg_catalog, extensions, public) is
+--     already schema-agnostic: it works whether pgcrypto lands in
+--     `extensions` (hosted) or `public` (fresh local db from this exact
+--     0001), so there is no *functional* need to change where a fresh
+--     database installs pgcrypto.
+--   - Relocating pgcrypto's install schema in 0001 would be a cosmetic-only
+--     change (making a fresh db's layout resemble hosted Supabase more
+--     closely) that adds risk for no correctness gain: it would need a
+--     conditional `create schema if not exists extensions` plus
+--     `create extension if not exists pgcrypto schema extensions`, and
+--     any reviewer's assumption that pgcrypto is "wherever 0001 put it"
+--     would need re-verifying. Not worth it here — 0008 is the migration
+--     that actually matters; 0001 is left alone.
+--   - citext's schema is untouched entirely, per the operator's explicit
+--     instruction (profiles.email depends on that type).
+--
+-- SAFETY
+-- -----------------------------------------------------------------------
+-- Additive, idempotent (ALTER FUNCTION ... SET can be re-run safely; it
+-- simply re-sets the same config to the same value), and changes nothing
+-- about random_token()'s signature, return type, volatility, or grants —
+-- it remains reachable at its existing (deliberately unrevoked, per 0006's
+-- rationale) default grants.
+-- ============================================================================
+
+alter function random_token(integer) set search_path = pg_catalog, extensions, public;
+
+-- ============================================================================
+-- END 0008_pgcrypto_search_path.sql
+-- ============================================================================
