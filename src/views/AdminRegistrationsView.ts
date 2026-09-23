@@ -1,12 +1,18 @@
 import { appStore } from '../state/appStore.ts';
 import * as registration from '../services/registrationService.ts';
 import { escapeHtml } from '../services/text.ts';
+import { EVENTS } from '../data/events.ts';
 
 let selectedEvent: string | null = null;
 let eventSearch = '';
 
 function eventNames(): string[] {
   const names = new Set<string>();
+  // Start with the published catalogue so events with zero registrations
+  // (especially quizzes and presentations) still appear in the directory.
+  for (const event of EVENTS) {
+    if (event.registerable !== false) names.add(event.name);
+  }
   for (const order of registration.listAllOrdersForAdmin()) {
     for (const line of order.lines) names.add(line.eventName);
   }
