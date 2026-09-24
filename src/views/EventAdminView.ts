@@ -2,6 +2,7 @@ import { appStore } from '../state/appStore.ts';
 import * as registration from '../services/registrationService.ts';
 import { signOut } from '../services/authService.ts';
 import { escapeHtml } from '../services/text.ts';
+import { CATEGORY_FILTERS } from '../data/eventTypes.ts';
 
 let selectedEventId: string | null = null;
 let attendeeSearch = '';
@@ -12,9 +13,9 @@ let eventSearch = '';
 export function renderEventAdminView(): string {
   const events = registration.listCurrentAdminEvents();
   const rows = registration.listEventAdminRegistrations();
-  const categories = [...new Set(events.map(event => event.category).filter(Boolean))].sort((a, b) => a.localeCompare(b));
   const eventQuery = eventSearch.trim().toLowerCase();
-  const categoryEvents = categoryFilter === 'ALL' ? events : events.filter(event => event.category === categoryFilter);
+  const activeCategory = CATEGORY_FILTERS.find(filter => filter.id === categoryFilter) ?? CATEGORY_FILTERS[0];
+  const categoryEvents = activeCategory.id === 'ALL' ? events : events.filter(event => activeCategory.categories.includes(event.category));
   const visibleEvents = eventQuery ? categoryEvents.filter(event => [event.name, event.code, event.category].some(value => value && value.toLowerCase().includes(eventQuery))) : categoryEvents;
   const selected = visibleEvents.find(event => event.id === selectedEventId) ?? visibleEvents[0];
   const attendees = selected ? rows.filter(row => row.eventId === selected.id) : [];
@@ -39,8 +40,8 @@ export function renderEventAdminView(): string {
         <div class="section-index-label"><span class="cyan-num">A</span><span class="slash">/</span><span class="section-name">CURRENT EVENTS · 2026</span></div>
         <div class="input-control-box event-admin-event-search"><input id="event-admin-event-search" class="text-input-field" type="search" placeholder="Search event name, code or category" value="${escapeHtml(eventSearch)}" autocomplete="off" /></div>
         <div class="admin-toggle-row event-admin-category-filters">
-          ${['ALL', ...categories].map(category => `<button class="filter-chip-btn ${categoryFilter === category ? 'active' : ''}" data-event-admin-category="${escapeHtml(category)}">
-            ${categoryFilter === category ? '<span class="chip-glow-dot"></span>' : ''}<span>${escapeHtml(category)}</span>
+          ${CATEGORY_FILTERS.map(filter => `<button class="filter-chip-btn ${categoryFilter === filter.id ? 'active' : ''}" data-event-admin-category="${escapeHtml(filter.id)}">
+            ${categoryFilter === filter.id ? '<span class="chip-glow-dot"></span>' : ''}<span>${escapeHtml(filter.label)}</span>
           </button>`).join('')}
         </div>
         <div class="event-admin-event-list">
