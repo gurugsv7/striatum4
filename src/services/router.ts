@@ -19,7 +19,9 @@ export interface Route {
 }
 
 /** Routes that must remain reachable before sign-in for access and SEO. */
-const PUBLIC_ROUTES = new Set<ScreenType>(['onboarding', 'privacy', 'terms', 'credits']);
+// The admin route renders its own credential gate before exposing any data.
+// Guests must be able to reach that gate directly to use the shared username.
+const PUBLIC_ROUTES = new Set<ScreenType>(['onboarding', 'admin', 'privacy', 'terms', 'credits']);
 
 export function routeRequiresAuth(route: Route): boolean {
   return !PUBLIC_ROUTES.has(route.screen);
