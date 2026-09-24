@@ -6,13 +6,16 @@ import { escapeHtml } from '../services/text.ts';
 let selectedEventId: string | null = null;
 let attendeeSearch = '';
 let categoryFilter = 'ALL';
+let eventSearch = '';
 
 /** The non-finance organiser's view of the current website catalogue. */
 export function renderEventAdminView(): string {
   const events = registration.listCurrentAdminEvents();
   const rows = registration.listEventAdminRegistrations();
   const categories = [...new Set(events.map(event => event.category).filter(Boolean))].sort((a, b) => a.localeCompare(b));
-  const visibleEvents = categoryFilter === 'ALL' ? events : events.filter(event => event.category === categoryFilter);
+  const eventQuery = eventSearch.trim().toLowerCase();
+  const categoryEvents = categoryFilter === 'ALL' ? events : events.filter(event => event.category === categoryFilter);
+  const visibleEvents = eventQuery ? categoryEvents.filter(event => [event.name, event.code, event.category].some(value => value && value.toLowerCase().includes(eventQuery))) : categoryEvents;
   const selected = visibleEvents.find(event => event.id === selectedEventId) ?? visibleEvents[0];
   const attendees = selected ? rows.filter(row => row.eventId === selected.id) : [];
   const query = attendeeSearch.trim().toLowerCase();
@@ -34,6 +37,7 @@ export function renderEventAdminView(): string {
       </section>
       <section class="admin-section">
         <div class="section-index-label"><span class="cyan-num">A</span><span class="slash">/</span><span class="section-name">CURRENT EVENTS · 2026</span></div>
+        <div class="input-control-box event-admin-event-search"><input id="event-admin-event-search" class="text-input-field" type="search" placeholder="Search event name, code or category" value="${escapeHtml(eventSearch)}" autocomplete="off" /></div>
         <div class="admin-toggle-row event-admin-category-filters">
           ${['ALL', ...categories].map(category => `<button class="filter-chip-btn ${categoryFilter === category ? 'active' : ''}" data-event-admin-category="${escapeHtml(category)}">
             ${categoryFilter === category ? '<span class="chip-glow-dot"></span>' : ''}<span>${escapeHtml(category)}</span>
@@ -76,6 +80,16 @@ export function attachEventAdminEvents(): void {
     registration.forgetLocalState();
     appStore.signOut();
     appStore.setScreen('onboarding');
+  });
+  document.getElementById('event-admin-event-search')?.addEventListener('input', event => {
+    eventSearch = (event.target as HTMLInputElement).value;
+    selectedEventId = null;
+    appStore.refresh();
+    requestAnimationFrame(() => {
+      const input = document.getElementById('event-admin-event-search') as HTMLInputElement | null;
+      input?.focus();
+      input?.setSelectionRange(eventSearch.length, eventSearch.length);
+    });
   });
   document.querySelectorAll<HTMLButtonElement>('[data-event-admin-category]').forEach(button => {
     button.addEventListener('click', () => {
