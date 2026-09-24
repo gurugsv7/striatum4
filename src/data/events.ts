@@ -256,6 +256,12 @@ function patchSections(
       }
 
       if (section.title === 'IMPORTANT INFORMATION') {
+        const pricing = override.pricing ?? event.pricing;
+        const amount = fact.label === 'Early Bird' ? pricing.earlyBird
+          : fact.label === 'Late Bird' ? pricing.lateBird : undefined;
+        if (amount !== undefined) {
+          return { ...fact, value: `₹${amount.toLocaleString('en-IN')}` };
+        }
         if (fact.label.toLowerCase() === 'date' && override.isoDate) {
           return { ...fact, value: longDate(override.isoDate) ?? fact.value };
         }
@@ -311,7 +317,8 @@ function applyLatestBrochureData(event: SymposiumEvent): SymposiumEvent {
 
   // In-charges are keyed on the original name so renamed events still resolve,
   // and they apply whether or not the event has a brochure override.
-  if (!override) return inCharges ? { ...event, coordinators: inCharges } : event;
+  if (!override) return { ...event, coordinators: inCharges ?? event.coordinators,
+    sections: patchSections(originalName, event, {}) };
 
   const patched: SymposiumEvent = {
     ...event,

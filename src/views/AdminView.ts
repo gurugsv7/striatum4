@@ -2,10 +2,11 @@ import { appStore } from '../state/appStore.ts';
 import * as registration from '../services/registrationService.ts';
 import { formatINR } from '../services/pricing.ts';
 import { escapeHtml } from '../services/text.ts';
+import { getEvent } from '../data/events.ts';
 
 /**
- * Server-backed organiser console. The registration service hydrates this view
- * from Supabase; localStorage is only the offline cache for the existing app.
+ * Finance verification console. The backend limits approvals and proofs to the
+ * finance account; other organisers use EventAdminView.
  *
  * Module-level UI state, since the whole app re-renders from scratch on every
  * state change and none of this belongs in the shared appStore.
@@ -419,6 +420,8 @@ function matchesRosterSearch(entry: registration.RosterEntry, query: string): bo
   const haystack = [
     entry.delegateName,
     entry.email,
+    entry.purchaserName ?? '',
+    entry.purchaserEmail ?? '',
     entry.delegateId ?? '',
     entry.orderReference,
     ...entry.events
@@ -444,6 +447,10 @@ function renderRosterRow(entry: registration.RosterEntry): string {
           <span class="admin-ledger-key">EMAIL</span>
           <span class="admin-ledger-val">${escapeHtml(entry.email || '—')}</span>
         </div>
+        ${entry.purchaserName ? `<div class="admin-ledger-row">
+          <span class="admin-ledger-key">PURCHASED BY</span>
+          <span class="admin-ledger-val">${escapeHtml(entry.purchaserName)}${entry.purchaserEmail ? ` · ${escapeHtml(entry.purchaserEmail)}` : ''}</span>
+        </div>` : ''}
         <div class="admin-ledger-row">
           <span class="admin-ledger-key">${entry.delegateId ? 'DELEGATE ID' : 'DELEGATE STATUS'}</span>
           <span class="admin-ledger-val ${entry.delegateId ? 'admin-ledger-val--cyan' : ''}">
@@ -593,7 +600,7 @@ function renderOrderPanel(order: registration.Order): string {
         ${order.lines.map(line => `
           <div class="admin-line-row">
             <div class="admin-line-main">
-              <span class="admin-line-name">${escapeHtml(line.eventName)}${
+              <span class="admin-line-name">${escapeHtml(getEvent(line.eventId)?.name ?? line.eventName)}${
                 (line.quantity ?? 1) > 1 ? ` &times; ${line.quantity} TEAMS` : ''
               }</span>
               <span class="admin-line-context">${escapeHtml(line.context)}</span>
@@ -722,10 +729,10 @@ export function renderAdminView(): string {
         <div class="section-index-label" style="margin-bottom: 4px;">
           <span class="cyan-num">05</span>
           <span class="slash">/</span>
-          <span class="section-name">VERIFICATION</span>
+          <span class="section-name">FINANCE VERIFICATION</span>
         </div>
         <h1 class="explore-heading">
-          ${finance ? 'Operations console' : 'Registration dashboard'}<span class="cyan-period">.</span>
+          Finance verification<span class="cyan-period">.</span>
         </h1>
         <p class="explore-subtitle">
           ${finance ? 'Registrations, delegate applications and payment proofs — all verified by hand.' : 'Event registrations and participant rosters, read-only.'}
@@ -739,9 +746,8 @@ export function renderAdminView(): string {
       ${finance ? renderOrdersSection() : ''}
 
       <p class="admin-footnote">
-        ${finance ? 'Payment evidence and approval controls are restricted to the finance team.' : 'Registration data is read-only for organiser accounts.'}
+        Payment evidence and approval controls are restricted to the finance team.
       </p>
-
     </div>
   `;
 }

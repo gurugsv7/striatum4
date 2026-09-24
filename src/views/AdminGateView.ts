@@ -1,6 +1,7 @@
 import { appStore } from '../state/appStore.ts';
 import * as registration from '../services/registrationService.ts';
 import { getCurrentUser } from '../services/authService.ts';
+import { signInEventAdmin } from '../services/authService.ts';
 
 // Hydration notifies the app store. Guarding it by account prevents the gate
 // from starting a new request every time that notification re-renders it.
@@ -9,39 +10,11 @@ let hydratedUserId: string | null = null;
 /**
  * Access screen for the verification console.
  *
- * There is no passcode any more. A bundled passcode shipped inside the
- * JavaScript, so anyone who read the bundle could recover it — keeping it
- * alongside the real check would only imply a protection it could not give.
- *
- * The boundary is now entirely server-side: the `admins` table and `is_admin()`
- * in Postgres, which every verification RPC checks and which RLS uses to decide
- * what rows come back. This screen only explains why the console is not
- * available; it grants nothing.
+ * Supabase Auth checks the shared event-admin password. The database still
+ * decides what an authenticated organiser can read or change.
  */
 export function renderAdminGateView(): string {
   const signedIn = getCurrentUser() !== null;
-
-  const body = signedIn
-    ? {
-        index: 'NOT AUTHORISED',
-        title: 'Organisers<br />only',
-        copy:
-          'You are signed in, but this account is not registered as a STRIATUM 4.0 organiser. ' +
-          'Access is granted server-side, so nothing you enter here can unlock it.',
-        note:
-          'If you should have access, ask an existing organiser to add your account to the ' +
-          'verification team.',
-        action: { id: 'btn-gate-home', label: 'Back to the conclave' }
-      }
-    : {
-        index: 'RESTRICTED',
-        title: 'Sign in to<br />continue',
-        copy:
-          'The verification console shows delegate details and payment screenshots. ' +
-          'Sign in with your organiser account to continue.',
-        note: 'Delegate data and payment proofs are confidential. Do not open this screen on a shared device.',
-        action: { id: 'btn-gate-signin', label: 'Go to sign in' }
-      };
 
   return `
     <div class="screen-content no-bottom-nav admin-gate-screen">
@@ -63,20 +36,22 @@ export function renderAdminGateView(): string {
           <div class="section-index-label" style="margin-bottom: 10px;">
             <span class="cyan-num">05</span>
             <span class="slash">/</span>
-            <span class="section-name">${body.index}</span>
+            <span class="section-name">EVENT ADMIN ACCESS</span>
           </div>
 
-          <h1 class="admin-gate-title">${body.title}<span class="cyan-period">.</span></h1>
+          <h1 class="admin-gate-title">Organiser<br />sign in<span class="cyan-period">.</span></h1>
 
-          <p class="admin-gate-copy">${body.copy}</p>
+          <p class="admin-gate-copy">Use the shared event-admin username and password to check this year's events and registrations.</p>
 
-          <button class="btn-chamfer-primary" id="${body.action.id}">
-            <span class="btn-cyan-bead"></span>
-            <span>${body.action.label}</span>
-            <span>→</span>
-          </button>
+          <form id="admin-gate-form" autocomplete="on">
+            <div class="input-control-box"><input id="admin-username" class="text-input-field" name="username" type="text" autocomplete="username" placeholder="Username" required /></div>
+            <div class="input-control-box" style="margin-top: 10px;"><input id="admin-password" class="text-input-field" name="password" type="password" autocomplete="current-password" placeholder="Password" required /></div>
+            <p id="admin-gate-error" class="reg-field-error" role="alert" aria-live="polite"></p>
+            <button class="btn-chamfer-primary" id="btn-admin-login" type="submit"><span class="btn-cyan-bead"></span><span>OPEN EVENT ADMIN</span><span>→</span></button>
+          </form>
 
-          <p class="admin-gate-note">${body.note}</p>
+          <p class="admin-gate-note">${signedIn ? 'Signing in here switches from your current account.' : 'Finance approvals require the separate finance account.'}</p>
+          <button class="action-link-cyan" id="btn-finance-signin" type="button">FINANCE EMAIL SIGN IN →</button>
         </div>
       </div>
 
@@ -89,12 +64,33 @@ export function attachAdminGateEvents(): void {
     appStore.setScreen(getCurrentUser() ? 'home' : 'onboarding');
   });
 
-  document.getElementById('btn-gate-home')?.addEventListener('click', () => {
-    appStore.setScreen('home');
+  document.getElementById('btn-finance-signin')?.addEventListener('click', () => {
+    appStore.setScreen('onboarding');
   });
 
-  document.getElementById('btn-gate-signin')?.addEventListener('click', () => {
-    appStore.setScreen('onboarding');
+  document.getElementById('admin-gate-form')?.addEventListener('submit', async event => {
+    event.preventDefault();
+    const username = (document.getElementById('admin-username') as HTMLInputElement | null)?.value ?? '';
+    const passwordInput = document.getElementById('admin-password') as HTMLInputElement | null;
+    const button = document.getElementById('btn-admin-login') as HTMLButtonElement | null;
+    const error = document.getElementById('admin-gate-error');
+    if (button) button.disabled = true;
+    if (error) error.textContent = '';
+    const result = await signInEventAdmin(username, passwordInput?.value ?? '');
+    if (passwordInput) passwordInput.value = '';
+    if (!result.ok) {
+      if (error) error.textContent = result.message;
+      if (button) button.disabled = false;
+      return;
+    }
+    try {
+      await registration.hydrate();
+      if (!registration.isAdmin()) throw new Error('Event-admin access was not confirmed.');
+      appStore.setScreen('admin');
+    } catch {
+      if (error) error.textContent = 'Could not load the event roster. Please try again.';
+      if (button) button.disabled = false;
+    }
   });
 
   // An organiser may land here a moment before the admin check has returned.

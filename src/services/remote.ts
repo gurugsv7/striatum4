@@ -102,6 +102,19 @@ export interface RemoteParticipant {
   email?: string;
 }
 
+export interface EventAdminRegistration {
+  eventId: string;
+  orderReference: string;
+  orderStatus: string;
+  attendeeName: string;
+  attendeeEmail: string;
+  attendeePhone: string;
+  attendeeCollege: string;
+  attendeeYear: string;
+  lunchChoice?: string;
+  registeredAt: number;
+}
+
 export interface RemoteSnapshot {
   delegate: RemoteDelegate | null;
   orders: RemoteOrder[];
@@ -109,6 +122,9 @@ export interface RemoteSnapshot {
   /** Every delegate application, for the verification console. Admins only. */
   allDelegates: RemoteDelegate[];
   isAdmin: boolean;
+  isFinanceAdmin: boolean;
+  eventIds: string[];
+  eventAdminRegistrations: EventAdminRegistration[];
   /** Rosters for every order the caller may read. RLS decides which. */
   participants: RemoteParticipant[];
   capacities: Record<string, { slots: number | null; confirmed: number; pending: number; available: number | null }>;
@@ -120,6 +136,9 @@ export const EMPTY_SNAPSHOT: RemoteSnapshot = {
   registrations: [],
   allDelegates: [],
   isAdmin: false,
+  isFinanceAdmin: false,
+  eventIds: [],
+  eventAdminRegistrations: [],
   participants: [],
   capacities: {}
 };
@@ -201,7 +220,7 @@ export async function fetchSnapshot(): Promise<RemoteSnapshot> {
   if (!supabase || !getCurrentUser()) return { ...EMPTY_SNAPSHOT };
   const client = supabase;
 
-  const [delegatesRes, ordersRes, registrationsRes, participantsRes, adminRes, eventsRes] = await Promise.all([
+  const [delegatesRes, ordersRes, registrationsRes, participantsRes, adminRes, financeRes, eventsRes] = await Promise.all([
     supabase.from('delegate_applications').select('*').order('submitted_at', { ascending: false }),
     supabase
       .from('orders')
@@ -210,8 +229,14 @@ export async function fetchSnapshot(): Promise<RemoteSnapshot> {
     supabase.from('registrations').select('*'),
     supabase.from('order_line_participants').select('*'),
     supabase.rpc('is_admin'),
+    supabase.rpc('is_finance_admin'),
     supabase.from('events').select('id, slots')
   ]);
+
+  const eventAdminRes = adminRes.data === true
+    ? await supabase.rpc('event_admin_registrations')
+    : { data: [], error: null };
+  if (eventAdminRes.error) throw eventAdminRes.error;
 
   const capacityEntries = await Promise.all((eventsRes.data ?? []).map(async event => {
     const [takenRes, availableRes] = await Promise.all([
@@ -251,6 +276,20 @@ export async function fetchSnapshot(): Promise<RemoteSnapshot> {
     })),
     allDelegates,
     isAdmin: adminRes.data === true,
+    isFinanceAdmin: financeRes.data === true,
+    eventIds: (eventsRes.data ?? []).map(event => event.id),
+    eventAdminRegistrations: (eventAdminRes.data ?? []).map((row: any) => ({
+      eventId: row.event_id,
+      orderReference: row.order_reference,
+      orderStatus: row.order_status,
+      attendeeName: row.attendee_name,
+      attendeeEmail: row.attendee_email ?? '',
+      attendeePhone: row.attendee_phone ?? '',
+      attendeeCollege: row.attendee_college ?? '',
+      attendeeYear: row.attendee_year ?? '',
+      lunchChoice: row.lunch_choice ?? undefined,
+      registeredAt: ms(row.registered_at)
+    })),
     participants: (participantsRes.data ?? []).map(row => ({
       orderId: row.order_id,
       eventId: row.event_id,

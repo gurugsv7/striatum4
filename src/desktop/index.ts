@@ -31,8 +31,9 @@ import { renderDelegateConfirmView, attachDelegateConfirmEvents } from '../views
 import { renderEventPaymentView, attachEventPaymentEvents } from '../views/EventPaymentView.ts';
 import { renderEventConfirmView, attachEventConfirmEvents } from '../views/EventConfirmView.ts';
 import { renderAdminView, attachAdminEvents } from '../views/AdminView.ts';
-import { renderAdminRegistrationsView, attachAdminRegistrationsEvents } from '../views/AdminRegistrationsView.ts';
 import { renderAdminGateView, attachAdminGateEvents } from '../views/AdminGateView.ts';
+import { renderEventAdminView, attachEventAdminEvents } from '../views/EventAdminView.ts';
+import { renderRecoveryPasswordView, attachRecoveryPasswordEvents } from '../views/RecoveryPasswordView.ts';
 import { renderPrivacyView, attachPrivacyEvents, renderTermsView, attachTermsEvents } from '../views/LegalView.ts';
 import { renderCreditsView, attachCreditsEvents } from '../views/CreditsView.ts';
 import {
@@ -77,8 +78,9 @@ const FRAMED: Partial<Record<ScreenType, DesktopView>> = {
   privacy: { render: renderPrivacyView, attach: attachPrivacyEvents, framed: true },
   terms: { render: renderTermsView, attach: attachTermsEvents, framed: true },
   credits: { render: renderCreditsView, attach: attachCreditsEvents, framed: true },
-  admin: { render: renderAdminView, attach: attachAdminEvents, framed: true, wide: true }
-  , 'admin-registrations': { render: renderAdminRegistrationsView, attach: attachAdminRegistrationsEvents, framed: true, wide: true }
+  admin: { render: renderAdminView, attach: attachAdminEvents, framed: true, wide: true },
+  'admin-registrations': { render: renderEventAdminView, attach: attachEventAdminEvents, framed: true, wide: true },
+  'reset-password': { render: renderRecoveryPasswordView, attach: attachRecoveryPasswordEvents, framed: true }
 };
 
 function viewFor(screen: ScreenType): DesktopView {
@@ -86,7 +88,7 @@ function viewFor(screen: ScreenType): DesktopView {
     return { render: renderAdminGateView, attach: attachAdminGateEvents, framed: true };
   }
   if (screen === 'admin' && !registration.isFinanceAdmin()) {
-    return { render: renderAdminRegistrationsView, attach: attachAdminRegistrationsEvents, framed: true, wide: true };
+    return { render: renderEventAdminView, attach: attachEventAdminEvents, framed: true, wide: true };
   }
   return BESPOKE[screen] ?? FRAMED[screen] ?? BESPOKE.home!;
 }

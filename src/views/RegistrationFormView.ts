@@ -51,7 +51,10 @@ interface Draft {
 
 let draft: Draft | null = null;
 
-function prefill() {
+function prefill(eventId: string) {
+  // Organisers often book workshops for someone else. Do not silently copy the
+  // organiser's own name and finance email into that attendee's roster.
+  if (registration.isAdmin() && getEvent(eventId)?.category === 'workshop') return {};
   const delegate = registration.getDelegate();
   const form = appStore.getState().delegateForm;
   return {
@@ -66,7 +69,7 @@ function prefill() {
 /** Opens the form for a single event. */
 export function startEventRegistration(eventId: string, editing = false): boolean {
   const existing = editing ? registration.intentFor(eventId) : undefined;
-  const intent = existing ?? blankIntent(eventId, prefill());
+  const intent = existing ?? blankIntent(eventId, prefill(eventId));
   if (!intent) return false;
   draft = {
     kind: 'event',
@@ -90,7 +93,7 @@ export function startComboRegistration(comboId: string, editing = false): boolea
 
   for (const eventId of combo.eventIds) {
     const found = existing.find(candidate => candidate.eventId === eventId);
-    const fresh = blankIntent(eventId, prefill(), combo.teamsPerEvent);
+    const fresh = blankIntent(eventId, prefill(eventId), combo.teamsPerEvent);
     if (!found && !fresh) return false;
     intents[eventId] = structuredClone(found ?? (fresh as EventRegistrationIntent));
   }

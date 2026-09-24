@@ -82,15 +82,19 @@ Reachable at **`/admin`** (and `#/admin`, for hosts that do not rewrite unknown
 paths — `public/_redirects` and `vercel.json` cover Netlify, Cloudflare Pages and
 Vercel).
 
-The passcode comes from `VITE_ADMIN_PASSCODE` (see `.env.example`). **It is a
-convenience gate, not a security boundary** — it is compiled into the JavaScript
-bundle and can be recovered by anyone who reads it. It exists to stop a delegate
-wandering into the console on a shared laptop.
+The website uses Supabase Auth to sign organisers in. Database roles and RLS
+decide which admin data each signed-in account can access.
 
-The enforceable boundary is server-side and already deployed: the `admins` table
-and `is_admin()`, which every verification RPC checks, plus RLS on every table.
-Once Supabase Auth is wired, the passcode gate should be replaced by that check
-rather than kept alongside it.
+## Organiser access
+
+The event-admin sign-in shown on the website uses username `striatumadmin`
+and the Supabase Auth password for the existing non-finance account
+`gurugsv235@gmail.com`. The password is never stored in this repository.
+The account must remain in `public.admins`. Event admins see the current 2026
+catalogue and attendee roster; finance approvals and payment proofs require
+`financesigma26@gmail.com` after the
+`event_admin_scope_and_current_roster` migration is applied. Apply that
+migration before deploying the corresponding frontend build.
 
 ## Keeping the catalogue in sync
 
@@ -102,12 +106,3 @@ node scripts/generate-seed.mjs
 
 The TypeScript catalogue in `src/data/` stays the single source of truth for
 brochure facts; the script projects it into SQL so the two cannot drift.
-
-## Still to do after the connector is attached
-
-- Add a `SupabaseBackend` implementation behind the same surface that
-  `src/services/registrationService.ts` already exposes, and switch the app over.
-  Every mutation in the app already funnels through that one module, so no view
-  needs to change.
-- Wire Supabase Auth to the existing email / Google sign-in screen.
-- Replace the admin console's device-local reads with the RPCs above.

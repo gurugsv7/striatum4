@@ -22,6 +22,7 @@ export type ScreenType =
   | 'profile'
   | 'admin'
   | 'admin-registrations'
+  | 'reset-password'
   | 'privacy'
   | 'terms'
   | 'council'
