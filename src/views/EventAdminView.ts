@@ -5,12 +5,15 @@ import { escapeHtml } from '../services/text.ts';
 
 let selectedEventId: string | null = null;
 let attendeeSearch = '';
+let categoryFilter = 'ALL';
 
 /** The non-finance organiser's view of the current website catalogue. */
 export function renderEventAdminView(): string {
   const events = registration.listCurrentAdminEvents();
   const rows = registration.listEventAdminRegistrations();
-  const selected = events.find(event => event.id === selectedEventId) ?? events[0];
+  const categories = [...new Set(events.map(event => event.category).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+  const visibleEvents = categoryFilter === 'ALL' ? events : events.filter(event => event.category === categoryFilter);
+  const selected = visibleEvents.find(event => event.id === selectedEventId) ?? visibleEvents[0];
   const attendees = selected ? rows.filter(row => row.eventId === selected.id) : [];
   const query = attendeeSearch.trim().toLowerCase();
   const visibleAttendees = query ? attendees.filter(person =>
@@ -31,8 +34,13 @@ export function renderEventAdminView(): string {
       </section>
       <section class="admin-section">
         <div class="section-index-label"><span class="cyan-num">A</span><span class="slash">/</span><span class="section-name">CURRENT EVENTS · 2026</span></div>
+        <div class="admin-toggle-row event-admin-category-filters">
+          ${['ALL', ...categories].map(category => `<button class="filter-chip-btn ${categoryFilter === category ? 'active' : ''}" data-event-admin-category="${escapeHtml(category)}">
+            ${categoryFilter === category ? '<span class="chip-glow-dot"></span>' : ''}<span>${escapeHtml(category)}</span>
+          </button>`).join('')}
+        </div>
         <div class="event-admin-event-list">
-          ${events.map(event => {
+          ${visibleEvents.map(event => {
             const count = rows.filter(row => row.eventId === event.id).length;
             return `<button class="admin-demand-row event-admin-event ${event.id === selected?.id ? 'event-admin-event--active' : ''}"
                 data-event-admin-id="${escapeHtml(event.id)}" aria-pressed="${event.id === selected?.id}">
@@ -68,6 +76,14 @@ export function attachEventAdminEvents(): void {
     registration.forgetLocalState();
     appStore.signOut();
     appStore.setScreen('onboarding');
+  });
+  document.querySelectorAll<HTMLButtonElement>('[data-event-admin-category]').forEach(button => {
+    button.addEventListener('click', () => {
+      categoryFilter = button.dataset.eventAdminCategory ?? 'ALL';
+      selectedEventId = null;
+      attendeeSearch = '';
+      appStore.refresh();
+    });
   });
   document.querySelectorAll<HTMLButtonElement>('[data-event-admin-id]').forEach(button => {
     button.addEventListener('click', () => {
