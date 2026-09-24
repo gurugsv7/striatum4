@@ -2,11 +2,11 @@ import { appStore } from '../state/appStore.ts';
 import * as registration from '../services/registrationService.ts';
 import { formatINR } from '../services/pricing.ts';
 import { escapeHtml } from '../services/text.ts';
+import { getEvent } from '../data/events.ts';
 
 /**
- * Manual verification console. This reads and mutates the same localStorage-backed
- * registrationService used by the rest of the app -- there is no server-side admin
- * yet, and this screen builds no fake login. See the closing note rendered below.
+ * Finance verification console. The backend limits approvals and proofs to the
+ * finance account; other organisers use EventAdminView.
  *
  * Module-level UI state, since the whole app re-renders from scratch on every
  * state change and none of this belongs in the shared appStore.
@@ -420,6 +420,8 @@ function matchesRosterSearch(entry: registration.RosterEntry, query: string): bo
   const haystack = [
     entry.delegateName,
     entry.email,
+    entry.purchaserName ?? '',
+    entry.purchaserEmail ?? '',
     entry.delegateId ?? '',
     entry.orderReference,
     ...entry.events
@@ -445,6 +447,10 @@ function renderRosterRow(entry: registration.RosterEntry): string {
           <span class="admin-ledger-key">EMAIL</span>
           <span class="admin-ledger-val">${escapeHtml(entry.email || '—')}</span>
         </div>
+        ${entry.purchaserName ? `<div class="admin-ledger-row">
+          <span class="admin-ledger-key">PURCHASED BY</span>
+          <span class="admin-ledger-val">${escapeHtml(entry.purchaserName)}${entry.purchaserEmail ? ` · ${escapeHtml(entry.purchaserEmail)}` : ''}</span>
+        </div>` : ''}
         <div class="admin-ledger-row">
           <span class="admin-ledger-key">${entry.delegateId ? 'DELEGATE ID' : 'DELEGATE STATUS'}</span>
           <span class="admin-ledger-val ${entry.delegateId ? 'admin-ledger-val--cyan' : ''}">
@@ -594,7 +600,7 @@ function renderOrderPanel(order: registration.Order): string {
         ${order.lines.map(line => `
           <div class="admin-line-row">
             <div class="admin-line-main">
-              <span class="admin-line-name">${escapeHtml(line.eventName)}${
+              <span class="admin-line-name">${escapeHtml(getEvent(line.eventId)?.name ?? line.eventName)}${
                 (line.quantity ?? 1) > 1 ? ` &times; ${line.quantity} TEAMS` : ''
               }</span>
               <span class="admin-line-context">${escapeHtml(line.context)}</span>
@@ -722,10 +728,10 @@ export function renderAdminView(): string {
         <div class="section-index-label" style="margin-bottom: 4px;">
           <span class="cyan-num">05</span>
           <span class="slash">/</span>
-          <span class="section-name">VERIFICATION</span>
+          <span class="section-name">FINANCE VERIFICATION</span>
         </div>
         <h1 class="explore-heading">
-          Payment verification<span class="cyan-period">.</span>
+          Finance verification<span class="cyan-period">.</span>
         </h1>
         <p class="explore-subtitle">
           Registrations, delegate applications and payment proofs — all verified by hand.
@@ -736,12 +742,6 @@ export function renderAdminView(): string {
       ${renderRosterSection()}
       ${renderDelegateSection()}
       ${renderOrdersSection()}
-
-      <p class="admin-footnote">
-        This console reads the registrations persisted on this device only. A production
-        deployment needs a server-side admin surface with real authentication — this screen
-        builds no login of its own.
-      </p>
 
     </div>
   `;

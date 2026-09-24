@@ -229,9 +229,26 @@ export function isRemote(): boolean {
 }
 
 let isAdminUser = false;
+let isFinanceAdminUser = false;
+let currentAdminEventIds = new Set<string>();
+let eventAdminRegistrations: remote.EventAdminRegistration[] = [];
 let remoteCapacities: Record<string, Capacity> = {};
 export function isAdmin(): boolean {
   return isAdminUser;
+}
+
+export function isFinanceAdmin(): boolean {
+  return isFinanceAdminUser;
+}
+
+export function listCurrentAdminEvents(): SymposiumEvent[] {
+  return EVENTS.filter(event =>
+    currentAdminEventIds.has(event.id) && (!event.isoDate || event.isoDate.startsWith('2026-'))
+  );
+}
+
+export function listEventAdminRegistrations(): remote.EventAdminRegistration[] {
+  return eventAdminRegistrations.map(row => ({ ...row }));
 }
 
 function adoptSnapshot(snapshot: remote.RemoteSnapshot): void {
@@ -307,6 +324,9 @@ function adoptSnapshot(snapshot: remote.RemoteSnapshot): void {
 
   remoteDelegates = snapshot.allDelegates;
   isAdminUser = snapshot.isAdmin;
+  isFinanceAdminUser = snapshot.isFinanceAdmin;
+  currentAdminEventIds = new Set(snapshot.eventIds);
+  eventAdminRegistrations = snapshot.eventAdminRegistrations;
   proofPaths = new Map(snapshot.orders.filter(o => o.proofPath).map(o => [o.id, o.proofPath as string]));
 
   reconcileCart();
@@ -1888,11 +1908,11 @@ export function getAdminStats(): AdminStats {
     .filter(d => d.confirmed + d.pending > 0 || d.slots !== null)
     .sort((a, b) => b.confirmed + b.pending - (a.confirmed + a.pending));
 
-  const delegate = state.delegate;
+  const delegates = isRemote() ? remoteDelegates : state.delegate ? [state.delegate] : [];
 
   return {
-    delegatesApproved: delegate?.status === 'approved' ? 1 : 0,
-    delegatesPending: delegate?.status === 'pending' ? 1 : 0,
+    delegatesApproved: delegates.filter(d => d.status === 'approved').length,
+    delegatesPending: delegates.filter(d => d.status === 'pending').length,
     ordersTotal: orders.length,
     ordersAwaitingReview: inReview.filter(o => o.status !== 'awaiting_payment').length,
     ordersApproved: approved.length,
@@ -1908,6 +1928,8 @@ export function getAdminStats(): AdminStats {
 export interface RosterEntry {
   delegateName: string;
   email: string;
+  purchaserName?: string;
+  purchaserEmail?: string;
   delegateId: string | null;
   delegateStatus: DelegateStatus;
   orderReference: string;
@@ -1932,21 +1954,41 @@ export function getRegistrationRoster(): RosterEntry[] {
     .filter(o => o.status !== 'cancelled')
     .sort((a, b) => b.createdAt - a.createdAt)
     .map(order => {
-      const owner = remoteDelegates.find(d => d.userId === order.userId) ?? delegate;
+      const owner = remoteDelegates.find(d => d.userId === order.userId) ??
+        (!isRemote() ? delegate : null);
+      // A workshop order can be bought from an organiser's account for someone
+      // else. The participant row is the person registered for the workshop;
+      // the order owner is only the purchaser.
+      const workshopIds = new Set(order.lines.filter(l => l.category === 'workshop').map(l => l.eventId));
+      const attendee = remoteParticipants.find(p =>
+        p.orderId === order.id && workshopIds.has(p.eventId) && p.teamIndex === 1 && p.position === 1
+      );
+      const attendeeName = attendee?.name || owner?.fullName || 'Unknown delegate';
+      const attendeeEmail = attendee ? (attendee.email || '') : (owner?.email || '');
+      const isOwner = !attendee || (
+        attendeeName.trim().toLowerCase() === owner?.fullName.trim().toLowerCase() &&
+        attendeeEmail.trim().toLowerCase() === owner?.email.trim().toLowerCase()
+      );
+      const attendeeDelegate = isOwner ? owner : remoteDelegates.find(d =>
+        d.fullName.trim().toLowerCase() === attendeeName.trim().toLowerCase() &&
+        d.email.trim().toLowerCase() === attendeeEmail.trim().toLowerCase()
+      );
       return {
-      delegateName: owner?.fullName ?? 'Unknown delegate',
-      email: owner?.email ?? '',
-      delegateId: owner?.status === 'approved' ? owner.delegateId ?? null : null,
-      delegateStatus: owner?.status ?? 'none',
+      delegateName: attendeeName,
+      email: attendeeEmail,
+      purchaserName: !isOwner ? owner?.fullName : undefined,
+      purchaserEmail: !isOwner ? owner?.email : undefined,
+      delegateId: attendeeDelegate?.status === 'approved' ? attendeeDelegate.delegateId ?? null : null,
+      delegateStatus: attendeeDelegate?.status ?? 'none',
       orderReference: order.reference,
       orderId: order.id,
       orderStatus: order.status,
-      events: order.lines.map(l => l.eventName),
+      events: order.lines.map(l => getEvent(l.eventId)?.name ?? l.eventName),
       total: order.total,
       submittedAt: order.submittedAt,
-      institution: owner?.institution ?? '',
-      yearOfStudy: owner?.yearOfStudy ?? '',
-      phone: owner?.phone ?? ''
+      institution: attendee ? attendee.college ?? '' : owner?.institution ?? '',
+      yearOfStudy: attendee ? attendee.yearOfStudy ?? '' : owner?.yearOfStudy ?? '',
+      phone: attendee ? attendee.phone ?? '' : owner?.phone ?? ''
       };
     });
 }
@@ -1989,6 +2031,13 @@ export function forgetLocalState(): void {
   });
   state = { ...EMPTY, cart: [] };
   cartNotice = null;
+  remoteDelegates = [];
+  remoteParticipants = [];
+  remoteCapacities = {};
+  isAdminUser = false;
+  isFinanceAdminUser = false;
+  currentAdminEventIds = new Set();
+  eventAdminRegistrations = [];
   save();
 }
 

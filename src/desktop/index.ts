@@ -32,6 +32,7 @@ import { renderEventPaymentView, attachEventPaymentEvents } from '../views/Event
 import { renderEventConfirmView, attachEventConfirmEvents } from '../views/EventConfirmView.ts';
 import { renderAdminView, attachAdminEvents } from '../views/AdminView.ts';
 import { renderAdminGateView, attachAdminGateEvents } from '../views/AdminGateView.ts';
+import { renderEventAdminView, attachEventAdminEvents } from '../views/EventAdminView.ts';
 import { renderPrivacyView, attachPrivacyEvents, renderTermsView, attachTermsEvents } from '../views/LegalView.ts';
 import { renderCreditsView, attachCreditsEvents } from '../views/CreditsView.ts';
 import {
@@ -82,6 +83,9 @@ const FRAMED: Partial<Record<ScreenType, DesktopView>> = {
 function viewFor(screen: ScreenType): DesktopView {
   if (screen === 'admin' && !registration.isAdmin()) {
     return { render: renderAdminGateView, attach: attachAdminGateEvents, framed: true };
+  }
+  if (screen === 'admin' && !registration.isFinanceAdmin()) {
+    return { render: renderEventAdminView, attach: attachEventAdminEvents, framed: true, wide: true };
   }
   return BESPOKE[screen] ?? FRAMED[screen] ?? BESPOKE.home!;
 }

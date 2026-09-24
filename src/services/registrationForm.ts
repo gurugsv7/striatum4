@@ -126,7 +126,7 @@ function labelFor(field: MemberField): string {
 function fieldsFor(schema: EventRegistrationSchema, position: number): MemberField[] {
   // The primary registrant always carries full contact details; other members
   // carry only what the event's schema asks for.
-  const base = position === 1 ? (['name', 'year', 'phone'] as MemberField[]) : schema.memberFields;
+  const base = position === 1 ? (['name', 'year', 'phone', 'email'] as MemberField[]) : schema.memberFields;
   // A cross-college event needs each member's own college.
   if (!schema.sameCollege && !base.includes('college')) return [...base, 'college'];
   return base;
@@ -174,6 +174,15 @@ function validateTeam(
           message: `${labelFor(field)} is required.`
         });
       }
+    }
+
+    if (person.position === 1 && !isBlank(person.email) && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(person.email!.trim())) {
+      issues.push({
+        teamIndex: team.teamIndex,
+        position: person.position,
+        field: 'email',
+        message: 'Enter a valid attendee email.'
+      });
     }
 
     if (schema.allowedYears && !isBlank(person.year) && !schema.allowedYears.includes(person.year as YearValue)) {

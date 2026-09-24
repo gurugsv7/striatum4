@@ -371,8 +371,8 @@ export const EVENTS_PART_1: SymposiumEvent[] = [
           { label: 'Date', value: '15 October 2026' },
           { label: 'Time', value: '8:00 AM – 4:00 PM' },
           { label: 'Slots', value: '30' },
-          { label: 'Early Bird', value: '₹800' },
-          { label: 'Late Bird', value: '₹1,000' },
+          { label: 'Early Bird', value: '₹1,000' },
+          { label: 'Late Bird', value: '₹1,200' },
           { label: 'Delegate Pass', value: 'Required' }
         ]
       }

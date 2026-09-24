@@ -264,6 +264,49 @@ export interface EmailSignInResult {
   message: string;
 }
 
+/** Public login alias for the existing, non-finance organiser account. */
+const EVENT_ADMIN_USERNAME = 'striatumadmin';
+const EVENT_ADMIN_EMAIL = 'gurugsv235@gmail.com';
+
+export async function signInEventAdmin(username: string, password: string): Promise<EmailSignInResult> {
+  if (username.trim().toLowerCase() !== EVENT_ADMIN_USERNAME || !password) {
+    return { ok: false, message: 'Invalid username or password.' };
+  }
+  if (!supabase) return { ok: false, message: 'Admin sign-in is unavailable right now.' };
+
+  // The alias is only a convenience. Supabase Auth checks the password and the
+  // database checks organiser membership; no shared password ships in the app.
+  let result;
+  try {
+    result = await supabase.auth.signInWithPassword({ email: EVENT_ADMIN_EMAIL, password });
+  } catch {
+    return { ok: false, message: 'Could not reach the sign-in service. Please try again.' };
+  }
+  const { data, error } = result;
+  if (error || !data.user || !data.session) {
+    return { ok: false, message: 'Invalid username or password.' };
+  }
+
+  let admin, finance;
+  try {
+    [admin, finance] = await Promise.all([
+      supabase.rpc('is_admin'),
+      supabase.rpc('is_finance_admin')
+    ]);
+  } catch {
+    await supabase.auth.signOut({ scope: 'local' });
+    return { ok: false, message: 'Could not verify event-admin access. Please try again.' };
+  }
+  if (admin.error || admin.data !== true || finance.error || finance.data === true) {
+    await supabase.auth.signOut({ scope: 'local' });
+    return { ok: false, message: 'This account does not have event-admin access.' };
+  }
+
+  activeEmail = EVENT_ADMIN_EMAIL;
+  setCurrentUser(toAuthUser(data.user));
+  return { ok: true, message: 'Event admin signed in.' };
+}
+
 /**
  * Sends a one-time sign-in link. No password is ever collected or stored — the
  * delegate proves control of the address they registered with.

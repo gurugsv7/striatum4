@@ -43,6 +43,7 @@ import { renderProgrammeView, attachProgrammeEvents } from './views/ProgrammeVie
 import { renderProfileView, attachProfileEvents } from './views/ProfileView.ts';
 import { renderAdminView, attachAdminEvents } from './views/AdminView.ts';
 import { renderAdminGateView, attachAdminGateEvents } from './views/AdminGateView.ts';
+import { renderEventAdminView, attachEventAdminEvents } from './views/EventAdminView.ts';
 import { renderDelegateRegistrationView, attachDelegateRegistrationEvents } from './views/DelegateRegistrationView.ts';
 import { renderDelegatePaymentView, attachDelegatePaymentEvents } from './views/DelegatePaymentView.ts';
 import { renderDelegateConfirmView, attachDelegateConfirmEvents } from './views/DelegateConfirmView.ts';
@@ -215,10 +216,13 @@ function renderApp(state: AppState): void {
 
   // Admin access is decided server-side by is_admin(); this only mirrors it so
   // a non-organiser sees an explanation instead of an empty console.
-  const view =
-    state.currentScreen === 'admin' && !registrationService.isAdmin()
+  const view = state.currentScreen === 'admin'
+    ? !registrationService.isAdmin()
       ? { render: renderAdminGateView, attach: attachAdminGateEvents }
-      : VIEWS[state.currentScreen] ?? VIEWS.home;
+      : !registrationService.isFinanceAdmin()
+        ? { render: renderEventAdminView, attach: attachEventAdminEvents }
+        : VIEWS.admin
+    : VIEWS[state.currentScreen] ?? VIEWS.home;
 
   syncUrlAndTitle(state);
 
@@ -341,8 +345,12 @@ appStore.subscribe(renderApp);
 
 // Restore a persisted Supabase session, so a returning delegate is not asked to
 // sign in again, and reflect sign-out that happened in another tab.
+let lastAuthUserId: string | null = null;
 onAuthChange(user => {
   if (user) {
+    const switchedAccount = lastAuthUserId !== null && lastAuthUserId !== user.id;
+    lastAuthUserId = user.id;
+    if (switchedAccount) registrationService.forgetLocalState();
     const state = appStore.getState();
     const route = pendingRoute;
     pendingRoute = null;
@@ -356,9 +364,9 @@ onAuthChange(user => {
     if (shouldEnterHome) {
       // Sign the delegate in without moving them yet: the screen stays put
       // under the bubbles, and home arrives when the bubbles are done.
-      if (!state.isAuthenticated) appStore.login(user.email, user.fullName, false);
+      if (!state.isAuthenticated || switchedAccount) appStore.login(user.email, user.fullName, false);
       void playBubbleTransition(() => appStore.setScreen('home'));
-    } else if (!state.isAuthenticated) {
+    } else if (!state.isAuthenticated || switchedAccount) {
       appStore.login(user.email, user.fullName, false);
     }
     if (route) {
@@ -371,10 +379,13 @@ onAuthChange(user => {
       appStore.showToast('Could not reach the server — your registrations may be out of date.');
     });
   } else if (appStore.getState().isAuthenticated) {
+    lastAuthUserId = null;
     // Drop the departing account's orders before the next one signs in; on a
     // shared device they would otherwise still be readable until a sync lands.
     registrationService.forgetLocalState();
     appStore.signOut();
+  } else {
+    lastAuthUserId = null;
   }
 });
 void initAuth().finally(() => finishStartupLoader());
