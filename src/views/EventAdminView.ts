@@ -55,7 +55,7 @@ export function renderEventAdminView(): string {
           }).join('') || '<p class="empty-search-state">No current events are available.</p>'}
         </div>
       </section>
-      ${selected ? `<section class="admin-section">
+      ${selected ? `<section class="admin-section event-admin-attendees" id="event-admin-attendees">
         <div class="section-index-label"><span class="cyan-num">B</span><span class="slash">/</span><span class="section-name">${escapeHtml(selected.name)} · ATTENDEES</span></div>
         <p class="explore-subtitle">${attendees.filter(person => person.orderStatus === 'approved').length} confirmed · ${attendees.length} total · ${registration.getCapacity(selected.id).available ?? 'Uncapped'} places available</p>
         <div class="input-control-box"><input id="event-admin-search" class="text-input-field" type="search" placeholder="Search attendee, email, college or order" value="${escapeHtml(attendeeSearch)}" /></div>
@@ -106,7 +106,10 @@ export function attachEventAdminEvents(): void {
       attendeeSearch = '';
       appStore.refresh();
       requestAnimationFrame(() => {
-        document.getElementById('event-admin-attendees')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        document.getElementById('event-admin-attendees')?.scrollIntoView({
+          behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+          block: 'start'
+        });
       });
     });
   });

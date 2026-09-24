@@ -604,6 +604,10 @@
   box-shadow: inset 3px 0 0 var(--cyan-glow, #2af1fa), 0 0 16px rgba(42, 241, 250, 0.12);
 }
 
+.event-admin-attendees {
+  scroll-margin-top: 20px;
+}
+
 .event-admin-event small {
   display: block;
   margin-top: 3px;
