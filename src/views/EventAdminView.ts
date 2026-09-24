@@ -74,6 +74,9 @@ export function attachEventAdminEvents(): void {
       selectedEventId = button.dataset.eventAdminId ?? null;
       attendeeSearch = '';
       appStore.refresh();
+      requestAnimationFrame(() => {
+        document.getElementById('event-admin-attendees')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
     });
   });
   document.getElementById('event-admin-search')?.addEventListener('input', event => {
