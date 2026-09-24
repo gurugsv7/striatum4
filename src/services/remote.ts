@@ -233,7 +233,7 @@ export async function fetchSnapshot(): Promise<RemoteSnapshot> {
     supabase.from('events').select('id, slots')
   ]);
 
-  const eventAdminRes = adminRes.data === true && financeRes.data !== true
+  const eventAdminRes = adminRes.data === true
     ? await supabase.rpc('event_admin_registrations')
     : { data: [], error: null };
   if (eventAdminRes.error) throw eventAdminRes.error;

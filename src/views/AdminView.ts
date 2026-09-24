@@ -712,6 +712,7 @@ function renderOrdersSection(): string {
 /* -------------------------------------------------------------------- root -- */
 
 export function renderAdminView(): string {
+  const finance = registration.isFinanceAdmin();
   return `
     <div class="screen-content no-bottom-nav">
 
@@ -734,15 +735,19 @@ export function renderAdminView(): string {
           Finance verification<span class="cyan-period">.</span>
         </h1>
         <p class="explore-subtitle">
-          Registrations, delegate applications and payment proofs — all verified by hand.
+          ${finance ? 'Registrations, delegate applications and payment proofs — all verified by hand.' : 'Event registrations and participant rosters, read-only.'}
         </p>
+        <button class="action-link-cyan" id="btn-open-registration-dashboard" style="margin-top: 16px;">OPEN EVENT REGISTRATION DASHBOARD →</button>
       </section>
 
       ${renderOverviewSection()}
       ${renderRosterSection()}
-      ${renderDelegateSection()}
-      ${renderOrdersSection()}
+      ${finance ? renderDelegateSection() : ''}
+      ${finance ? renderOrdersSection() : ''}
 
+      <p class="admin-footnote">
+        Payment evidence and approval controls are restricted to the finance team.
+      </p>
     </div>
   `;
 }
@@ -751,16 +756,19 @@ export function attachAdminEvents(): void {
   // Private Storage proofs resolve asynchronously. Warm every proof currently
   // visible in the console so the verifier gets the actual image, not a
   // misleading empty placeholder on the first render.
-  void registration.warmProofImages(registration.listAllOrdersForAdmin().filter(order => order.proof).map(order => order.id));
+  if (registration.isFinanceAdmin()) {
+    void registration.warmProofImages(registration.listAllOrdersForAdmin().filter(order => order.proof).map(order => order.id));
   // Delegate evidence and abstracts live at their own paths rather than under
   // an order id, so they are warmed by path.
-  void registration.warmDelegateProofs();
-  void registration.warmAbstracts();
+    void registration.warmDelegateProofs();
+    void registration.warmAbstracts();
+  }
 
   const btnBack = document.getElementById('btn-admin-back');
   if (btnBack) {
     btnBack.addEventListener('click', () => appStore.setScreen('profile'));
   }
+  document.getElementById('btn-open-registration-dashboard')?.addEventListener('click', () => appStore.setScreen('admin-registrations'));
 
   document.querySelectorAll<HTMLButtonElement>('[data-roster-filter]').forEach(btn => {
     btn.addEventListener('click', () => {

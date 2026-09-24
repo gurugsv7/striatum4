@@ -13,14 +13,20 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 const url = import.meta.env?.VITE_SUPABASE_URL;
 const publishableKey = import.meta.env?.VITE_SUPABASE_PUBLISHABLE_KEY;
 
+// Dashboard recovery emails return to the site with a one-use session in the
+// URL. Capture this before the client consumes and removes the fragment.
+export const arrivedWithRecoveryLink =
+  typeof window !== 'undefined' &&
+  (new URLSearchParams(window.location.hash.slice(1)).get('type') === 'recovery' ||
+    new URLSearchParams(window.location.search).get('type') === 'recovery');
+
 export const supabase: SupabaseClient | null =
   url && publishableKey
     ? createClient(url, publishableKey, {
         auth: {
           persistSession: true,
           autoRefreshToken: true,
-          // No OAuth redirect is used, so there is no URL fragment to detect.
-          detectSessionInUrl: false
+          detectSessionInUrl: true
         }
       })
     : null;

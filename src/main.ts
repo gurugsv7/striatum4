@@ -22,7 +22,8 @@ import { appStore, AppState, ScreenType } from './state/appStore.ts';
 import { playBubbleTransition } from './components/BubbleTransition.ts';
 import { renderDelegateHomeView, attachDelegateHomeEvents } from './views/DelegateHomeCollegeView.ts';
 import { renderCouncilView, attachCouncilEvents } from './views/CouncilView.ts';
-import { initAuth, onAuthChange } from './services/authService.ts';
+import { initAuth, isPasswordRecoveryPending, onAuthChange } from './services/authService.ts';
+import { arrivedWithRecoveryLink } from './services/supabaseClient.ts';
 import { pathFor, routeFromPath, routeRequiresAuth, titleFor, Route } from './services/router.ts';
 import * as registrationService from './services/registrationService.ts';
 const hydrateRegistrations = registrationService.hydrate;
@@ -44,6 +45,7 @@ import { renderProfileView, attachProfileEvents } from './views/ProfileView.ts';
 import { renderAdminView, attachAdminEvents } from './views/AdminView.ts';
 import { renderAdminGateView, attachAdminGateEvents } from './views/AdminGateView.ts';
 import { renderEventAdminView, attachEventAdminEvents } from './views/EventAdminView.ts';
+import { renderRecoveryPasswordView, attachRecoveryPasswordEvents } from './views/RecoveryPasswordView.ts';
 import { renderDelegateRegistrationView, attachDelegateRegistrationEvents } from './views/DelegateRegistrationView.ts';
 import { renderDelegatePaymentView, attachDelegatePaymentEvents } from './views/DelegatePaymentView.ts';
 import { renderDelegateConfirmView, attachDelegateConfirmEvents } from './views/DelegateConfirmView.ts';
@@ -75,6 +77,8 @@ const VIEWS: Record<ScreenType, { render: () => string; attach: () => void }> = 
   programme: { render: renderProgrammeView, attach: attachProgrammeEvents },
   profile: { render: renderProfileView, attach: attachProfileEvents },
   admin: { render: renderAdminView, attach: attachAdminEvents },
+  'admin-registrations': { render: renderEventAdminView, attach: attachEventAdminEvents },
+  'reset-password': { render: renderRecoveryPasswordView, attach: attachRecoveryPasswordEvents },
   'delegate-registration': { render: renderDelegateRegistrationView, attach: attachDelegateRegistrationEvents },
   'delegate-payment': { render: renderDelegatePaymentView, attach: attachDelegatePaymentEvents },
   'delegate-home': { render: renderDelegateHomeView, attach: attachDelegateHomeEvents },
@@ -129,6 +133,11 @@ function syncUrlAndTitle(state: AppState): void {
       : DEFAULT_SITE_DESCRIPTION;
   }
   const current = window.location.pathname + window.location.search;
+  if (state.currentScreen === 'reset-password') {
+    // Keep the one-use recovery fragment until Supabase Auth consumes it.
+    window.history.replaceState({ screen: state.currentScreen }, '', target + window.location.hash);
+    return;
+  }
   if (current === target) return;
 
   if (restoringFromHistory) {
@@ -216,13 +225,12 @@ function renderApp(state: AppState): void {
 
   // Admin access is decided server-side by is_admin(); this only mirrors it so
   // a non-organiser sees an explanation instead of an empty console.
-  const view = state.currentScreen === 'admin'
-    ? !registrationService.isAdmin()
+  const view =
+    (state.currentScreen === 'admin' || state.currentScreen === 'admin-registrations') && !registrationService.isAdmin()
       ? { render: renderAdminGateView, attach: attachAdminGateEvents }
-      : !registrationService.isFinanceAdmin()
+      : state.currentScreen === 'admin' && !registrationService.isFinanceAdmin()
         ? { render: renderEventAdminView, attach: attachEventAdminEvents }
-        : VIEWS.admin
-    : VIEWS[state.currentScreen] ?? VIEWS.home;
+      : VIEWS[state.currentScreen] ?? VIEWS.home;
 
   syncUrlAndTitle(state);
 
@@ -322,14 +330,16 @@ function renderApp(state: AppState): void {
 // Restore the screen named by the address, so a refresh or a shared link lands
 // where it should instead of bouncing to sign-in.
 const initialRoute = routeFromPath(window.location.pathname);
-if (initialRoute) {
+if (arrivedWithRecoveryLink) {
+  navigateToRoute({ screen: 'reset-password' });
+} else if (initialRoute) {
   navigateToRoute(initialRoute);
 }
 // Seed the first history entry so the very first Back has somewhere to return to.
 window.history.replaceState(
   { screen: appStore.getState().currentScreen, eventId: appStore.getState().selectedEventId },
   '',
-  window.location.pathname + window.location.search
+  window.location.pathname + window.location.search + window.location.hash
 );
 
 const finishStartupLoader = mountStartupLoader();
@@ -354,6 +364,11 @@ onAuthChange(user => {
     const state = appStore.getState();
     const route = pendingRoute;
     pendingRoute = null;
+    if (isPasswordRecoveryPending()) {
+      if (!state.isAuthenticated || switchedAccount) appStore.login(user.email, user.fullName, false);
+      appStore.setScreen('reset-password');
+      return;
+    }
     // A restored session on /signin (or the first SIGNED_IN event from GIS)
     // must leave onboarding immediately. Public legal/credits routes remain in
     // place, and protected deep links still win over the homepage fallback.

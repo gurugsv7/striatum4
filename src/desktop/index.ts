@@ -33,6 +33,7 @@ import { renderEventConfirmView, attachEventConfirmEvents } from '../views/Event
 import { renderAdminView, attachAdminEvents } from '../views/AdminView.ts';
 import { renderAdminGateView, attachAdminGateEvents } from '../views/AdminGateView.ts';
 import { renderEventAdminView, attachEventAdminEvents } from '../views/EventAdminView.ts';
+import { renderRecoveryPasswordView, attachRecoveryPasswordEvents } from '../views/RecoveryPasswordView.ts';
 import { renderPrivacyView, attachPrivacyEvents, renderTermsView, attachTermsEvents } from '../views/LegalView.ts';
 import { renderCreditsView, attachCreditsEvents } from '../views/CreditsView.ts';
 import {
@@ -77,11 +78,13 @@ const FRAMED: Partial<Record<ScreenType, DesktopView>> = {
   privacy: { render: renderPrivacyView, attach: attachPrivacyEvents, framed: true },
   terms: { render: renderTermsView, attach: attachTermsEvents, framed: true },
   credits: { render: renderCreditsView, attach: attachCreditsEvents, framed: true },
-  admin: { render: renderAdminView, attach: attachAdminEvents, framed: true, wide: true }
+  admin: { render: renderAdminView, attach: attachAdminEvents, framed: true, wide: true },
+  'admin-registrations': { render: renderEventAdminView, attach: attachEventAdminEvents, framed: true, wide: true },
+  'reset-password': { render: renderRecoveryPasswordView, attach: attachRecoveryPasswordEvents, framed: true }
 };
 
 function viewFor(screen: ScreenType): DesktopView {
-  if (screen === 'admin' && !registration.isAdmin()) {
+  if ((screen === 'admin' || screen === 'admin-registrations') && !registration.isAdmin()) {
     return { render: renderAdminGateView, attach: attachAdminGateEvents, framed: true };
   }
   if (screen === 'admin' && !registration.isFinanceAdmin()) {

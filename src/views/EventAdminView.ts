@@ -21,7 +21,7 @@ export function renderEventAdminView(): string {
   return `
     <div class="screen-content no-bottom-nav">
       <header class="details-top-header">
-        <button class="btn-back-nav" id="btn-event-admin-back"><span class="back-nav-label">PROFILE</span></button>
+        <button class="btn-back-nav" id="btn-event-admin-back"><span class="back-nav-label">${registration.isFinanceAdmin() ? 'FINANCE' : 'PROFILE'}</span></button>
         <button class="action-link-cyan" id="btn-event-admin-signout">SIGN OUT</button>
       </header>
       <section class="explore-hero-section">
@@ -62,7 +62,7 @@ export function renderEventAdminView(): string {
 }
 
 export function attachEventAdminEvents(): void {
-  document.getElementById('btn-event-admin-back')?.addEventListener('click', () => appStore.setScreen('profile'));
+  document.getElementById('btn-event-admin-back')?.addEventListener('click', () => appStore.setScreen(registration.isFinanceAdmin() ? 'admin' : 'profile'));
   document.getElementById('btn-event-admin-signout')?.addEventListener('click', async () => {
     await signOut();
     registration.forgetLocalState();

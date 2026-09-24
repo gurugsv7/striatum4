@@ -29,6 +29,11 @@ const listeners = new Set<AuthListener>();
 let currentUser: AuthUser | null = null;
 let initialised = false;
 let activeEmail = '';
+let passwordRecoveryPending = false;
+
+export function isPasswordRecoveryPending(): boolean {
+  return passwordRecoveryPending;
+}
 
 function sameUser(left: AuthUser | null, right: AuthUser | null): boolean {
   return left?.id === right?.id && left?.email === right?.email;
@@ -79,12 +84,13 @@ export async function initAuth(): Promise<AuthUser | null> {
 
   // Subscribe before reading storage so a sign-in completed during startup
   // cannot fall into the gap between getSession() and onAuthStateChange().
-  client.auth.onAuthStateChange((_event, session: Session | null) => {
+  client.auth.onAuthStateChange((event, session: Session | null) => {
+    if (event === 'PASSWORD_RECOVERY') passwordRecoveryPending = true;
     if (isAnonymousUser(session?.user ?? null)) {
       setCurrentUser(null);
       void client.auth.signOut({ scope: 'local' });
     } else {
-      setCurrentUser(toAuthUser(session?.user ?? null));
+      setCurrentUser(toAuthUser(session?.user ?? null), event === 'PASSWORD_RECOVERY');
     }
   });
 
@@ -268,6 +274,17 @@ export interface EmailSignInResult {
 const EVENT_ADMIN_USERNAME = 'striatumadmin';
 const EVENT_ADMIN_EMAIL = 'gurugsv235@gmail.com';
 
+export async function updateRecoveredEventAdminPassword(password: string): Promise<EmailSignInResult> {
+  if (!supabase || !getCurrentUser() || getCurrentUser()?.email.toLowerCase() !== EVENT_ADMIN_EMAIL) {
+    return { ok: false, message: 'Open the recovery link for the event-admin account first.' };
+  }
+  if (password.length < 8) return { ok: false, message: 'Use at least 8 characters.' };
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) return { ok: false, message: error.message };
+  passwordRecoveryPending = false;
+  return { ok: true, message: 'Password updated.' };
+}
+
 export async function signInEventAdmin(username: string, password: string): Promise<EmailSignInResult> {
   if (username.trim().toLowerCase() !== EVENT_ADMIN_USERNAME || !password) {
     return { ok: false, message: 'Invalid username or password.' };
@@ -391,6 +408,7 @@ const LOCAL_ONLY = 'Signed out on this device. The server session could not be e
  * reported rather than thrown.
  */
 export async function signOut(): Promise<SignOutResult> {
+  passwordRecoveryPending = false;
   try {
     window.google?.accounts?.id?.disableAutoSelect?.();
   } catch {
