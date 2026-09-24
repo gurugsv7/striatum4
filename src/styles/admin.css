@@ -610,3 +610,26 @@
   opacity: .7;
   font-size: 11px;
 }
+
+
+/* Event-admin discovery controls mirror Explore, with breathing room between search and filters. */
+.event-admin-event-search {
+  margin-bottom: 14px;
+}
+
+.event-admin-category-filters {
+  margin-top: 0;
+  margin-bottom: 20px;
+  overflow-x: auto;
+  flex-wrap: nowrap;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.event-admin-category-filters::-webkit-scrollbar {
+  display: none;
+}
+
+.event-admin-category-filters .filter-chip-btn {
+  flex: 0 0 auto;
+}
