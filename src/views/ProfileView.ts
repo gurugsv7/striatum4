@@ -304,13 +304,12 @@ export function renderProfileView(): string {
 
           <form id="form-personal-details">
             <p class="profile-readonly-note">
-              These are the details on your delegate application, which the organisers
-              verify against. To correct any of them, contact the registration desk.
+              Keep these details accurate — your delegate pass and organiser records use this information.
             </p>
 
             <div class="profile-field-group">
               <label class="profile-field-label">FULL NAME</label>
-              <p class="profile-field-readonly">${escapeHtml(rawName || 'Not provided')}</p>
+              <input class="profile-field-readonly" id="profile-full-name" name="fullName" value="${escapeHtml(rawName)}" placeholder="Enter your full name" required />
             </div>
 
             <div class="profile-field-group">
@@ -334,21 +333,21 @@ export function renderProfileView(): string {
 
             <div class="profile-field-group">
               <label class="profile-field-label">PHONE NUMBER</label>
-              <p class="profile-field-readonly">${escapeHtml(delegate?.phone || 'Not provided')}</p>
+              <input class="profile-field-readonly" id="profile-phone" name="phone" type="tel" value="${escapeHtml(delegate?.phone || '')}" placeholder="Enter your phone number" />
             </div>
 
             <div class="profile-field-group">
               <label class="profile-field-label">COLLEGE / INSTITUTION</label>
-              <p class="profile-field-readonly">${escapeHtml(institution || 'Not provided')}</p>
+              <input class="profile-field-readonly" id="profile-institution" name="institution" value="${escapeHtml(institution)}" placeholder="Enter your college / institution" required />
             </div>
 
             <div class="profile-field-group">
               <label class="profile-field-label">YEAR OF STUDY</label>
-              <p class="profile-field-readonly">${escapeHtml(delegate?.yearOfStudy || 'Not provided')}</p>
+              <input class="profile-field-readonly" id="profile-year" name="yearOfStudy" value="${escapeHtml(delegate?.yearOfStudy || '')}" placeholder="e.g. 3rd Year" />
             </div>
 
             <button type="submit" class="profile-btn-primary-action" id="btn-save-personal">
-              SAVE AVATAR
+              SAVE PERSONAL DETAILS
             </button>
           </form>
         </div>
@@ -434,23 +433,28 @@ export function attachProfileEvents(): void {
     modalPersonal?.classList.remove('open');
   });
 
-  /*
-   * The avatar is the only thing on this sheet the delegate owns.
-   *
-   * The rest is their delegate application, which organisers verify against —
-   * it belongs to the server and there is no RPC to change it. The form used
-   * to accept edits to name, college, phone and year, say "Profile updated
-   * successfully", and persist none of them: the handler read the fields into
-   * locals it never used, so the next sync quietly restored the old values.
-   */
-  document.getElementById('form-personal-details')?.addEventListener('submit', e => {
+  document.getElementById('form-personal-details')?.addEventListener('submit', async e => {
     e.preventDefault();
-    const chosen = document.querySelector<HTMLInputElement>('input[name="profile-gender"]:checked');
-    if (chosen && (chosen.value === 'male' || chosen.value === 'female')) {
-      setProfileGender(chosen.value);
-      appStore.showToast('Avatar updated');
+    const button = document.getElementById('btn-save-personal') as HTMLButtonElement | null;
+    const fullName = (document.getElementById('profile-full-name') as HTMLInputElement | null)?.value.trim() ?? '';
+    const institution = (document.getElementById('profile-institution') as HTMLInputElement | null)?.value.trim() ?? '';
+    const phone = (document.getElementById('profile-phone') as HTMLInputElement | null)?.value.trim() ?? '';
+    const yearOfStudy = (document.getElementById('profile-year') as HTMLInputElement | null)?.value.trim() ?? '';
+    if (!fullName || !institution) {
+      appStore.showToast('Name and institution are required');
+      return;
     }
+    if (button) button.disabled = true;
+    const result = await registration.updateDelegateProfile({ fullName, institution, phone, yearOfStudy });
+    if (!result.ok) {
+      if (button) button.disabled = false;
+      appStore.showToast(result.message);
+      return;
+    }
+    const chosen = document.querySelector<HTMLInputElement>('input[name="profile-gender"]:checked');
+    if (chosen && (chosen.value === 'male' || chosen.value === 'female')) setProfileGender(chosen.value);
     modalPersonal?.classList.remove('open');
+    appStore.showToast('Personal details updated');
     appStore.refresh();
   });
 
