@@ -389,6 +389,23 @@ export async function applyForDelegateRemote(input: {
   return { ok: true, message: 'Delegate application submitted for verification' };
 }
 
+/** Updates only the signed-in delegate's editable identity fields. */
+export async function updateDelegateProfileRemote(input: {
+  fullName: string;
+  institution: string;
+  yearOfStudy?: string;
+  phone?: string;
+}): Promise<RemoteResult> {
+  if (!supabase || !getCurrentUser()) return { ok: false, message: 'Please sign in first.' };
+  const { error } = await supabase.rpc('update_delegate_profile', {
+    p_full_name: input.fullName,
+    p_institution: input.institution,
+    p_year_of_study: input.yearOfStudy ?? null,
+    p_phone: input.phone ?? null
+  });
+  return error ? { ok: false, message: error.message } : { ok: true, message: 'Personal details updated' };
+}
+
 /**
  * Creates an order. The client sends only WHAT it wants; create_order re-reads
  * every price, re-checks eligibility and capacity, and computes the total.
