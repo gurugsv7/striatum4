@@ -104,7 +104,7 @@ let capacityCount = 0;
 /*
  * Google requires `startDate` for Event rich results. Events without a confirmed
  * date are omitted from the Event graph rather than receiving guessed dates.
- * They keep their pages and can join the graph automatically once `isoDate` is
+ * They keep their pages and can receive Event markup automatically once `isoDate` is
  * added to the canonical event data.
  *
  * `performer` and `offers.validFrom` remain absent because the organisers have
@@ -169,8 +169,7 @@ const SYMPOSIUM = {
   location: PLACE,
   organizer: { '@id': `${SITE_URL}/#organization` },
   image: IMAGE_URL,
-  url: SITE_ROOT,
-  subEvent: subEvents
+  url: SITE_ROOT
 };
 
 const graph = {
@@ -201,9 +200,30 @@ if (startIdx === -1 || endIdx === -1) {
 let newIndexHtml =
   indexHtml.slice(0, startIdx) + jsonLdScript + indexHtml.slice(endIdx + endMarker.length);
 
-// Repair the three public social/search descriptions if an older generated
-// index still carries the previous 15–18 Oct copy. This is intentionally exact
-// so unrelated prose is never rewritten.
+// Add real crawlable links to each event in the static fallback. This gives
+// crawlers discoverable hrefs before the client app renders.
+const escapeHtml = value => String(value)
+  .replaceAll('&', '&amp;')
+  .replaceAll('<', '&lt;')
+  .replaceAll('>', '&gt;')
+  .replaceAll('"', '&quot;')
+  .replaceAll("'", '&#39;');
+const eventLinks = EVENTS.map(event =>
+  `        <li><a href="/event/${encodeURIComponent(event.id)}"><strong>${escapeHtml(event.name)}</strong></a> — ${escapeHtml(event.format)}, ${escapeHtml(event.specialties.join(', '))}</li>`
+).join('\n');
+const eventsList = /(<h2>Events<\/h2>\s*<ul[^>]*>)[\s\S]*?(<\/ul>)/;
+if (!eventsList.test(newIndexHtml)) throw new Error('Could not find the static Events list in index.html.');
+newIndexHtml = newIndexHtml.replace(eventsList, `$1\n${eventLinks}\n      $2`);
+newIndexHtml = newIndexHtml.replace(
+  /<h2>Events<\/h2>/,
+  '<p>STRIATUM 4.0 is a medical conclave in Puducherry, India, from 14–18 October 2026, with clinical workshops, quizzes, research presentations and creative events.</p><p><a href="/explore">Browse all events</a> · <a href="/programme">View the programme</a></p><h2>Events</h2>'
+);
+
+// Keep the static shell's snippets consistent with the canonical homepage.
+newIndexHtml = newIndexHtml.replaceAll(
+  'STRIATUM 4.0, presented by SIGMA 2026 at IGMCRI, Puducherry — a medical conclave with workshops, quizzes and paper presentations, 14–18 October 2026.',
+  'STRIATUM 4.0 is the SIGMA medical conclave at IGMCRI in Puducherry, India, 14–18 October 2026. Explore workshops, quizzes and research events.'
+);
 newIndexHtml = newIndexHtml.replaceAll('15–18 October 2026', CONFERENCE_DATE_COPY);
 writeFileSync(indexPath, newIndexHtml, 'utf8');
 
@@ -238,7 +258,7 @@ ${ROUTES.map(
 writeFileSync(resolve(root, 'public/sitemap.xml'), sitemap, 'utf8');
 
 console.log(`STRIATUM 4.0 SEO generation complete.`);
-console.log(`  subEvents emitted: ${subEvents.length}`);
+console.log(`  dated event records checked: ${subEvents.length}`);
 console.log(`  dated events:       ${datedCount}`);
 console.log(`  offers present:     ${offerCount}`);
 console.log(`  maximumAttendeeCapacity present: ${capacityCount}`);
@@ -246,4 +266,4 @@ console.log(`  official conference: ${CONFERENCE_START} .. ${CONFERENCE_END}`);
 console.log(`  sitemap URLs: ${ROUTES.length}`);
 console.log(`  omitted for no confirmed date: ${undated.length}`);
 undated.forEach(e => console.log(`    - ${e.name}`));
-console.log(`  wrote index.html JSON-LD/meta date copy + public/sitemap.xml`);
+console.log(`  wrote index.html event links/schema/meta copy + public/sitemap.xml`);

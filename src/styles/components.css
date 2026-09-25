@@ -544,6 +544,7 @@
   font-weight: 600;
   background: none;
   border: none;
+  text-decoration: none;
   cursor: pointer;
   transition: gap 0.2s ease;
 }

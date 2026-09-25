@@ -107,7 +107,91 @@ let lastScreen: ScreenType | null = null;
 let restoringFromHistory = false;
 let pendingRoute: Route | null = null;
 const DEFAULT_SITE_DESCRIPTION =
-  'STRIATUM 4.0, presented by SIGMA 2026 at IGMCRI, Puducherry — a medical conclave with workshops, quizzes and paper presentations, 14–18 October 2026.';
+  'STRIATUM 4.0 is the SIGMA medical conclave at IGMCRI in Puducherry, India, 14–18 October 2026. Explore workshops, quizzes and research events.';
+
+const initialStructuredDataTag = document.querySelector<HTMLScriptElement>('script[type="application/ld+json"]');
+const initialStructuredData = initialStructuredDataTag?.textContent ?? '';
+const identityStructuredData = (() => {
+  try {
+    const data = JSON.parse(initialStructuredData) as { '@context'?: string; '@graph'?: Array<Record<string, unknown>> };
+    return {
+      '@context': data['@context'] ?? 'https://schema.org',
+      '@graph': (data['@graph'] ?? []).filter(node => node['@type'] === 'Organization' || node['@type'] === 'WebSite')
+    };
+  } catch {
+    return null;
+  }
+})();
+
+function eventDescription(event: NonNullable<ReturnType<typeof appStore.getSelectedEvent>>): string {
+  const summary = event.summary ?? event.description ?? `${event.format} at STRIATUM 4.0.`;
+  const suffix = ' Part of STRIATUM 4.0 at IGMCRI, Puducherry.';
+  const maxSummaryLength = 158 - suffix.length;
+  const trimmed = summary.length > maxSummaryLength
+    ? summary.slice(0, maxSummaryLength - 1).replace(/\s+\S*$/, '') + '…'
+    : summary;
+  return `${trimmed}${suffix}`;
+}
+
+function eventStructuredData(event: NonNullable<ReturnType<typeof appStore.getSelectedEvent>>): Record<string, unknown> | null {
+  if (!event.isoDate) return null;
+  const url = `https://www.igmcrisigma.com${pathFor('event-details', event.id)}`;
+  const attendanceMode = event.mode === 'online'
+    ? 'https://schema.org/OnlineEventAttendanceMode'
+    : event.mode === 'hybrid'
+      ? 'https://schema.org/MixedEventAttendanceMode'
+      : 'https://schema.org/OfflineEventAttendanceMode';
+  const node: Record<string, unknown> = {
+    '@type': 'Event',
+    '@id': url,
+    url,
+    name: event.name,
+    description: event.summary ?? event.description,
+    eventStatus: 'https://schema.org/EventScheduled',
+    eventAttendanceMode: attendanceMode,
+    location: {
+      '@type': 'Place',
+      name: 'Indira Gandhi Medical College & Research Institute',
+      address: { '@type': 'PostalAddress', addressLocality: 'Puducherry', addressRegion: 'Puducherry', addressCountry: 'IN' }
+    },
+    organizer: { '@id': 'https://www.igmcrisigma.com/#organization' },
+    image: 'https://www.igmcrisigma.com/assets/homepage.jpg',
+    startDate: event.isoDate,
+    endDate: event.isoEndDate ?? event.isoDate
+  };
+  const pricing = event.pricing;
+  const prices = pricing.unspecified ? [] : [pricing.earlyBird, pricing.lateBird, pricing.entry, pricing.spot, pricing.individual, pricing.team, pricing.flat]
+    .filter((price): price is number => typeof price === 'number');
+  if (prices.length) {
+    node.offers = {
+      '@type': 'Offer',
+      price: Math.min(...prices),
+      priceCurrency: 'INR',
+      availability: 'https://schema.org/InStock',
+      url
+    };
+  }
+  return node;
+}
+
+function setMetaContent(selector: string, content: string): void {
+  const meta = document.querySelector<HTMLMetaElement>(selector);
+  if (meta) meta.content = content;
+}
+
+function updateStructuredData(screen: AppState['currentScreen'], event?: NonNullable<ReturnType<typeof appStore.getSelectedEvent>>): void {
+  const tag = document.querySelector<HTMLScriptElement>('script[type="application/ld+json"]');
+  if (!tag || !identityStructuredData) return;
+  if (screen === 'home') {
+    tag.textContent = initialStructuredData;
+    return;
+  }
+  const eventNode = screen === 'event-details' && event ? eventStructuredData(event) : null;
+  tag.textContent = JSON.stringify({
+    ...identityStructuredData,
+    '@graph': [...identityStructuredData['@graph'], ...(eventNode ? [eventNode] : [])]
+  });
+})();
 
 function navigateToRoute(route: Route): void {
   if (routeRequiresAuth(route) && !appStore.getState().isAuthenticated) {
@@ -120,18 +204,35 @@ function navigateToRoute(route: Route): void {
 }
 
 function syncUrlAndTitle(state: AppState): void {
-  const eventName = state.currentScreen === 'event-details' ? appStore.getSelectedEvent()?.name : undefined;
-  document.title = titleFor(state.currentScreen, eventName);
+  const selectedEvent = state.currentScreen === 'event-details' ? appStore.getSelectedEvent() : undefined;
+  const eventName = selectedEvent?.name;
+  const title = selectedEvent
+    ? `${selectedEvent.name} ${selectedEvent.format} | STRIATUM 4.0, IGMCRI`
+    : titleFor(state.currentScreen, eventName);
+  document.title = title;
 
   const target = pathFor(state.currentScreen, state.selectedEventId) + window.location.search;
   const canonical = document.querySelector<HTMLLinkElement>('link[rel="canonical"]');
   if (canonical) canonical.href = 'https://www.igmcrisigma.com' + pathFor(state.currentScreen, state.selectedEventId);
-  const description = document.querySelector<HTMLMetaElement>('meta[name="description"]');
-  if (description) {
-    description.content = state.currentScreen === 'credits'
+  const pageDescription = selectedEvent
+    ? eventDescription(selectedEvent)
+    : state.currentScreen === 'credits'
       ? 'Website credits for STRIATUM 4.0. The IGMCRI medical conclave website was designed and developed by Built by GSV.'
-      : DEFAULT_SITE_DESCRIPTION;
-  }
+      : state.currentScreen === 'explore'
+        ? 'Explore medical workshops, quizzes, research presentations and creative events at STRIATUM 4.0, IGMCRI Puducherry, 14–18 October 2026.'
+        : state.currentScreen === 'programme'
+          ? 'See dates and schedules for STRIATUM 4.0 medical workshops, quizzes and academic events at IGMCRI, Puducherry, 14–18 October 2026.'
+          : DEFAULT_SITE_DESCRIPTION;
+  setMetaContent('meta[name="description"]', pageDescription);
+  setMetaContent('meta[property="og:title"]', title);
+  setMetaContent('meta[property="og:description"]', pageDescription);
+  setMetaContent('meta[property="og:url"]', 'https://www.igmcrisigma.com' + pathFor(state.currentScreen, state.selectedEventId));
+  setMetaContent('meta[name="twitter:title"]', title);
+  setMetaContent('meta[name="twitter:description"]', pageDescription);
+  updateStructuredData(state.currentScreen, selectedEvent);
+  const robots = document.querySelector<HTMLMetaElement>('meta[name="robots"]');
+  const indexable = ['home', 'explore', 'event-details', 'programme', 'privacy', 'terms', 'credits'].includes(state.currentScreen);
+  if (robots) robots.content = indexable ? 'index, follow, max-image-preview:large, max-snippet:-1' : 'noindex, nofollow';
   const current = window.location.pathname + window.location.search;
   if (state.currentScreen === 'reset-password') {
     // Keep the one-use recovery fragment until Supabase Auth consumes it.
@@ -181,6 +282,14 @@ function announce(message: string): void {
 function renderApp(state: AppState): void {
   const appContainer = document.getElementById('app');
   if (!appContainer) return;
+  if (!state.isAuthenticated && routeRequiresAuth({ screen: state.currentScreen })) {
+    pendingRoute = {
+      screen: state.currentScreen,
+      eventId: state.currentScreen === 'event-details' ? state.selectedEventId : undefined
+    };
+    if (state.currentScreen !== 'onboarding') appStore.setScreen('onboarding');
+    return;
+  }
   appContainer.style.visibility = 'visible';
 
   const scroller = document.getElementById('viewport-scroller');

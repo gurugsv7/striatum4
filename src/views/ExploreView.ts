@@ -103,7 +103,7 @@ function renderEventCard(event: SymposiumEvent, index: number = 0): string {
               .join('')}
           </div>
 
-          <button class="btn-view-event" data-open-event-id="${event.id}">
+          <a class="btn-view-event" href="/event/${encodeURIComponent(event.id)}" data-open-event-id="${event.id}">
             <span class="circle-arrow-icon">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M5 12h14"/>
@@ -111,7 +111,7 @@ function renderEventCard(event: SymposiumEvent, index: number = 0): string {
               </svg>
             </span>
             <span>VIEW EVENT</span>
-          </button>
+          </a>
         </div>
       </div>
     </div>
@@ -406,6 +406,7 @@ export function renderExploreView(): string {
 function wireResultControls(): void {
   document.querySelectorAll<HTMLElement>('[data-open-event-id]').forEach(el => {
     el.addEventListener('click', e => {
+      e.preventDefault();
       e.stopPropagation();
       const id = el.getAttribute('data-open-event-id');
       if (id) appStore.openEvent(id);
