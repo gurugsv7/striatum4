@@ -496,6 +496,25 @@ export async function applyForDelegate(input: {
   return { ok: true, message: 'Delegate application submitted for verification' };
 }
 
+export async function updateDelegateProfile(input: {
+  fullName: string;
+  institution: string;
+  yearOfStudy?: string;
+  phone?: string;
+}): Promise<AdminActionResult> {
+  if (!input.fullName.trim()) return { ok: false, message: 'Full name is required.' };
+  if (!input.institution.trim()) return { ok: false, message: 'College / institution is required.' };
+  if (!isRemote()) return { ok: false, message: 'Profile updates require a connection.' };
+  const result = await remote.updateDelegateProfileRemote({
+    fullName: input.fullName.trim(),
+    institution: input.institution.trim(),
+    yearOfStudy: input.yearOfStudy?.trim() || undefined,
+    phone: input.phone?.trim() || undefined
+  });
+  if (result.ok) await hydrate();
+  return result;
+}
+
 function nextDelegateId(): string {
   state.delegateSeq += 1;
   return 'S4-' + String(state.delegateSeq).padStart(4, '0') + '-26';
