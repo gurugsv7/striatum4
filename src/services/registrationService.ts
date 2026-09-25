@@ -318,7 +318,12 @@ function adoptSnapshot(snapshot: remote.RemoteSnapshot): void {
         delegateId: d.delegateId,
         submittedAt: d.submittedAt,
         reviewedAt: d.reviewedAt,
-        rejectionReason: d.rejectionReason
+        rejectionReason: d.rejectionReason,
+        tier: d.tier,
+        homeCollege: d.homeCollege,
+        feeDue: d.feeDue,
+        idProofPath: d.idProofPath,
+        paymentProofPath: d.paymentProofPath
       }
     : null;
 
