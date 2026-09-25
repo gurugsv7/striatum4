@@ -191,7 +191,7 @@ function updateStructuredData(screen: AppState['currentScreen'], event?: NonNull
     ...identityStructuredData,
     '@graph': [...identityStructuredData['@graph'], ...(eventNode ? [eventNode] : [])]
   });
-})();
+}
 
 function navigateToRoute(route: Route): void {
   if (routeRequiresAuth(route) && !appStore.getState().isAuthenticated) {
