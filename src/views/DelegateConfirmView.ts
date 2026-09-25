@@ -42,11 +42,12 @@ function generateDelegateQrSvg(delegateId: string, attendeeName: string, tier: s
 async function downloadDelegatePass(): Promise<boolean> {
   const delegate = registration.getDelegate();
   const active = delegate?.status === 'approved' || delegate?.status === 'pending';
-  const delegateCode = delegate?.delegateId || 'S4-01842';
-  const attendeeName = delegate?.fullName || 'Guru Sabarivasan M';
-  const college = delegate?.institution || 'IIT Jodhpur';
-  const form = appStore.getState().delegateForm;
-  const tier = form.tier || 'AQUALUME';
+  if (!delegate?.delegateId || !delegate.fullName || !delegate.institution) return false;
+  const delegateCode = delegate.delegateId;
+  const attendeeName = delegate.fullName;
+  const college = delegate.institution;
+  const tier = delegate.tier;
+  if (!tier) return false;
 
   const W = 1000;
   const H = 620;
@@ -336,13 +337,13 @@ function renderStatusCardState(delegate: registration.DelegateApplication, statu
   const isApproved = status === 'approved';
   const isActive = status === 'approved' || status === 'pending';
   const form = appStore.getState().delegateForm;
-  const tierName = form.tier || 'AQUALUME';
+  const tierName = delegate.tier || form.tier;
   const course = form.course || '';
-  const attendeeName = delegate.fullName || form.fullName || 'Guru Sabarivasan M';
-  const college = delegate.institution || form.college || 'IIT Jodhpur';
-  const year = delegate.yearOfStudy || form.yearOfStudy || '3rd Year';
-  const courseYearDisplay = course ? `${escapeHtml(course)} · ${escapeHtml(year)}` : escapeHtml(year);
-  const delegateCode = delegate.delegateId || 'S4-01842';
+  const attendeeName = delegate.fullName;
+  const college = delegate.institution;
+  const year = delegate.yearOfStudy || form.yearOfStudy || '';
+  const courseYearDisplay = course && year ? `${escapeHtml(course)} · ${escapeHtml(year)}` : escapeHtml(year || course || 'Not provided');
+  const delegateCode = delegate.delegateId || 'NOT ISSUED';
 
   const headline = isApproved
     ? `Your<br />Delegate Pass<br />is Ready<span class="cyan-dot">.</span>`
