@@ -77,10 +77,10 @@ export function renderHomepageView(): string {
         <div class="home-hero-text">
           <h1 class="home-welcome-title">
             Welcome to<br />
-            STRIATUM<span class="cyan-period">.</span>
+            STRIATUM <span class="cyan-text">4.0</span><span class="cyan-period">.</span>
           </h1>
           <p class="home-welcome-sub">
-            SIGMA’s medical conclave at IGMCRI, Puducherry · 14–18 October 2026.
+            The official medical conclave of IGMCRI SIGMA 2026 in Puducherry · 14–18 October 2026.
           </p>
         </div>
       </section>
