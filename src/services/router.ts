@@ -18,18 +18,20 @@ export interface Route {
   eventId?: string;
 }
 
-/** Routes that must remain reachable before sign-in for access and SEO. */
+/** Public event discovery is readable before sign-in; transactions remain protected. */
 // The admin route renders its own credential gate before exposing any data.
-// Guests must be able to reach that gate directly to use the shared username.
-const PUBLIC_ROUTES = new Set<ScreenType>(['onboarding', 'admin', 'reset-password', 'privacy', 'terms', 'credits']);
+const PUBLIC_ROUTES = new Set<ScreenType>([
+  'onboarding', 'home', 'explore', 'event-details', 'programme',
+  'admin', 'reset-password', 'privacy', 'terms', 'credits'
+]);
 
 export function routeRequiresAuth(route: Route): boolean {
   return !PUBLIC_ROUTES.has(route.screen);
 }
 
 const STATIC_ROUTES: Record<string, ScreenType> = {
-  // The homepage and event directory are protected destinations. Guests are
-  // shown /signin first and main.ts restores the route after authentication.
+  // Discovery pages are public so delegates and search crawlers can read them.
+  // Registration and payment routes still require sign-in.
   '/': 'home',
   '/home': 'home',
   '/events': 'explore',

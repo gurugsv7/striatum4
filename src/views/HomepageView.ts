@@ -80,7 +80,7 @@ export function renderHomepageView(): string {
             STRIATUM<span class="cyan-period">.</span>
           </h1>
           <p class="home-welcome-sub">
-            Your conclave journey starts here.
+            SIGMA’s medical conclave at IGMCRI, Puducherry · 14–18 October 2026.
           </p>
         </div>
       </section>
@@ -133,10 +133,10 @@ export function renderHomepageView(): string {
             Workshops · Competitions · Presentations
           </p>
 
-          <button class="action-link-cyan" id="btn-explore-events-link">
+          <a class="action-link-cyan" id="btn-explore-events-link" href="/explore">
             <span>EXPLORE EVENTS</span>
             <span>→</span>
-          </button>
+          </a>
         </div>
 
         <!-- 03 / PROGRAMME -->
@@ -190,7 +190,8 @@ export function attachHomepageEvents(): void {
   }
 
   if (btnExploreLink) {
-    btnExploreLink.addEventListener('click', () => {
+    btnExploreLink.addEventListener('click', event => {
+      event.preventDefault();
       appStore.setScreen('explore');
     });
   }
