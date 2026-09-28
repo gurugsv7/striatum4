@@ -8,6 +8,7 @@ import {
   EventRegistrationSchema,
   MemberField,
   YEAR_VALUES,
+  QUIZ_BATCH_VALUES,
   schemaFor
 } from '../data/registrationSchemas.ts';
 import {
@@ -143,15 +144,19 @@ function textField(
   const type = field === 'email' ? 'email' : field === 'phone' ? 'tel' : 'text';
 
   if (field === 'year') {
+    const isQuiz = getEvent(eventId)?.category === 'quiz';
+    const options = isQuiz ? QUIZ_BATCH_VALUES : YEAR_VALUES;
+    const label = isQuiz ? 'Batch are you from?' : FIELD_LABEL[field];
+    const placeholder = isQuiz ? 'Select batch year' : 'Select year';
     return `
       <div class="input-card-box ${error ? 'has-error' : ''}">
         <div class="input-card-col">
-          <label class="input-card-lbl" for="${id}">${FIELD_LABEL[field]}${required ? '' : ' (optional)'}</label>
+          <label class="input-card-lbl" for="${id}">${label}${required ? '' : ' (optional)'}</label>
           <select class="input-card-select" id="${id}"
                   data-reg-field="${field}" data-reg-event="${eventId}"
                   data-reg-team="${teamIndex}" data-reg-pos="${position}">
-            <option value="">Select year</option>
-            ${YEAR_VALUES.map(
+            <option value="">${placeholder}</option>
+            ${options.map(
               option => `<option value="${option}" ${value === option ? 'selected' : ''}>${option}</option>`
             ).join('')}
           </select>
