@@ -19,7 +19,8 @@ import type { PassTier } from '../state/appStore.ts';
 
 /** Year values, matching the Delegate registration select exactly. */
 export const YEAR_VALUES = ['1st Year', '2nd Year', '3rd Year', 'Final Year', 'CRRI / Intern'] as const;
-export type YearValue = (typeof YEAR_VALUES)[number];
+export const QUIZ_BATCH_VALUES = ['2021', '2022', '2023', '2024', '2025', '2026'] as const;
+export type YearValue = string;
 
 /** Per-member fields a schema can ask for. */
 export type MemberField = 'name' | 'year' | 'college' | 'phone' | 'email';
@@ -82,10 +83,10 @@ const EXPLICIT: Record<string, Partial<EventRegistrationSchema>> = {
     maxMembers: 3,
     defaultMembers: 3,
     sameCollege: true,
-    allowedYears: ['1st Year', '2nd Year', '3rd Year'],
+    allowedYears: ['2023', '2024', '2025'],
     yearLimits: [
-      { year: '3rd Year', max: 1, reason: 'Only one third-year student (2024 batch) per team.' },
-      { year: '2nd Year', max: 2, reason: 'Only two second-year students per team.' }
+      { year: '2024', max: 1, reason: 'Only one 2024-batch student per team.' },
+      { year: '2025', max: 2, reason: 'Only two 2025-batch students per team.' }
     ],
     memberFields: QUIZ_MEMBER_FIELDS,
     notes: [
@@ -101,10 +102,10 @@ const EXPLICIT: Record<string, Partial<EventRegistrationSchema>> = {
     maxMembers: 3,
     defaultMembers: 3,
     sameCollege: true,
-    allowedYears: ['2nd Year', '3rd Year', 'Final Year', 'CRRI / Intern'],
+    allowedYears: ['2021', '2022', '2023', '2024', '2025'],
     yearLimits: [
-      { year: 'CRRI / Intern', max: 1, reason: 'Only one CRRI (2021 batch) per team.' },
-      { year: 'Final Year', max: 1, reason: 'Only one final-year student (2022 batch) per team.' }
+      { year: '2021', max: 1, reason: 'Only one 2021-batch student per team.' },
+      { year: '2022', max: 1, reason: 'Only one 2022-batch student per team.' }
     ],
     memberFields: QUIZ_MEMBER_FIELDS,
     notes: ['All team members must bring ID proof on the day.']
@@ -118,8 +119,8 @@ const EXPLICIT: Record<string, Partial<EventRegistrationSchema>> = {
     maxMembers: 2,
     defaultMembers: 2,
     sameCollege: false,
-    allowedYears: ['1st Year', '2nd Year', '3rd Year', 'Final Year', 'CRRI / Intern'],
-    yearLimits: [{ year: 'CRRI / Intern', max: 1, reason: 'Only one CRRI (2021 batch) per team.' }],
+    allowedYears: ['2021', '2022', '2023', '2024', '2025', '2026'],
+    yearLimits: [{ year: '2021', max: 1, reason: 'Only one 2021-batch student per team.' }],
     memberFields: CROSS_COLLEGE_MEMBER_FIELDS,
     notes: [
       'Both team members must register with their correct name, year of study, college and contact details.',
