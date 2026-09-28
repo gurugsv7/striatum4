@@ -108,12 +108,12 @@ export interface ValidationIssue {
   message: string;
 }
 
-function labelFor(field: MemberField): string {
+function labelFor(field: MemberField, schema?: EventRegistrationSchema): string {
   switch (field) {
     case 'name':
       return 'Name';
     case 'year':
-      return 'Year of study';
+      return schema && ['s4-11', 's4-12', 's4-13'].includes(schema.eventId) ? 'Batch year' : 'Year of study';
     case 'college':
       return 'College';
     case 'phone':
@@ -171,7 +171,7 @@ function validateTeam(
           teamIndex: team.teamIndex,
           position: person.position,
           field,
-          message: `${labelFor(field)} is required.`
+          message: `${labelFor(field, schema)} is required.`
         });
       }
     }
