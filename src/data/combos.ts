@@ -35,10 +35,10 @@ export interface ComboOffer {
   publishedComboTotal: number;
 }
 
-export const COMBO_DEADLINE_DISPLAY = '27 SEP 2026';
+export const COMBO_DEADLINE_DISPLAY = '04 OCT 2026';
 
-/** End of 27 Sep 2026 in Asia/Kolkata, expressed as a UTC instant. */
-export const COMBO_DEADLINE_UTC = Date.UTC(2026, 8, 27, 18, 29, 59, 999);
+/** End of 4 Oct 2026 in Asia/Kolkata, expressed as a UTC instant. */
+export const COMBO_DEADLINE_UTC = Date.UTC(2026, 9, 4, 18, 29, 59, 999);
 
 export const COMBO_OFFERS: ComboOffer[] = [
   // ------------------------------------------------------------ workshops --
