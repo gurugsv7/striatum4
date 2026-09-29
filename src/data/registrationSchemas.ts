@@ -85,8 +85,7 @@ const EXPLICIT: Record<string, Partial<EventRegistrationSchema>> = {
     sameCollege: true,
     allowedYears: ['2023', '2024', '2025'],
     yearLimits: [
-      { year: '2024', max: 1, reason: 'Only one 2024-batch student per team.' },
-      { year: '2025', max: 2, reason: 'Only two 2025-batch students per team.' }
+      { year: '2024', max: 1, reason: 'Only one 2024-batch student per team.' }
     ],
     memberFields: QUIZ_MEMBER_FIELDS,
     notes: [
