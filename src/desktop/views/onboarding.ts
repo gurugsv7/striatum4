@@ -129,7 +129,7 @@ export function renderDesktopOnboarding(): string {
             <b>IGMCRI &middot; STRIATUM 4.0</b>
             <span>SIGMA 2026 &middot; <a href="/credits" id="d-credits-link">WEBSITE BY BUILT BY GSV</a></span>
           </div>
-          <span class="d-foot-stack" style="text-align: right;">14&ndash;18 OCTOBER 2026 &middot; PUDUCHERRY</span>
+          <span class="d-foot-stack" style="text-align: right;">28 OCTOBER &ndash; 1 NOVEMBER 2026 &middot; PUDUCHERRY</span>
         </footer>
       </div>
     </div>`;

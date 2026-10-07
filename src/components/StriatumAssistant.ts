@@ -173,7 +173,7 @@ function dates(): string {
         })()
     )
     .join('');
-  return `<p>The conclave runs <b>14–18 OCT 2026</b>. Dated activity windows:</p><div class="s4-assistant-dates">${rows}</div>${link(
+  return `<p>The conclave runs <b>28 OCT – 1 NOV 2026</b>. Dated activity windows:</p><div class="s4-assistant-dates">${rows}</div>${link(
     '/programme',
     'Open the full programme'
   )}`;

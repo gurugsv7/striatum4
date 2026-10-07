@@ -28,10 +28,10 @@ const IMAGE_URL = `${SITE_URL}/assets/homepage.jpg`;
 
 // Official conference window from the current brochure. Pre-conference rounds
 // (for example GLANDSWARS prelims on 3 Oct) remain sub-events but must not move
-// the symposium itself outside its published 14–18 October dates.
-const CONFERENCE_START = '2026-10-14';
-const CONFERENCE_END = '2026-10-18';
-const CONFERENCE_DATE_COPY = '14–18 October 2026';
+// the symposium itself outside its published 28 October – 1 November dates.
+const CONFERENCE_START = '2026-10-28';
+const CONFERENCE_END = '2026-11-01';
+const CONFERENCE_DATE_COPY = '28 October – 1 November 2026';
 
 const bundle = await build({
   entryPoints: [resolve(root, 'src/data/events.ts')],
@@ -216,15 +216,17 @@ if (!eventsList.test(newIndexHtml)) throw new Error('Could not find the static E
 newIndexHtml = newIndexHtml.replace(eventsList, `$1\n${eventLinks}\n      $2`);
 newIndexHtml = newIndexHtml.replace(
   /<h2>Events<\/h2>/,
-  '<p>STRIATUM 4.0 is a medical conclave in Puducherry, India, from 14–18 October 2026, with clinical workshops, quizzes, research presentations and creative events.</p><p><a href="/explore">Browse all events</a> · <a href="/programme">View the programme</a></p><h2>Events</h2>'
+  '<p>STRIATUM 4.0 is a medical conclave in Puducherry, India, from 28 October – 1 November 2026, with clinical workshops, quizzes, research presentations and creative events.</p><p><a href="/explore">Browse all events</a> · <a href="/programme">View the programme</a></p><h2>Events</h2>'
 );
 
 // Keep the static shell's snippets consistent with the canonical homepage.
 newIndexHtml = newIndexHtml.replaceAll(
   'STRIATUM 4.0, presented by SIGMA 2026 at IGMCRI, Puducherry — a medical conclave with workshops, quizzes and paper presentations, 14–18 October 2026.',
-  'STRIATUM 4.0 is the SIGMA medical conclave at IGMCRI in Puducherry, India, 14–18 October 2026. Explore workshops, quizzes and research events.'
+  'STRIATUM 4.0 is the SIGMA medical conclave at IGMCRI in Puducherry, India, 28 October – 1 November 2026. Explore workshops, quizzes and research events.'
 );
-newIndexHtml = newIndexHtml.replaceAll('15–18 October 2026', CONFERENCE_DATE_COPY);
+for (const stale of ['15–18 October 2026', '14–18 October 2026']) {
+  newIndexHtml = newIndexHtml.replaceAll(stale, CONFERENCE_DATE_COPY);
+}
 writeFileSync(indexPath, newIndexHtml, 'utf8');
 
 // Sitemap. /admin and other private/transactional routes must never appear

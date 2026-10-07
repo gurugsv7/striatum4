@@ -107,7 +107,7 @@ let lastScreen: ScreenType | null = null;
 let restoringFromHistory = false;
 let pendingRoute: Route | null = null;
 const DEFAULT_SITE_DESCRIPTION =
-  'STRIATUM 4.0 is the SIGMA medical conclave at IGMCRI in Puducherry, India, 14–18 October 2026. Explore workshops, quizzes and research events.';
+  'STRIATUM 4.0 is the SIGMA medical conclave at IGMCRI in Puducherry, India, 28 October – 1 November 2026. Explore workshops, quizzes and research events.';
 
 const initialStructuredDataTag = document.querySelector<HTMLScriptElement>('script[type="application/ld+json"]');
 const initialStructuredData = initialStructuredDataTag?.textContent ?? '';
@@ -219,9 +219,9 @@ function syncUrlAndTitle(state: AppState): void {
     : state.currentScreen === 'credits'
       ? 'Website credits for STRIATUM 4.0. The IGMCRI medical conclave website was designed and developed by Built by GSV.'
       : state.currentScreen === 'explore'
-        ? 'Explore medical workshops, quizzes, research presentations and creative events at STRIATUM 4.0, IGMCRI Puducherry, 14–18 October 2026.'
+        ? 'Explore medical workshops, quizzes, research presentations and creative events at STRIATUM 4.0, IGMCRI Puducherry, 28 October – 1 November 2026.'
         : state.currentScreen === 'programme'
-          ? 'See dates and schedules for STRIATUM 4.0 medical workshops, quizzes and academic events at IGMCRI, Puducherry, 14–18 October 2026.'
+          ? 'See dates and schedules for STRIATUM 4.0 medical workshops, quizzes and academic events at IGMCRI, Puducherry, 28 October – 1 November 2026.'
           : DEFAULT_SITE_DESCRIPTION;
   setMetaContent('meta[name="description"]', pageDescription);
   setMetaContent('meta[property="og:title"]', title);

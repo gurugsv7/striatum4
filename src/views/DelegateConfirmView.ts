@@ -139,7 +139,7 @@ async function downloadDelegatePass(): Promise<boolean> {
   const fields: [string, string][] = [
     ['DELEGATE ID', delegateCode],
     ['PASS TIER', tier],
-    ['VALID', '15–18 OCT 2026']
+    ['VALID', '28 OCT – 1 NOV 2026']
   ];
   let fx = 72;
   fields.forEach(([label, value]) => {

@@ -948,10 +948,10 @@ export const EVENTS_PART_1: SymposiumEvent[] = [
     specialties: ['Endocrinology'],
     format: 'Quiz',
     // The online prelim on 3 October is the one round with a confirmed exact
-    // time. The semifinals and finals are on 14 October with timings unstated.
+    // time. The semifinals and finals are on the afternoon of 28 October.
     date: '3 OCT',
     isoDate: '2026-10-03',
-    isoEndDate: '2026-10-14',
+    isoEndDate: '2026-10-28',
     startTime: '6:00 PM',
     endTime: '6:45 PM',
     mode: 'hybrid',
@@ -1002,8 +1002,8 @@ export const EVENTS_PART_1: SymposiumEvent[] = [
             label: 'Round 01 · Prelims',
             value: 'Online · 3 October 2026 · 6:00 PM – 6:45 PM · 45 questions in 45 minutes'
           },
-          { label: 'Round 02 · Semifinals', value: 'Offline · 14 October 2026 · top 10 teams qualify' },
-          { label: 'Round 03 · Finals', value: 'Offline · 14 October 2026 · top 6 teams qualify' }
+          { label: 'Round 02 · Semifinals', value: 'Offline · 28 October 2026 · afternoon · top 10 teams qualify' },
+          { label: 'Round 03 · Finals', value: 'Offline · 28 October 2026 · afternoon · top 6 teams qualify' }
         ]
       },
       {

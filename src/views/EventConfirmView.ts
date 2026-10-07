@@ -20,7 +20,7 @@ const DEFAULT_MOCKUP_ITEMS: ManifestItem[] = [
     indexStr: '01',
     name: 'AQUAQUEST',
     context: 'Nephrology · Senior Quiz',
-    date: '18 OCT 2026',
+    date: '1 NOV 2026',
     time: 'Report 8:00 AM',
     venue: 'Lecture Hall 2, IGMCRI',
     thumbSrc: '/art_aquaquest_inner.png'
@@ -29,7 +29,7 @@ const DEFAULT_MOCKUP_ITEMS: ManifestItem[] = [
     indexStr: '02',
     name: 'PLEURALIS',
     context: 'Respiratory Medicine · Workshop',
-    date: '15 OCT 2026',
+    date: '29 OCT 2026',
     time: '2:00 PM – 5:00 PM',
     venue: 'Main Auditorium, IGMCRI',
     thumbSrc: '/art_pleuralis_inner.png'
@@ -38,7 +38,7 @@ const DEFAULT_MOCKUP_ITEMS: ManifestItem[] = [
     indexStr: '03',
     name: 'PENUMBRA',
     context: 'Radiology · Workshop',
-    date: '17 OCT 2026',
+    date: '31 OCT 2026',
     time: '9:00 AM – 1:00 PM',
     venue: 'Main Auditorium, IGMCRI',
     thumbSrc: '/art_penumbra_inner.png'
@@ -104,7 +104,7 @@ export function renderEventConfirmView(): string {
       const context = line.context || (ev ? eventContextLine(ev) : 'Conclave Event');
 
       // Date: ensure 2026 is present
-      let date = line.date || ev?.date || '15–18 OCT 2026';
+      let date = line.date || ev?.date || '28 OCT – 1 NOV 2026';
       if (!date.includes('2026')) {
         date = `${date} 2026`;
       }

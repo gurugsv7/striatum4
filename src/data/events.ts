@@ -104,9 +104,11 @@ const LATEST_BROCHURE_OVERRIDES: Record<string, Partial<SymposiumEvent>> = {
     needsConfirmation: undefined
   },
   NEURONOVA: {
+    // Afternoon session on the schedule; the old 9:00 AM start no longer
+    // holds and no new time has been given.
     date: '01 NOV',
     isoDate: '2026-11-01',
-    startTime: '9:00 AM'
+    startTime: undefined
   },
   'THE UNCHARTED': {
     date: '31 OCT',
@@ -248,6 +250,11 @@ const SECTION_FACT_OVERRIDES: Record<string, Record<string, Record<string, strin
     'IMPORTANT INFORMATION': {
       'Submission deadline': '13 October 2026',
       'PPT deadline': '13 October 2026'
+    }
+  },
+  NEURONOVA: {
+    'IMPORTANT INFORMATION': {
+      Time: 'Afternoon session'
     }
   }
 };
