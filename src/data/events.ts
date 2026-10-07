@@ -14,97 +14,121 @@ import { EVENTS_PART_2 } from './events.part2.ts';
 const LATEST_BROCHURE_OVERRIDES: Record<string, Partial<SymposiumEvent>> = {
   SUTUREX: {
     name: 'STITCHREEF',
-    date: '15 OCT',
-    isoDate: '2026-10-15',
+    date: '29 OCT',
+    isoDate: '2026-10-29',
     startTime: '8:30 AM',
     endTime: '12:30 PM',
     needsConfirmation: undefined
   },
   PENUMBRA: {
-    date: '17 OCT',
-    isoDate: '2026-10-17',
+    date: '31 OCT',
+    isoDate: '2026-10-31',
     startTime: '9:00 AM',
     endTime: '1:00 PM'
   },
   GENESIS: {
-    date: '16 OCT',
-    isoDate: '2026-10-16',
+    date: '30 OCT',
+    isoDate: '2026-10-30',
     startTime: '8:00 AM',
     endTime: '4:00 PM'
   },
   'GLOW CODE': {
-    date: '17 OCT',
-    isoDate: '2026-10-17',
+    date: '31 OCT',
+    isoDate: '2026-10-31',
     startTime: '8:30 AM',
     endTime: '4:00 PM'
   },
   VITALIS: {
     name: 'TRAUMA RESUSCITATION',
-    date: '16 OCT',
-    isoDate: '2026-10-16',
+    date: '30 OCT',
+    isoDate: '2026-10-30',
     startTime: '8:00 AM',
     endTime: '4:30 PM',
     needsConfirmation: undefined
   },
   PLEURALIS: {
-    date: '15 OCT',
-    isoDate: '2026-10-15',
+    date: '29 OCT',
+    isoDate: '2026-10-29',
     startTime: '2:00 PM',
     endTime: '4:30 PM'
   },
   RYTHMICA: {
-    date: '16 OCT',
-    isoDate: '2026-10-16',
+    date: '30 OCT',
+    isoDate: '2026-10-30',
     startTime: '8:00 AM',
     endTime: '1:00 PM'
   },
-  // The three quiz events are no longer listed here: their definitions in
+  'THE SONO EDGE': {
+    date: '29 OCT',
+    isoDate: '2026-10-29'
+  },
+  PAEDOPRAXIS: {
+    date: '30 OCT',
+    isoDate: '2026-10-30'
+  },
+  BONEFIRE: {
+    date: '29 OCT',
+    isoDate: '2026-10-29'
+  },
+  'OCEANIC ODYSSEY': {
+    date: '01 NOV',
+    isoDate: '2026-11-01'
+  },
+  AQUAQUEST: {
+    date: '01 NOV',
+    isoDate: '2026-11-01'
+  },
+  GLANDSWARS: {
+    date: '28 OCT',
+    isoDate: '2026-10-28'
+  },
+  // The schedule below is organiser-confirmed for 28 Oct–1 Nov 2026. their definitions in
   // events.part1.ts were regenerated from the latest brochure, so an override
   // would only be another place for those facts to drift.
   LUMINARA: {
-    date: '17 OCT',
-    isoDate: '2026-10-17'
+    date: '31 OCT',
+    isoDate: '2026-10-31'
   },
   'THE DIAGNOSTIC ABYSS': {
-    date: '18 OCT',
-    isoDate: '2026-10-18'
+    date: '01 NOV',
+    isoDate: '2026-11-01'
   },
   'CORAL CANVAS': {
-    date: '18 OCT',
-    isoDate: '2026-10-18'
+    date: '01 NOV',
+    isoDate: '2026-11-01'
   },
   CHIRONEX: {
-    date: '18 OCT',
-    isoDate: '2026-10-18',
+    date: '01 NOV',
+    isoDate: '2026-11-01',
     submissionDeadline: '13 October 2026',
     needsConfirmation: undefined
   },
   NEURONOVA: {
-    date: '18 OCT',
-    isoDate: '2026-10-18',
+    date: '01 NOV',
+    isoDate: '2026-11-01',
     startTime: '9:00 AM'
   },
   'THE UNCHARTED': {
-    date: '17 OCT',
-    isoDate: '2026-10-17'
+    date: '31 OCT',
+    isoDate: '2026-10-31'
   },
   'LIFE REIMAGINED': {
-    date: '17 OCT',
-    isoDate: '2026-10-17'
+    date: '31 OCT',
+    isoDate: '2026-10-31'
   },
   BIOVERSE: {
     // Organiser supplied this directly because the brochure had no room for it.
-    date: '14 OCT',
-    isoDate: '2026-10-14',
+    date: '28 OCT',
+    isoDate: '2026-10-28',
     startTime: '10:00 AM'
   },
   'THE MEDICAL VAULT': {
-    date: '18 OCT',
-    isoDate: '2026-10-18'
+    date: '01 NOV',
+    isoDate: '2026-11-01'
   },
   MEDMAZE: {
-    date: '17 OCT',
-    isoDate: '2026-10-17'
+    date: '31 OCT',
+    isoDate: '2026-10-31'
   }
 };
 
