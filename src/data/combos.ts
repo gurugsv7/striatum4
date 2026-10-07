@@ -2,7 +2,7 @@
  * STRIATUM 4.0 combo offers.
  *
  * Source of truth: the organisers' Combo Offers document. It supplies the
- * composition, the combined amount, the discounted amount and the 27 Sep 2026
+ * composition, the combined amount, the discounted amount and the 18 Oct 2026
  * deadline. Event names, prices and dates come from the brochure catalogue, so
  * a combo never restates a fee — it names the events and the saving, and the
  * rest is read from EVENTS.
@@ -35,10 +35,10 @@ export interface ComboOffer {
   publishedComboTotal: number;
 }
 
-export const COMBO_DEADLINE_DISPLAY = '04 OCT 2026';
+export const COMBO_DEADLINE_DISPLAY = '18 OCT 2026';
 
-/** End of 4 Oct 2026 in Asia/Kolkata, expressed as a UTC instant. */
-export const COMBO_DEADLINE_UTC = Date.UTC(2026, 9, 4, 18, 29, 59, 999);
+/** End of 18 Oct 2026 in Asia/Kolkata, expressed as a UTC instant. */
+export const COMBO_DEADLINE_UTC = Date.UTC(2026, 9, 18, 18, 29, 59, 999);
 
 export const COMBO_OFFERS: ComboOffer[] = [
   // ------------------------------------------------------------ workshops --
