@@ -440,7 +440,7 @@ const FINAL_BROCHURE_TEXT: Record<string, [string, string][]> = {
 function applyFinalBrochureReview(event: SymposiumEvent): SymposiumEvent {
   const updates = FINAL_BROCHURE_UPDATES[event.id] ?? {};
   const patches = FINAL_BROCHURE_TEXT[event.id] ?? [];
-  const fix = (v: string): string => patches.reduce((value, [before, after]) => value.replaceAll(before, after), v);
+  const fix = (v: string): string => patches.reduce((value, [before, after]) => value.split(before).join(after), v);
   const fixSection = (section: NonNullable<SymposiumEvent['sections']>[number]) => ({
     ...section,
     body: section.body === undefined ? undefined : fix(section.body),
