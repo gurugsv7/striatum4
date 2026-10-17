@@ -399,12 +399,22 @@ const FINAL_BROCHURE_UPDATES: Record<string, Partial<SymposiumEvent>> = {
 
 /** Old values embedded in collapsible sections are not repaired by top-level overrides. */
 const FINAL_BROCHURE_TEXT: Record<string, [string, string][]> = {
+  's4-11': [
+    ['third-year (2024)', 'third-year (2023)'],
+    ['third-year student from the 2024 batch', 'third-year student from the 2023 batch'],
+    ['Only two second-year students are allowed per team.', '']
+  ],
+  's4-12': [
+    ['Only one final-year student from the 2022 batch is allowed per team.', 'Up to two final-year students from the 2022 batch are allowed per team.'],
+    ['Exactly 3 members', '1–3 members']
+  ],
   's4-02': [['Limited to 50 participants.', 'Limited to 75 participants.']],
   's4-09': [['Limited to 40 participants.', 'Limited to 30 participants.']],
   's4-13': [['3 October 2026', '18 October 2026']],
   's4-14': [
     ['3 October 2026', '22 October 2026'],
     ['CRRIs (2022 batch)', 'CRRIs (2021 batch)'],
+    ['Duration: 10–15 minutes including Q&A.', 'Presentation: 20 minutes followed by 5 minutes of interaction.'],
     ['General Medicine, Obstetrics & Gynaecology, Ophthalmology, Biochemistry, Physiology and Pathology', 'General Medicine, General Surgery, Physiology, Pathology and Ophthalmology']
   ],
   's4-15': [
@@ -415,7 +425,12 @@ const FINAL_BROCHURE_TEXT: Record<string, [string, string][]> = {
   ],
   's4-16': [['3 October 2026', '22 October 2026'], ['10 October 2026', '22 October 2026']],
   's4-17': [['2 October 2026', '23 October 2026'], ['13 October 2026', '30 October 2026']],
-  's4-18': [['3 October 2026', '23 October 2026']],
+  's4-18': [
+    ['3 October 2026', '23 October 2026'],
+    ['Top 10 abstracts are selected for oral presentation.', 'Selected abstracts are invited for oral presentation.'],
+    ['1–3', '1–4'],
+    ['9:00 AM', 'Time to be confirmed (brochure has conflicting timings)']
+  ],
   's4-19': [['3 October 2026', '23 October 2026']],
   's4-21': [['5 October 2026', '26 October 2026']],
   's4-23': [['2 October 2026', '26 October 2026']],
@@ -429,7 +444,7 @@ function applyFinalBrochureReview(event: SymposiumEvent): SymposiumEvent {
   const fixSection = (section: NonNullable<SymposiumEvent['sections']>[number]) => ({
     ...section,
     body: section.body === undefined ? undefined : fix(section.body),
-    items: section.items?.map(fix),
+    items: section.items?.map(fix).filter(Boolean),
     facts: section.facts?.map(fact => ({
       ...fact,
       value: fact.label.toLowerCase() === 'slots' && updates.slots !== undefined
@@ -441,7 +456,7 @@ function applyFinalBrochureReview(event: SymposiumEvent): SymposiumEvent {
     ...event,
     ...updates,
     description: event.description ? fix(event.description) : undefined,
-    eligibility: event.eligibility?.map(fix),
+    eligibility: event.eligibility?.map(fix).filter(Boolean),
     rules: event.rules?.map(fix),
     submissionInstructions: event.submissionInstructions?.map(fix),
     sections: event.sections?.map(fixSection)
