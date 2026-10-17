@@ -400,11 +400,13 @@ const FINAL_BROCHURE_UPDATES: Record<string, Partial<SymposiumEvent>> = {
 /** Old values embedded in collapsible sections are not repaired by top-level overrides. */
 const FINAL_BROCHURE_TEXT: Record<string, [string, string][]> = {
   's4-11': [
+    ['18 October 2026', '1 November 2026'],
     ['third-year (2024)', 'third-year (2023)'],
     ['third-year student from the 2024 batch', 'third-year student from the 2023 batch'],
     ['Only two second-year students are allowed per team.', '']
   ],
   's4-12': [
+    ['18 October 2026', '1 November 2026'],
     ['Only one final-year student from the 2022 batch is allowed per team.', 'Up to two final-year students from the 2022 batch are allowed per team.'],
     ['Exactly 3 members', '1–3 members']
   ],
