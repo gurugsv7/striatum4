@@ -637,3 +637,30 @@
 .event-admin-category-filters .filter-chip-btn {
   flex: 0 0 auto;
 }
+
+/* Reserve proof geometry before signing/downloading so image arrival cannot
+   shift the ledger or interrupt an ongoing scroll. */
+.admin-proof-content {
+  width: 100%;
+  height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-proof-content[data-admin-proof-key=""] {
+  height: auto;
+}
+
+.admin-proof-content .admin-proof-img {
+  width: 100%;
+  height: 100%;
+}
+
+.admin-proof-frame--expanded .admin-proof-content {
+  height: 480px;
+}
+
+.admin-delegate-proof .admin-proof-content {
+  height: 260px;
+}

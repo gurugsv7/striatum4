@@ -1,3 +1,4 @@
+import { attachAdminProofs, renderAdminProofImage } from '../components/AdminProofs.ts';
 import { appStore } from '../state/appStore.ts';
 import * as registration from '../services/registrationService.ts';
 import { formatINR } from '../services/pricing.ts';
@@ -126,10 +127,10 @@ function renderRevokePanel(id: string): string {
  */
 function abstractRow(line: registration.OrderLine): string {
   if (!line.abstractPath) return '';
-  const url = registration.readProofByPath(line.abstractPath);
+  const url = registration.readProofByPath(line.abstractPath, false);
   const name = escapeHtml(line.abstractName ?? 'Abstract');
   return `
-    <div class="admin-abstract-row">
+    <div class="admin-abstract-row" data-admin-proof-kind="path" data-admin-proof-key="${escapeHtml(line.abstractPath)}" data-admin-proof-format="link" data-admin-proof-name="${name}">
       <span class="admin-ledger-key">ABSTRACT</span>
       ${
         url
@@ -151,18 +152,12 @@ function renderDelegateEvidence(app: registration.DelegateApplication): string {
     <div class="admin-delegate-proofs">
       ${cards
         .map(card => {
-          const url = registration.readProofByPath(card.path);
+          const url = registration.readProofByPath(card.path, false);
           return `
             <figure class="admin-delegate-proof">
               <figcaption class="admin-ledger-key">${card.label}</figcaption>
               <div class="admin-proof-frame" data-delegate-proof="${escapeHtml(card.path ?? '')}">
-                ${
-                  url
-                    ? `<img src="${url}" alt="${card.label}" class="admin-proof-img" />`
-                    : `<div class="admin-proof-empty">${
-                        card.path ? 'Loading secure image&hellip;' : 'Not supplied.'
-                      }</div>`
-                }
+                ${renderAdminProofImage('path', card.path, url, card.label, card.path ? 'Loading secure image…' : 'Not supplied.')}
               </div>
             </figure>`;
         })
@@ -550,7 +545,7 @@ function renderOrderPanel(order: registration.Order): string {
    * must live in authenticated/signed storage, fetched per-request for an
    * authorised admin only.
    */
-  const proofDataUrl = registration.readProofImage(order.id);
+  const proofDataUrl = registration.readProofImage(order.id, false);
   const hasProofPath = Boolean(order.proof);
   const isEnlarged = enlargedScreenshotOrderId === order.id;
   const isRejectOpen = expandedRejectOrderId === order.id;
@@ -627,9 +622,7 @@ function renderOrderPanel(order: registration.Order): string {
       <div class="admin-proof-frame ${isEnlarged ? 'admin-proof-frame--expanded' : ''}" data-toggle-screenshot="${order.id}">
         <div class="admin-proof-corner-tl"></div>
         <div class="admin-proof-corner-br"></div>
-        ${proofDataUrl
-          ? `<img src="${proofDataUrl}" alt="Payment screenshot for ${escapeHtml(order.reference)}" class="admin-proof-img" />`
-          : `<div class="admin-proof-empty">${hasProofPath ? 'Loading secure screenshot…' : 'No screenshot on file.'}</div>`}
+        ${renderAdminProofImage('order', hasProofPath ? order.id : undefined, proofDataUrl, `Payment screenshot for ${order.reference}`, hasProofPath ? 'Loading secure screenshot…' : 'No screenshot on file.')}
       </div>
 
       <div class="admin-ledger" style="margin-top: 10px;">
@@ -753,15 +746,14 @@ export function renderAdminView(): string {
 }
 
 export function attachAdminEvents(): void {
-  // Private Storage proofs resolve asynchronously. Warm every proof currently
-  // visible in the console so the verifier gets the actual image, not a
-  // misleading empty placeholder on the first render.
-  if (registration.isFinanceAdmin()) {
-    void registration.warmProofImages(registration.listAllOrdersForAdmin().filter(order => order.proof).map(order => order.id));
-  // Delegate evidence and abstracts live at their own paths rather than under
-  // an order id, so they are warmed by path.
-    void registration.warmDelegateProofs();
-    void registration.warmAbstracts();
+  // Load only evidence near the viewport, including the selected order view.
+  // Signed URLs update the existing slots rather than rebuilding this page.
+  const scroller = document.getElementById('viewport-scroller');
+  if (registration.isFinanceAdmin() && scroller) {
+    attachAdminProofs(scroller, {
+      order: registration.readProofImage,
+      path: registration.readProofByPath
+    });
   }
 
   const btnBack = document.getElementById('btn-admin-back');
