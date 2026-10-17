@@ -81,9 +81,9 @@ export const COMBO_OFFERS: ComboOffer[] = [
     kind: 'workshop',
     eventIds: ['s4-05', 's4-02', 's4-09'],
     teamsPerEvent: 1,
-    // GENESIS went 800 -> 1,000.
+    // Final brochure shows ₹2,500, a ₹300 saving on ₹2,800.
     publishedNormalTotal: 2800,
-    publishedComboTotal: 2600
+    publishedComboTotal: 2500
   },
   {
     id: 'combo-rythmica-glowcode',

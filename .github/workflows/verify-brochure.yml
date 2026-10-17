@@ -1,0 +1,30 @@
+name: Verify brochure reconciliation
+on:
+  push:
+    branches:
+      - audit/2026-10-18-final-brochure-alignment
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install pinned dependencies
+        run: npm ci
+      - name: Compile and bundle production
+        run: npm run build
+      - name: Check brochure data consistency
+        run: node scripts/verify-final-brochure.mjs
