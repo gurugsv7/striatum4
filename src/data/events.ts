@@ -366,8 +366,92 @@ function applyLatestBrochureData(event: SymposiumEvent): SymposiumEvent {
   return patched;
 }
 
+/**
+ * Final 18 Oct 2026 brochure cross-check.
+ * Intentionally applied after legacy brochure overrides, without rewriting historical
+ * source files. The production SQL migration must be reviewed/applied separately.
+ *
+ * Exceptions requiring organiser confirmation: STITCHREEF has 75 seats as
+ * directly instructed (printed brochure still says 50); NEURONOVA's itinerary
+ * says afternoon while its event page says 9 AM, so its start time stays unset.
+ */
+const FINAL_BROCHURE_UPDATES: Record<string, Partial<SymposiumEvent>> = {
+  's4-02': { slots: 75 },
+  's4-09': { slots: 30 },
+  's4-13': { startTime: undefined, endTime: undefined }, // 6 PM is for the 18 Oct ONLINE prelim, not the 28 Oct onsite rounds
+  's4-14': {
+    abstractDeadline: '22 October 2026',
+    specialties: ['General Medicine', 'General Surgery', 'Physiology', 'Pathology', 'Ophthalmology']
+  },
+  's4-15': {
+    abstractDeadline: '22 October 2026',
+    submissionDeadline: '30 October 2026',
+    specialties: ['Medicine', 'Paediatrics', 'ENT', 'Ophthalmology', 'Surgery']
+  },
+  's4-16': { abstractDeadline: '22 October 2026', submissionDeadline: '22 October 2026' },
+  's4-17': { abstractDeadline: '23 October 2026', submissionDeadline: '30 October 2026' },
+  's4-18': { abstractDeadline: '23 October 2026', teamSize: { min: 1, max: 4 } },
+  's4-19': { abstractDeadline: '23 October 2026' },
+  's4-21': { submissionDeadline: '26 October 2026' },
+  's4-23': { submissionDeadline: '26 October 2026' },
+  's4-24': { submissionDeadline: '26 October 2026' }
+};
+
+/** Old values embedded in collapsible sections are not repaired by top-level overrides. */
+const FINAL_BROCHURE_TEXT: Record<string, [string, string][]> = {
+  's4-02': [['Limited to 50 participants.', 'Limited to 75 participants.']],
+  's4-09': [['Limited to 40 participants.', 'Limited to 30 participants.']],
+  's4-13': [['3 October 2026', '18 October 2026']],
+  's4-14': [
+    ['3 October 2026', '22 October 2026'],
+    ['CRRIs (2022 batch)', 'CRRIs (2021 batch)'],
+    ['General Medicine, Obstetrics & Gynaecology, Ophthalmology, Biochemistry, Physiology and Pathology', 'General Medicine, General Surgery, Physiology, Pathology and Ophthalmology']
+  ],
+  's4-15': [
+    ['3 October 2026', '22 October 2026'],
+    ['10 October 2026', '30 October 2026'],
+    ['Medicine, Obstetrics & Gynaecology, Paediatrics and Surgery', 'Medicine, Paediatrics, ENT, Ophthalmology and Surgery'],
+    ['Obstetrics & Gynaecology', 'ENT and Ophthalmology']
+  ],
+  's4-16': [['3 October 2026', '22 October 2026'], ['10 October 2026', '22 October 2026']],
+  's4-17': [['2 October 2026', '23 October 2026'], ['13 October 2026', '30 October 2026']],
+  's4-18': [['3 October 2026', '23 October 2026']],
+  's4-19': [['3 October 2026', '23 October 2026']],
+  's4-21': [['5 October 2026', '26 October 2026']],
+  's4-23': [['2 October 2026', '26 October 2026']],
+  's4-24': [['2 October 2026', '26 October 2026']]
+};
+
+function applyFinalBrochureReview(event: SymposiumEvent): SymposiumEvent {
+  const updates = FINAL_BROCHURE_UPDATES[event.id] ?? {};
+  const patches = FINAL_BROCHURE_TEXT[event.id] ?? [];
+  const fix = (v: string): string => patches.reduce((value, [before, after]) => value.replaceAll(before, after), v);
+  const fixSection = (section: NonNullable<SymposiumEvent['sections']>[number]) => ({
+    ...section,
+    body: section.body === undefined ? undefined : fix(section.body),
+    items: section.items?.map(fix),
+    facts: section.facts?.map(fact => ({
+      ...fact,
+      value: fact.label.toLowerCase() === 'slots' && updates.slots !== undefined
+        ? String(updates.slots)
+        : fix(fact.value)
+    }))
+  });
+  return {
+    ...event,
+    ...updates,
+    description: event.description ? fix(event.description) : undefined,
+    eligibility: event.eligibility?.map(fix),
+    rules: event.rules?.map(fix),
+    submissionInstructions: event.submissionInstructions?.map(fix),
+    sections: event.sections?.map(fixSection)
+  };
+}
+
 /** All 26 named STRIATUM 4.0 activities, in official brochure order. */
-export const EVENTS: SymposiumEvent[] = [...EVENTS_PART_1, ...EVENTS_PART_2].map(applyLatestBrochureData);
+export const EVENTS: SymposiumEvent[] = [...EVENTS_PART_1, ...EVENTS_PART_2]
+  .map(applyLatestBrochureData)
+  .map(applyFinalBrochureReview);
 
 const BY_ID = new Map(EVENTS.map(e => [e.id, e]));
 
