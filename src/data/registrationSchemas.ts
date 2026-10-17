@@ -76,7 +76,7 @@ const BASIC_MEMBER_FIELDS: MemberField[] = ['name', 'year'];
  */
 const EXPLICIT: Record<string, Partial<EventRegistrationSchema>> = {
   // ---------------------------------------------------------------- quizzes --
-  // Junior quiz. Exactly three, one college, and two stated per-team year caps.
+  // Junior quiz. Exactly three, one college, and one cap on the 2023 batch.
   's4-11': {
     shape: 'team',
     minMembers: 3,
@@ -85,7 +85,7 @@ const EXPLICIT: Record<string, Partial<EventRegistrationSchema>> = {
     sameCollege: true,
     allowedYears: ['2023', '2024', '2025'],
     yearLimits: [
-      { year: '2024', max: 1, reason: 'Only one 2024-batch student per team.' }
+      { year: '2023', max: 1, reason: 'Only one 2023-batch student per team.' }
     ],
     memberFields: QUIZ_MEMBER_FIELDS,
     notes: [
@@ -93,7 +93,7 @@ const EXPLICIT: Record<string, Partial<EventRegistrationSchema>> = {
     ]
   },
 
-  // Senior quiz. Exactly three, one college, one CRRI and one final year.
+  // Senior quiz. Up to three, one college, one CRRI and up to two final-year students.
   's4-12': {
     shape: 'team',
     // Up to three, and a lone entrant is allowed; the fee is still per team.
@@ -104,7 +104,7 @@ const EXPLICIT: Record<string, Partial<EventRegistrationSchema>> = {
     allowedYears: ['2021', '2022', '2023', '2024', '2025'],
     yearLimits: [
       { year: '2021', max: 1, reason: 'Only one 2021-batch student per team.' },
-      { year: '2022', max: 1, reason: 'Only one 2022-batch student per team.' }
+      { year: '2022', max: 2, reason: 'Up to two 2022-batch final-year students per team.' }
     ],
     memberFields: QUIZ_MEMBER_FIELDS,
     notes: ['All team members must bring ID proof on the day.']
@@ -143,7 +143,7 @@ const EXPLICIT: Record<string, Partial<EventRegistrationSchema>> = {
   's4-18': {
     shape: 'individual_or_team',
     minMembers: 1,
-    maxMembers: 3,
+    maxMembers: 4,
     defaultMembers: 1,
     sameCollege: false,
     memberFields: CROSS_COLLEGE_MEMBER_FIELDS,
