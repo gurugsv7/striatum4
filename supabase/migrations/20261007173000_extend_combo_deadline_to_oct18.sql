@@ -5,3 +5,11 @@ set ends_at = timestamptz '2026-10-18 18:29:59.999+00',
     active = true
 where kind = 'combo'
   and id like 'combo-%';
+
+-- Final brochure workshop combo table, p.22: 2,800 -> 2,500 (saving 300).
+-- Previous seed kept a 200 saving and would charge 2,600.
+update public.discount_rules
+set discount_value = 300
+where id='combo-genesis-stitchreef-pleuralis'
+  and kind='combo'
+  and discount_type='fixed';
