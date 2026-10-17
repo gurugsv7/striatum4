@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin proof scrolling regression (synthetic data)</title>
+<link rel="stylesheet" href="/src/styles/tokens.css"><link rel="stylesheet" href="/src/styles/admin.css">
+<style>
+body{background:#08121b;color:#e6eff5;font:16px system-ui;margin:20px}button,input{font:inherit;padding:8px;margin:5px}#viewport-scroller{height:500px;width:min(960px,100%);overflow:auto;border:1px solid #45b6c5;box-sizing:border-box;padding:16px}.admin-panel{box-sizing:border-box}#results{white-space:pre-wrap;line-height:1.5;max-width:1000px}.admin-proof-img{object-fit:contain}.admin-panel h2{font-size:16px}
+</style>
+<h1>Admin proof scrolling regression</h1><p>Synthetic fixtures only. No Supabase connection, real users or approvals.</p>
+<button id="desktop">Run desktop checks</button><button id="mobile">Run mobile checks</button><button id="leave">Leave page</button><button id="return">Return to page</button>
+<pre id="results" aria-live="polite">Ready</pre>
+<div id="viewport-scroller" tabindex="0"></div>
+<script type="module">
+import {attachAdminProofs,detachAdminProofs,renderAdminProofImage,updateAdminProof} from '/src/components/AdminProofs.ts';
+const root=document.querySelector('#viewport-scroller'), output=document.querySelector('#results');
+const total=250; let requested=new Set(), generation=0, lastCount=0;
+const url='data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="320" height="160"><rect width="320" height="160" fill="#123b48"/><text x="30" y="80" fill="white" font-size="22">SYNTHETIC PROOF</text></svg>');
+function mount(width=960){
+  detachAdminProofs(); generation++; const current=generation; requested=new Set();
+  root.style.width=`min(${width}px, 100%)`;
+  root.innerHTML=Array.from({length:total},(_,i)=>`<section class="admin-panel"><h2>Synthetic order ${i+1}</h2><label>Rejection reason <input aria-label="Reason ${i+1}" value=""></label><div class="admin-proof-frame" data-frame="${i}">${renderAdminProofImage('order',String(i),null,`Synthetic proof ${i+1}`,'Loading synthetic proof…')}</div><button data-expand="${i}">Expand proof ${i+1}</button></section>`).join('');
+  root.querySelectorAll('[data-expand]').forEach(button=>button.onclick=()=>root.querySelector(`[data-frame="${button.dataset.expand}"]`).classList.toggle('admin-proof-frame--expanded'));
+  attachAdminProofs(root,{order:key=>{if(!requested.has(key)){requested.add(key);setTimeout(()=>{if(current===generation)updateAdminProof({kind:'order',key,url})},100+Number(key)%7*50)}return null},path:()=>null});
+  root.scrollTop=0;
+}
+async function run(width){
+  mount(width); const scroller=root, input=root.querySelector('input'); input.value='Keep this unfinished reason'; input.focus();
+  const height=root.scrollHeight;
+  await new Promise(resolve=>setTimeout(resolve,40)); root.scrollTop=1300; const top=root.scrollTop;
+  await new Promise(resolve=>setTimeout(resolve,600));
+  const results={width,syntheticOrders:total,signedProofRequests:requested.size,loadedImages:root.querySelectorAll('img').length,scrollerPreserved:document.querySelector('#viewport-scroller')===scroller,scrollPositionPreserved:root.scrollTop===top,scrollHeightStable:root.scrollHeight===height,inputPreserved:root.querySelector('input')===input&&input.value==='Keep this unfinished reason',focusPreserved:document.activeElement===input,offscreenRequestsAvoided:requested.size<total/4};
+  results.pass=['scrollerPreserved','scrollPositionPreserved','scrollHeightStable','inputPreserved','focusPreserved','offscreenRequestsAvoided'].every(key=>results[key]);
+  output.textContent=JSON.stringify(results,null,2); lastCount=requested.size;
+}
+document.querySelector('#desktop').onclick=()=>run(960);
+document.querySelector('#mobile').onclick=()=>run(390);
+document.querySelector('#leave').onclick=()=>{detachAdminProofs();generation++;root.innerHTML='<p>Left the synthetic admin page.</p>';output.textContent=`Detached observer; ${lastCount} requests in last run.`};
+document.querySelector('#return').onclick=()=>{mount(390);output.textContent='Returned to synthetic admin. Lazy loading reattached.'};
+mount();
+</script>
+</html>

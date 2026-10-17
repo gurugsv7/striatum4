@@ -1314,7 +1314,21 @@ function proofKey(orderId: string): string {
   return PROOF_KEY_PREFIX + orderId;
 }
 
-/** Reads a stored proof image. Only the owning delegate and an admin reach this. */
+/** A private proof URL became readable; the underlying registration is unchanged. */
+export interface ProofUpdate {
+  kind: 'order' | 'path';
+  key: string;
+  url: string;
+}
+
+const proofListeners = new Set<(update: ProofUpdate) => void>();
+
+/** URL readiness is a view update, not a registration/payment mutation. */
+export function subscribeProofs(fn: (update: ProofUpdate) => void): () => void {
+  proofListeners.add(fn);
+  return () => proofListeners.delete(fn);
+}
+
 const signedProofUrls = new Map<string, string>();
 const signedProofExpiry = new Map<string, number>();
 const PROOF_URL_CACHE_MS = 4 * 60 * 1000;
@@ -1326,13 +1340,13 @@ const PROOF_URL_CACHE_MS = 4 * 60 * 1000;
  * synchronously during render. This returns the cached link if we have one and
  * warms it otherwise, notifying listeners when it arrives.
  */
-export function readProofImage(orderId: string): string | null {
+export function readProofImage(orderId: string, warm = true): string | null {
   if (isRemote()) {
     const cached = signedProofUrls.get(orderId);
     if (cached && (signedProofExpiry.get(orderId) ?? 0) > Date.now()) return cached;
     signedProofUrls.delete(orderId);
     signedProofExpiry.delete(orderId);
-    void warmProofUrl(orderId);
+    if (warm) void warmProofUrl(orderId);
     return null;
   }
   try {
@@ -1350,11 +1364,11 @@ export function readProofImage(orderId: string): string | null {
  * reached by path instead. Same cache, same signing, same render-safe shape —
  * returns null now and notifies listeners once the link arrives.
  */
-export function readProofByPath(path: string | undefined): string | null {
+export function readProofByPath(path: string | undefined, warm = true): string | null {
   if (!path || !isRemote()) return null;
   const cached = signedProofUrls.get(path);
   if (cached && (signedProofExpiry.get(path) ?? 0) > Date.now()) return cached;
-  void warmProofByPath(path);
+  if (warm) void warmProofByPath(path);
   return null;
 }
 
@@ -1364,12 +1378,12 @@ async function warmProofByPath(path: string): Promise<void> {
   const fresh = signedProofUrls.has(path) && (signedProofExpiry.get(path) ?? 0) > Date.now();
   if (fresh || warmingPaths.has(path)) return;
   warmingPaths.add(path);
-  const url = await remote.getProofUrl(path);
+  const url = await remote.getProofUrl(path).catch(() => null);
   warmingPaths.delete(path);
   if (url) {
     signedProofUrls.set(path, url);
     signedProofExpiry.set(path, Date.now() + PROOF_URL_CACHE_MS);
-    listeners.forEach(fn => fn());
+    proofListeners.forEach(fn => fn({ kind: 'path', key: path, url }));
   }
 }
 
@@ -1411,12 +1425,12 @@ async function warmProofUrl(orderId: string): Promise<void> {
   const cachedIsFresh = signedProofUrls.has(orderId) && (signedProofExpiry.get(orderId) ?? 0) > Date.now();
   if (!path || cachedIsFresh || warming.has(orderId)) return;
   warming.add(orderId);
-  const url = await remote.getProofUrl(path);
+  const url = await remote.getProofUrl(path).catch(() => null);
   warming.delete(orderId);
   if (url) {
     signedProofUrls.set(orderId, url);
     signedProofExpiry.set(orderId, Date.now() + PROOF_URL_CACHE_MS);
-    listeners.forEach(fn => fn());
+    proofListeners.forEach(fn => fn({ kind: 'order', key: orderId, url }));
   }
 }
 

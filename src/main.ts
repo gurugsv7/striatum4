@@ -16,6 +16,7 @@ import './styles/confirm.css';
 import './styles/motion.css';
 import './styles/combos.css';
 import './styles/desktop.css';
+import { detachAdminProofs, updateAdminProof } from './components/AdminProofs.ts';
 import { mountStartupLoader } from './components/StartupLoader.ts';
 
 import { appStore, AppState, ScreenType } from './state/appStore.ts';
@@ -361,6 +362,7 @@ function renderApp(state: AppState): void {
     's4-guide-hidden',
     state.currentScreen === 'onboarding' || !state.isAuthenticated
   );
+  detachAdminProofs();
   appContainer.innerHTML = desktop ? renderDesktopApp(state) : renderDesktopSurround(view.render());
   appContainer.classList.remove('s4-route-enter');
   /*
@@ -450,6 +452,16 @@ window.history.replaceState(
   '',
   window.location.pathname + window.location.search + window.location.hash
 );
+
+// Evidence becoming readable is not a change to the verification ledger.
+// Preserve the actual scrolling element and in-progress form edits on admin.
+registrationService.subscribeProofs(update => {
+  if (appStore.getState().currentScreen === 'admin' && registrationService.isFinanceAdmin()) {
+    updateAdminProof(update);
+  } else {
+    appStore.refresh();
+  }
+});
 
 const finishStartupLoader = mountStartupLoader();
 renderApp(appStore.getState());
