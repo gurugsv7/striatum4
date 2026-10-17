@@ -57,7 +57,7 @@ for(const n of ['14','15','16','17','18','19','21','23','24']) {
   const e=byId.get('s4-'+n);
   assert.ok(e);
   const str=text(e);
-  assert.doesNotMatch(str,/(?:2|3|5|10|13) October 2026/i,'Stale October deadline in '+e.name);
+  assert.doesNotMatch(str,/\b(?:2|3|5|10|13) October 2026/i,'Stale October deadline in '+e.name);
 }
 for(const n of ['11','12']) assert.doesNotMatch(text(byId.get('s4-'+n)),/18 October 2026/, 'Legacy quiz date in details of '+n);
 assert.doesNotMatch(text(byId.get('s4-13')),/3 October 2026/, 'GLANDSWARS online prelim must be 18 Oct');
