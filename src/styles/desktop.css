@@ -703,12 +703,15 @@
 /* ------------------------------------------------------------- toast ----- */
 
 .d-toast {
+  box-sizing: border-box;
+  width: max-content;
+  overflow-wrap: anywhere;
   position: fixed;
   left: 50%;
   bottom: 34px;
   transform: translate(-50%, 16px);
   z-index: 200;
-  max-width: 520px;
+  max-width: min(520px, calc(100vw - 32px));
   padding: 14px 22px;
   background: rgba(2, 16, 30, 0.96);
   border: 1px solid var(--cyan-border);

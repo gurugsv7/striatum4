@@ -30,6 +30,8 @@
 }
 
 .cart-line-name-btn {
+  min-width: 0;
+  overflow-wrap: anywhere;
   background: transparent;
   border: none;
   padding: 0;
@@ -40,6 +42,28 @@
   font-weight: 600;
   color: #ffffff;
   line-height: 1.2;
+}
+
+.cart-checkout-error:not([hidden]), .cart-reg-incomplete {
+  color: #ffb0b0;
+}
+
+.cart-checkout-error:not([hidden]) {
+  margin: 16px 0;
+  padding: 14px 16px;
+  border: 1px solid rgba(255, 145, 145, 0.52);
+  border-radius: 10px;
+  background: rgba(0, 12, 20, 0.95);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.cart-line-issue, .cart-block-reason, .cart-reg-summary {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 380px) {
+  .cart-line-top-row { flex-wrap: wrap; }
 }
 
 .cart-line-name-btn:hover {

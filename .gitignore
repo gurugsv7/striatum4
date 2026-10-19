@@ -1,5 +1,6 @@
 # Dependencies
 node_modules/
+tests/cart-fixture.js
 
 # Build output
 dist/

@@ -761,6 +761,8 @@
 
 /* Toast Notification */
 .toast-notice {
+  box-sizing: border-box;
+  overflow-wrap: anywhere;
   position: fixed;
   bottom: 90px;
   left: 50%;

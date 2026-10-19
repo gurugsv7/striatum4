@@ -222,6 +222,10 @@ export function validateIntent(intent: EventRegistrationIntent): ValidationResul
     return { ok: false, issues: [{ teamIndex: 1, message: 'Unknown event.' }] };
   }
 
+  if (!intent.teams.length) {
+    issues.push({ teamIndex: 1, field: 'roster', message: 'Add at least one team or participant.' });
+  }
+
   if (schema.foodPreference && !intent.lunchChoice) {
     issues.push({
       teamIndex: 1,

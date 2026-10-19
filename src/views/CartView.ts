@@ -1,7 +1,7 @@
 import { appStore } from '../state/appStore.ts';
 import * as registration from '../services/registrationService.ts';
 import { formatINR } from '../services/pricing.ts';
-import { intentSummary } from '../services/registrationForm.ts';
+import { intentSummary, validateIntent } from '../services/registrationForm.ts';
 import { startEventRegistration, startComboRegistration } from './RegistrationFormView.ts';
 
 /**
@@ -17,19 +17,24 @@ function comboOf(eventId: string): string | undefined {
   return registration.getCart().find(item => item.eventId === eventId)?.comboId;
 }
 
+function escapeText(value: string): string {
+  return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
 /**
  * What the cart says about a registration: that it is complete and how big it
  * is. The form's contents stay in the form; Edit reopens it.
  */
 function regSummary(eventId: string): string {
   const item = registration.getCart().find(candidate => candidate.eventId === eventId);
-  if (!item?.intent) return '';
+  if (!item) return '';
   const comboId = item.comboId;
+  const complete = Boolean(item.intent && item.intent.eventId === eventId && validateIntent(item.intent).ok);
   return `
     <div class="cart-reg-summary">
-      <span>${intentSummary(item.intent)}</span>
+      <span>${item.intent ? intentSummary(item.intent) : 'Participant details missing'}</span>
       <span>&middot;</span>
-      <span class="cart-reg-complete">DETAILS COMPLETE &#10003;</span>
+      <span class="${complete ? 'cart-reg-complete' : 'cart-reg-incomplete'}">${complete ? 'DETAILS COMPLETE &#10003;' : 'DETAILS NEED REVIEW'}</span>
       <button class="cart-reg-edit" data-edit-registration="${eventId}" ${comboId ? `data-edit-combo="${comboId}"` : ''}>EDIT</button>
     </div>`;
 }
@@ -50,7 +55,7 @@ function renderLine(line: registration.PricedLine): string {
         .map(
           issue => `
             <div class="cart-line-issue ${issue.blocking ? 'blocking' : 'warning'}">
-              ${issue.message}
+              ${escapeText(issue.message)}
             </div>
           `
         )
@@ -209,10 +214,11 @@ export function renderCartView(): string {
 
         ${
           isBlocked && blockReason
-            ? `<div class="cart-block-reason">${blockReason}</div>`
+            ? `<div class="cart-block-reason">${escapeText(blockReason)}</div>`
             : ''
         }
 
+        <div id="cart-checkout-error" class="cart-checkout-error" role="alert" tabindex="-1" hidden></div>
         <button
           class="btn-chamfer-primary"
           id="btn-proceed-to-payment"
@@ -279,17 +285,37 @@ export function attachCartEvents(): void {
   if (btnProceed) {
     btnProceed.addEventListener('click', async () => {
       if (btnProceed.disabled) return;
-      const result = await registration.createOrder();
-      if (result.ok && result.order) {
-        // An order that cost nothing is confirmed by create_order itself, so
-        // there is no payment to make and no screenshot to upload.
-        if (result.order.status === 'approved') {
-          appStore.openOrderConfirmation(result.order.id);
+      btnProceed.disabled = true;
+      btnProceed.setAttribute('aria-busy', 'true');
+      const errorBox = document.getElementById('cart-checkout-error');
+      if (errorBox) errorBox.hidden = true;
+      try {
+        const result = await registration.createOrder();
+        if (result.ok && result.order) {
+          // An order that cost nothing is confirmed by create_order itself, so
+          // there is no payment to make and no screenshot to upload.
+          if (result.order.status === 'approved') {
+            appStore.openOrderConfirmation(result.order.id);
+          } else {
+            appStore.openPayment(result.order.id);
+          }
         } else {
-          appStore.openPayment(result.order.id);
+          if (errorBox) {
+            errorBox.textContent = result.message ?? 'Could not create the order. Please try again.';
+            errorBox.hidden = false;
+            errorBox.focus();
+            errorBox.scrollIntoView({ block: 'center', behavior: 'smooth' });
+          }
         }
-      } else {
-        appStore.showToast(result.message ?? 'Could not create the order.');
+      } catch {
+        if (errorBox) {
+          errorBox.textContent = 'Could not create the order. Please try again.';
+          errorBox.hidden = false;
+          errorBox.focus();
+        }
+      } finally {
+        btnProceed.disabled = false;
+        btnProceed.removeAttribute('aria-busy');
       }
     });
   }
