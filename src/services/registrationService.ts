@@ -925,7 +925,7 @@ export function isFull(eventId: string): boolean {
 /* ------------------------------------------------------------- eligibility -- */
 
 export interface EligibilityIssue {
-  code: 'delegate_pass' | 'already_registered' | 'pending_review' | 'full' | 'closed' | 'not_registerable';
+  code: 'delegate_pass' | 'already_registered' | 'pending_review' | 'full' | 'closed' | 'not_registerable' | 'roster';
   /** Blocking issues stop checkout; non-blocking ones are warnings. */
   blocking: boolean;
   message: string;
@@ -1074,9 +1074,19 @@ function buildLine(item: CartItem): { line: PricedLine; unpriced: boolean } {
       unitPrice: price.amount ?? 0,
       priceBasis: price.basis,
       lunchChoice: item.lunchChoice,
-      issues: checkEligibility(event.id)
+      issues: [...checkEligibility(event.id), ...cartRosterIssues(item)]
     }
   };
+}
+
+/** Recheck persisted carts against today's rules before claiming completeness. */
+function cartRosterIssues(item: CartItem): EligibilityIssue[] {
+  const messages = !item.intent || item.intent.eventId !== item.eventId
+    ? ['Complete the participant details before checkout.']
+    : validateIntent(item.intent).issues.map(issue => `Team ${issue.teamIndex}: ${issue.message}`);
+  return [...new Set(messages)].map(message => ({
+    code: 'roster', blocking: true, message
+  }));
 }
 
 /** Authoritative cart calculation. This is the only place a total is produced. */

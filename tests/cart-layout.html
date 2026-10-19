@@ -1,0 +1,18 @@
+<!doctype html>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Synthetic cart regression</title>
+<link rel="stylesheet" href="/src/styles/tokens.css">
+<link rel="stylesheet" href="/src/styles/main.css">
+<link rel="stylesheet" href="/src/styles/components.css">
+<link rel="stylesheet" href="/src/styles/explore.css">
+<link rel="stylesheet" href="/src/styles/details.css">
+<link rel="stylesheet" href="/src/styles/commerce.css">
+<link rel="stylesheet" href="/src/styles/combos.css">
+<link rel="stylesheet" href="/src/styles/desktop.css">
+<style>html,body{overflow:auto;height:auto}#fixture{max-width:960px;margin:auto}.screen-content{height:auto;overflow:visible}</style>
+<div id="fixture"></div>
+<script>
+const invalid=new URLSearchParams(location.search).has('invalid');
+localStorage.setItem('striatum4.registration.v1',JSON.stringify({version:1,cart:[{eventId:'s4-11',participation:'team',addedAt:1,intent:{eventId:'s4-11',teams:[{teamIndex:1,teamCollege:'Test College',participants:(invalid?['2023','2023','2024']:['2024','2024','2025']).map((year,i)=>({position:i+1,role:i===0?'captain':'member',name:'Synthetic '+i,year,college:'Test College',phone:'9999999999',email:'synthetic@example.test'}))}]}}],delegate:{status:'approved'}}));
+</script>
+<script type="module" src="/tests/cart-fixture.js"></script>

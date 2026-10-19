@@ -28,3 +28,5 @@ jobs:
         run: npm run build
       - name: Check brochure data consistency
         run: node scripts/verify-final-brochure.mjs
+      - name: Check cart roster validation and existing regressions
+        run: node --test tests/quiz-cart.test.mjs tests/admin-proofs.test.mjs
