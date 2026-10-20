@@ -10,7 +10,7 @@ import { SymposiumEvent, EventPricing, PASS_TIER_RANK } from '../data/eventTypes
  */
 export type PricingPhase = 'early' | 'late' | 'spot';
 
-export const CURRENT_PRICING_PHASE: PricingPhase = 'early';
+export const CURRENT_PRICING_PHASE: PricingPhase = 'late';
 
 export type Participation = 'individual' | 'team';
 
@@ -151,6 +151,14 @@ export function tierLabel(event: SymposiumEvent): string {
 /** Compact card price label. Returns '' when no fee is published. */
 export function priceLabel(event: SymposiumEvent): string {
   const tier = tierLabel(event);
+  // Workshop fees are phase-specific, not a range: show the current payable rate.
+  if (event.pricing.earlyBird !== undefined || event.pricing.lateBird !== undefined) {
+    const current = resolvePrice(event);
+    if (current.amount === null) return tier;
+    const suffix = event.pricing.unit === 'per_team' ? ' per team' : '';
+    const label = `${current.display}${suffix}`;
+    return tier ? `${label} · ${tier}` : label;
+  }
   const low = lowestPrice(event);
   if (low === null) return tier;
   if (low === 0 && tier) return tier;
