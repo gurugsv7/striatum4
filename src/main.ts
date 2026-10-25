@@ -1,3 +1,5 @@
+import './styles/round-two.css';
+import { clearRoundTwo } from './services/roundTwoService.ts';
 import './styles/tokens.css';
 import './styles/main.css';
 import './styles/components.css';
@@ -481,7 +483,7 @@ onAuthChange(user => {
   if (user) {
     const switchedAccount = lastAuthUserId !== null && lastAuthUserId !== user.id;
     lastAuthUserId = user.id;
-    if (switchedAccount) registrationService.forgetLocalState();
+    if (switchedAccount) { clearRoundTwo(); registrationService.forgetLocalState(); }
     const state = appStore.getState();
     const route = pendingRoute;
     pendingRoute = null;
@@ -519,6 +521,7 @@ onAuthChange(user => {
     // Drop the departing account's orders before the next one signs in; on a
     // shared device they would otherwise still be readable until a sync lands.
     registrationService.forgetLocalState();
+    clearRoundTwo();
     appStore.signOut();
   } else {
     lastAuthUserId = null;

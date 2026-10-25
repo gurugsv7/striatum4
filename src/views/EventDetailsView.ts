@@ -1,3 +1,4 @@
+import { isRoundTwo } from '../data/roundTwo.ts';
 import { appStore } from '../state/appStore.ts';
 import { SymposiumEvent, EventSection, CATEGORY_LABELS, PASS_TIER_RANK } from '../data/eventTypes.ts';
 import { eventContextLine } from '../data/events.ts';
@@ -294,12 +295,15 @@ function noRegistrationNote(event: SymposiumEvent): string {
  * has just read the fee above it would expect to be asked for it next.
  */
 function primaryLabel(event: SymposiumEvent, cta: registration.CtaState): string {
+  if (isRoundTwo(event.id) && cta === 'add_to_cart') return 'REGISTER FOR ROUND 2';
+  if (isRoundTwo(event.id) && cta === 'registered') return 'CONTINUE ROUND 2';
   if (event.abstractFirst && cta === 'add_to_cart') return 'SUBMIT ABSTRACT';
   return registration.CTA_LABELS[cta];
 }
 
 /** Why the button above it costs nothing. */
 function renderAbstractFirstNote(event: SymposiumEvent): string {
+  if (isRoundTwo(event.id)) return '<div class="delegate-required-notice">A separate Round 2 fee and abstract are required for existing and new participants.</div>';
   if (!event.abstractFirst) return '';
   const fee = event.pricing.team ?? event.pricing.flat ?? event.pricing.individual;
   const tail = fee

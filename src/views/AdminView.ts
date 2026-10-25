@@ -1,3 +1,4 @@
+import { renderRoundTwoAdmin, attachRoundTwo } from '../components/RoundTwo.ts';
 import { attachAdminProofs, renderAdminProofImage } from '../components/AdminProofs.ts';
 import { appStore } from '../state/appStore.ts';
 import * as registration from '../services/registrationService.ts';
@@ -733,6 +734,7 @@ export function renderAdminView(): string {
         <button class="action-link-cyan" id="btn-open-registration-dashboard" style="margin-top: 16px;">OPEN EVENT REGISTRATION DASHBOARD →</button>
       </section>
 
+      ${finance ? renderRoundTwoAdmin('payment') : ''}
       ${renderOverviewSection()}
       ${renderRosterSection()}
       ${finance ? renderDelegateSection() : ''}
@@ -746,6 +748,7 @@ export function renderAdminView(): string {
 }
 
 export function attachAdminEvents(): void {
+  attachRoundTwo();
   // Load only evidence near the viewport, including the selected order view.
   // Signed URLs update the existing slots rather than rebuilding this page.
   const scroller = document.getElementById('viewport-scroller');

@@ -1,5 +1,7 @@
 # Dependencies
 node_modules/
+supabase/.temp/
+tests/round-two-screenshots/
 tests/cart-fixture.js
 
 # Build output

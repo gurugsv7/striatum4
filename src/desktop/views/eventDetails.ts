@@ -1,3 +1,4 @@
+import { isRoundTwo } from '../../data/roundTwo.ts';
 import { appStore } from '../../state/appStore.ts';
 import { SymposiumEvent, EventSection, CATEGORY_LABELS, PASS_TIER_RANK } from '../../data/eventTypes.ts';
 import { eventContextLine } from '../../data/events.ts';
@@ -231,7 +232,7 @@ function renderConsole(event: SymposiumEvent): string {
   const cta = registration.getCtaState(event.id);
   // "REGISTER" would be a small lie where nothing is bought.
   const label =
-    event.abstractFirst && cta === 'add_to_cart' ? 'SUBMIT ABSTRACT' : registration.CTA_LABELS[cta];
+    isRoundTwo(event.id) && cta === 'add_to_cart' ? 'REGISTER FOR ROUND 2' : isRoundTwo(event.id) && cta === 'registered' ? 'CONTINUE ROUND 2' : event.abstractFirst && cta === 'add_to_cart' ? 'SUBMIT ABSTRACT' : registration.CTA_LABELS[cta];
   const disabled = cta === 'full' || cta === 'closed' || cta === 'not_registerable';
 
   const filled =
@@ -293,7 +294,7 @@ function renderConsole(event: SymposiumEvent): string {
 
         ${renderParticipationChoice(event)}
         ${slotButton('btn-event-primary-action', label, disabled)}
-        ${renderDelegateNotice(event)}`
+        ${isRoundTwo(event.id) ? '<p class="d-lede">A separate Round 2 fee and abstract are required for existing and new participants.</p>' : renderDelegateNotice(event)}`
         }
       </div>
 

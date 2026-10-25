@@ -1,3 +1,5 @@
+import { renderRoundTwoHub, attachRoundTwo } from '../components/RoundTwo.ts';
+import { isRoundTwo } from '../data/roundTwo.ts';
 import { appStore } from '../state/appStore.ts';
 import * as registration from '../services/registrationService.ts';
 import { eventContextLine } from '../data/events.ts';
@@ -93,7 +95,7 @@ function confirmedGroup(entries: MyEventEntry[]): string {
               <h3 class="myevents-row-title myevents-row-title--headline">${entry.event.name}</h3>
               ${dateRow}
               <div class="myevents-row-context">${eventContextLine(entry.event).toUpperCase()}${teamCount(entry.line)}</div>
-              <span class="status-pill status-pill--confirmed">CONFIRMED</span>
+              <span class="status-pill status-pill--confirmed">${isRoundTwo(entry.event.id) ? 'REGISTRATION ON RECORD · SEE ROUND 2 ABOVE' : 'CONFIRMED'}</span>
             </div>
           </div>
         `;
@@ -255,6 +257,7 @@ export function renderMyEventsView(): string {
         ${delegateStatusLine()}
       </section>
 
+      ${renderRoundTwoHub()}
       ${
         isEmpty
           ? `
@@ -323,6 +326,7 @@ export function attachRemoveControls(): void {
 }
 
 export function attachMyEventsEvents(): void {
+  attachRoundTwo();
   attachRemoveControls();
   const btnBrowse = document.getElementById('btn-browse-events-empty');
   if (btnBrowse) {

@@ -1,3 +1,4 @@
+import { ROUND_TWO_FEES } from '../data/roundTwo.ts';
 import { SymposiumEvent, EventPricing, PASS_TIER_RANK } from '../data/eventTypes.ts';
 
 /**
@@ -52,6 +53,11 @@ export function resolvePrice(
   participation: Participation = defaultParticipation(event),
   phase: PricingPhase = CURRENT_PRICING_PHASE
 ): ResolvedPrice {
+  const roundTwo = ROUND_TWO_FEES[event.id];
+  if (roundTwo) {
+    const amount = participation === 'team' ? roundTwo.team : roundTwo.solo;
+    return { amount, display: formatINR(amount), basis: 'Round 2 · ' + roundTwo.unit, unspecified: false };
+  }
   const p = event.pricing;
 
   // Entering an abstract-first event costs nothing. Its published fee is what a
