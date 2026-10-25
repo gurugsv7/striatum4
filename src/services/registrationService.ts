@@ -1,3 +1,5 @@
+import { loadRoundTwo } from './roundTwoService.ts';
+import { isRoundTwo } from '../data/roundTwo.ts';
 import { SymposiumEvent } from '../data/eventTypes.ts';
 import { EVENTS, getEvent, requireEvent, eventContextLine } from '../data/events.ts';
 import { evaluateDiscount, DiscountLineInput } from './discounts.ts';
@@ -126,6 +128,7 @@ export interface Order {
 }
 
 export interface Registration {
+  teamIndex?: number;
   id: string;
   /** Owner. Undefined for local-only state, where everything is the user's. */
   userId?: string;
@@ -303,6 +306,7 @@ function adoptSnapshot(snapshot: remote.RemoteSnapshot): void {
     eventId: r.eventId,
     participation: r.participation,
     confirmedAt: r.confirmedAt,
+    teamIndex: r.teamIndex,
     lunchChoice: r.lunchChoice
   }));
 
@@ -384,15 +388,24 @@ let remoteDelegates: remote.RemoteDelegate[] = [];
 let cartNotice: string | null = null;
 let proofPaths = new Map<string, string>();
 let hydrationPromise: Promise<void> | null = null;
+let hydrationUserId: string | null = null;
 
 /** Pulls the authoritative state down from the server. */
 export async function hydrate(): Promise<void> {
   if (!isRemote()) return;
-  if (hydrationPromise) return hydrationPromise;
+  const uid = getCurrentUser()!.id;
+  if (hydrationPromise) {
+    if (hydrationUserId === uid) return hydrationPromise;
+    await hydrationPromise.catch(() => {});
+    return hydrate();
+  }
+  hydrationUserId = uid;
   hydrationPromise = (async () => {
     // Release any holds that lapsed since the last sync before reading capacity.
     await remote.expireStaleOrders();
     const snapshot = await remote.fetchSnapshot();
+    await loadRoundTwo();
+    if (getCurrentUser()?.id !== uid) return;
     adoptSnapshot(snapshot);
     save();
   })().finally(() => {
@@ -2090,3 +2103,9 @@ export function forgetLocalState(): void {
 }
 
 export { formatINR, EVENTS };
+
+/** Original confirmed registration anchors, including each entry of a bulk order. */
+export function roundTwoRegistrations(): Registration[] {
+  const uid = getCurrentUser()?.id;
+  return state.registrations.filter(r => r.userId === uid && isRoundTwo(r.eventId));
+}

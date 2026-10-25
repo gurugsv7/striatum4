@@ -1,0 +1,14 @@
+.r2-section { margin: 28px 0; padding: 0 4px; }
+.r2-section > .explore-subtitle { margin-bottom: 20px; }
+.r2-section .admin-panel { margin-top: 16px; overflow-wrap: anywhere; }
+.r2-section .myevents-row-sub { margin: 12px 0; line-height: 1.6; }
+.r2-form, .r2-review { display: grid; gap: 16px; margin-top: 20px; }
+.r2-form p { font-size: 14px; line-height: 1.6; }
+.r2-form input[type=file] { width: 100%; min-width: 0; padding: 12px; color: var(--text-silver); }
+.r2-qr { width: 170px; max-width: 100%; border-radius: 8px; }
+.r2-history { margin-top: 20px; font-size: 12px; line-height: 1.6; }
+.r2-history summary { cursor: pointer; color: var(--cyan-glow); }
+.r2-history-item { padding: 12px 0; border-top: 1px solid rgba(255,255,255,.12); }
+.r2-history-item .action-link-cyan { margin: 8px 0; }
+.d-page > .r2-section { margin: 28px clamp(24px, 4vw, 64px); }
+.r2-section .admin-action-row { flex-wrap: wrap; }

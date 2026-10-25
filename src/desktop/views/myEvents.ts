@@ -1,3 +1,5 @@
+import { renderRoundTwoHub, attachRoundTwo } from '../../components/RoundTwo.ts';
+import { isRoundTwo } from '../../data/roundTwo.ts';
 import { appStore } from '../../state/appStore.ts';
 import * as registration from '../../services/registrationService.ts';
 import type { MyEventEntry, Order } from '../../services/registrationService.ts';
@@ -68,7 +70,7 @@ function confirmedRow(entry: MyEventEntry): string {
       <h3 class="d-row-title">${entry.event.name}</h3>
       ${when}
       <span class="d-row-meta">${eventContextLine(entry.event).toUpperCase()}${teamCount(entry.line)}</span>
-      <div class="d-row-foot"><span class="d-state">CONFIRMED</span></div>
+      <div class="d-row-foot"><span class="d-state">${isRoundTwo(entry.event.id) ? 'ON RECORD · SEE ROUND 2 ABOVE' : 'CONFIRMED'}</span></div>
     </div>`;
 }
 
@@ -175,6 +177,7 @@ export function renderDesktopMyEvents(): string {
         ${credential()}
       </header>
 
+      ${renderRoundTwoHub()}
       ${
         empty
           ? `<div class="d-empty" style="padding-top: 90px;">
@@ -212,6 +215,7 @@ export function renderDesktopMyEvents(): string {
 }
 
 export function attachDesktopMyEvents(): void {
+  attachRoundTwo();
   attachRemoveControls();
   document.getElementById('btn-browse-events-empty')?.addEventListener('click', () => {
     appStore.setScreen('explore');

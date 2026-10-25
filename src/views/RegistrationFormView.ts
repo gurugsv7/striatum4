@@ -1,3 +1,5 @@
+import { isRoundTwo } from '../data/roundTwo.ts';
+import { startRoundTwo } from '../services/roundTwoService.ts';
 import { appStore } from '../state/appStore.ts';
 import * as registration from '../services/registrationService.ts';
 import { getEvent } from '../data/events.ts';
@@ -69,6 +71,9 @@ function prefill(eventId: string) {
 
 /** Opens the form for a single event. */
 export function startEventRegistration(eventId: string, editing = false): boolean {
+  if (isRoundTwo(eventId) && registration.roundTwoRegistrations().some(r=>r.eventId===eventId)) {
+    appStore.setScreen('my-events'); return true;
+  }
   const existing = editing ? registration.intentFor(eventId) : undefined;
   const intent = existing ?? blankIntent(eventId, prefill(eventId));
   if (!intent) return false;
@@ -391,7 +396,8 @@ export function renderRegistrationFormView(): string {
     : (() => {
         const event = getEvent(draft!.id);
         if (!event) return '';
-        const price = resolvePrice(event, defaultParticipation(event));
+        const participants = draft!.intents[event.id]?.teams[0]?.participants.length ?? 1;
+        const price = resolvePrice(event, isRoundTwo(event.id) ? (participants > 1 ? 'team' : 'individual') : defaultParticipation(event));
         return price.unspecified ? '' : `${price.display} · ${price.basis}`;
       })();
 
@@ -468,14 +474,14 @@ export function renderRegistrationFormView(): string {
                   ${blocking.slice(0, 4).map(issue => `<p>${esc(issue.message)}</p>`).join('')}
                 </div>`
               : `<p class="reg-confirm-note">
-                  Check the details above. Payment happens once, for everything in your cart.
+                  ${isRoundTwo(draft.id) ? 'Confirm your participant details, then attach your Round 2 abstract and payment proof. Earlier payments do not cover the Round 2 fee.' : 'Check the details above. Payment happens once, for everything in your cart.'}
                 </p>`
           }
 
           <button class="btn-chamfer-primary" id="btn-reg-submit">
             <span class="btn-cyan-bead"></span>
             <span class="btn-label-text">
-              ${draft.editing ? 'SAVE REGISTRATION' : combo ? 'ADD COMBO REGISTRATION TO CART' : 'ADD REGISTRATION TO CART'}
+              ${isRoundTwo(draft.id) ? 'CONTINUE TO ROUND 2' : draft.editing ? 'SAVE REGISTRATION' : combo ? 'ADD COMBO REGISTRATION TO CART' : 'ADD REGISTRATION TO CART'}
             </span>
           </button>
         </div>
@@ -583,7 +589,7 @@ export function attachRegistrationFormEvents(): void {
     });
   });
 
-  document.getElementById('btn-reg-submit')?.addEventListener('click', () => {
+  document.getElementById('btn-reg-submit')?.addEventListener('click', async () => {
     if (!draft) return;
 
     const combo = draft.kind === 'combo' ? COMBO_OFFERS.find(o => o.id === draft!.id) : undefined;
@@ -621,6 +627,20 @@ export function attachRegistrationFormEvents(): void {
     }
 
     const intents = eventIds.map(id => draft!.intents[id]).filter(Boolean);
+    if (!combo && isRoundTwo(draft.id)) {
+      const button=document.getElementById('btn-reg-submit') as HTMLButtonElement;
+      if (button.disabled) return;
+      button.disabled=true;
+      try {
+        await startRoundTwo(draft.id,undefined,intents[0]);
+        await registration.hydrate();
+        clearDraft(); appStore.setScreen('my-events');
+      } catch(error) {
+        appStore.showToast(error instanceof Error ? error.message : 'Unable to start Round 2.');
+        button.disabled=false;
+      }
+      return;
+    }
     let result: registration.CartMutationResult;
 
     if (draft.editing) {

@@ -116,8 +116,9 @@ const snapshot = {
 globalThis.__proofFixture = { calls: [], deferred: new Map(), snapshot };
 const service = await importBundle({ entryPoints: ['src/services/registrationService.ts'], plugins: [{
   name: 'isolate-network', setup(build) {
-    build.onResolve({ filter: /\/(remote|authService|supabaseClient)\.ts$/ }, args => ({ path: args.path, namespace: 'mock' }));
-    build.onLoad({ filter: /.*/, namespace: 'mock' }, args => ({ contents: args.path.endsWith('/remote.ts')
+    build.onResolve({ filter: /\/(remote|authService|supabaseClient|roundTwoService)\.ts$/ }, args => ({ path: args.path, namespace: 'mock' }));
+    build.onLoad({ filter: /.*/, namespace: 'mock' }, args => ({ contents: args.path.endsWith('/roundTwoService.ts') ? 'export async function loadRoundTwo(){}'
+      : args.path.endsWith('/remote.ts')
       ? remoteNames.map(name => name === 'getProofUrl'
         ? `export async function getProofUrl(path) { const f=globalThis.__proofFixture; f.calls.push(path); return new Promise((resolve,reject)=>f.deferred.set(path,{resolve,reject})); }`
         : name === 'fetchSnapshot' ? `export async function fetchSnapshot(){ return globalThis.__proofFixture.snapshot; }`

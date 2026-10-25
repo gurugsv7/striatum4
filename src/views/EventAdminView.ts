@@ -1,3 +1,4 @@
+import { renderRoundTwoAdmin, attachRoundTwo } from '../components/RoundTwo.ts';
 import { appStore } from '../state/appStore.ts';
 import * as registration from '../services/registrationService.ts';
 import { signOut } from '../services/authService.ts';
@@ -55,6 +56,7 @@ export function renderEventAdminView(): string {
           }).join('') || '<p class="empty-search-state">No current events are available.</p>'}
         </div>
       </section>
+      ${selected ? renderRoundTwoAdmin('submission', selected.id) : ''}
       ${selected ? `<section class="admin-section event-admin-attendees" id="event-admin-attendees">
         <div class="section-index-label"><span class="cyan-num">B</span><span class="slash">/</span><span class="section-name">${escapeHtml(selected.name)} · ATTENDEES</span></div>
         <p class="explore-subtitle">${attendees.filter(person => person.orderStatus === 'approved').length} confirmed · ${attendees.length} total · ${registration.getCapacity(selected.id).available ?? 'Uncapped'} places available</p>
@@ -75,6 +77,7 @@ export function renderEventAdminView(): string {
 }
 
 export function attachEventAdminEvents(): void {
+  attachRoundTwo();
   document.getElementById('btn-event-admin-back')?.addEventListener('click', () => appStore.setScreen(registration.isFinanceAdmin() ? 'admin' : 'profile'));
   document.getElementById('btn-event-admin-signout')?.addEventListener('click', async () => {
     await signOut();

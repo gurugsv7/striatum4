@@ -37,11 +37,14 @@ assert.equal(byId.get('s4-02')?.slots,75,'75 seat organiser-authorised STITCHREE
 assert.equal(byId.get('s4-09')?.slots,30,'PLEURALIS brochure');
 assert.equal(byId.get('s4-13')?.startTime,undefined,'Do not mislabel online prelim time as onsite');
 assert.equal(byId.get('s4-13')?.endTime,undefined);
-const deadlines = { '14':'22 October 2026', '15':'22 October 2026', '16':'22 October 2026',
-  '17':'23 October 2026', '18':'23 October 2026', '19':'23 October 2026' };
-for (const [n,d] of Object.entries(deadlines)) assert.equal(byId.get('s4-'+n)?.abstractDeadline,d,'Abstract date s4-'+n);
+// Round 1 dates must not be presented as Round 2 deadlines. The organiser has
+// opened Round 2 without specifying a new submission cutoff.
+for (const n of ['14','15','16','17','18','19']) {
+  assert.equal(byId.get('s4-'+n)?.abstractDeadline,undefined,'No invented Round 2 deadline s4-'+n);
+  assert.equal(byId.get('s4-'+n)?.abstractFirst,false,'Round 2 is paid s4-'+n);
+}
 for (const n of ['21','23','24']) assert.equal(byId.get('s4-'+n)?.submissionDeadline,'26 October 2026','Creative entry deadline s4-'+n);
-assert.equal(byId.get('s4-18')?.teamSize?.max,4);
+assert.equal(byId.get('s4-18')?.teamSize?.max,3,'Matches the live registration rule');
 const combo = COMBO_OFFERS.find(x=>x.id==='combo-genesis-stitchreef-pleuralis');
 assert.ok(combo);
 assert.equal(combo.publishedComboTotal,2500);

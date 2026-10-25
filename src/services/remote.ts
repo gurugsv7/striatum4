@@ -79,6 +79,7 @@ export interface RemoteOrder {
 }
 
 export interface RemoteRegistration {
+  teamIndex: number;
   id: string;
   /** Who it belongs to. An admin's snapshot contains everyone's rows. */
   userId: string;
@@ -272,6 +273,7 @@ export async function fetchSnapshot(): Promise<RemoteSnapshot> {
       eventId: row.event_id,
       participation: row.participation,
       confirmedAt: ms(row.confirmed_at),
+      teamIndex: row.team_index ?? 1,
       lunchChoice: row.lunch_choice ?? undefined
     })),
     allDelegates,

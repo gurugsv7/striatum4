@@ -1,3 +1,4 @@
+import { ROUND_TWO_FEES } from './roundTwo.ts';
 import { SymposiumEvent, CATEGORY_FILTERS, Coordinator } from './eventTypes.ts';
 import { EVENTS_PART_1 } from './events.part1.ts';
 import { EVENTS_PART_2 } from './events.part2.ts';
@@ -468,7 +469,32 @@ function applyFinalBrochureReview(event: SymposiumEvent): SymposiumEvent {
 /** All 26 named STRIATUM 4.0 activities, in official brochure order. */
 export const EVENTS: SymposiumEvent[] = [...EVENTS_PART_1, ...EVENTS_PART_2]
   .map(applyLatestBrochureData)
-  .map(applyFinalBrochureReview);
+  .map(applyFinalBrochureReview)
+  .map(event => {
+    const fee = ROUND_TWO_FEES[event.id];
+    if (!fee) return event;
+    const feeNote = fee.solo !== fee.team ? 'Round 2: ₹300 solo or ₹400 for a team of two.' : `Round 2: ₹${fee.solo} ${fee.unit}.`;
+    const clean = (text: string) => /payable|submission is free|submission.*costs nothing/i.test(text) ? feeNote : text;
+    const sections = event.sections?.map(section => ({
+      ...section,
+      body: section.body ? clean(section.body) : undefined,
+      items: /SUBMISSION|REGISTRATION/.test(section.title)
+        ? ['Submit your Round 2 abstract and payment proof from My Events.', feeNote,
+          ...(section.items ?? []).filter(item=>!/(email:|deadline:|registration fee|submission is free|fee.*selected)/i.test(item))]
+        : section.items?.map(clean),
+      facts: section.facts?.filter(fact=>!/deadline|submission date/i.test(fact.label))
+        .map(fact=>/fee/i.test(fact.label) ? {...fact, value: feeNote} : fact)
+    }));
+    return { ...event, abstractFirst: false,
+      pricing: fee.solo !== fee.team ? { individual: fee.solo, team: fee.team } : { flat: fee.solo, ...(fee.unit==='per team'?{unit:'per_team' as const}:{}) },
+      summary: `${event.summary ?? ''} Round 2 registration and abstract submission are open.`,
+      abstractDeadline: undefined, submissionDeadline: undefined, submissionEmail: undefined,
+      sections,
+      needsConfirmation: event.needsConfirmation?.filter(note=>!/fee|submission|abstract|Payment Link|QR Code/i.test(note)),
+      submissionInstructions: ['Submit your Round 2 abstract and payment proof from My Events. Earlier submissions and payments remain on record.'],
+      ...(event.id === 's4-18' ? {teamSize: {min: 1, max: 3}} : {})
+    };
+  });
 
 const BY_ID = new Map(EVENTS.map(e => [e.id, e]));
 
