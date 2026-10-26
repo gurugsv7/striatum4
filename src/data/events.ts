@@ -492,7 +492,7 @@ export const EVENTS: SymposiumEvent[] = [...EVENTS_PART_1, ...EVENTS_PART_2]
       sections,
       needsConfirmation: event.needsConfirmation?.filter(note=>!/fee|submission|abstract|Payment Link|QR Code/i.test(note)),
       submissionInstructions: ['Submit your Round 2 abstract and payment proof from My Events. Earlier submissions and payments remain on record.'],
-      ...(event.id === 's4-18' ? {teamSize: {min: 1, max: 3}} : {})
+      ...(event.id === 's4-18' ? {teamSize: {min: 1, max: 4}} : {})
     };
   });
 
