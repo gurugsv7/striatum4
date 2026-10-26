@@ -32,7 +32,8 @@ await db.exec(`
 `);
 const migrations=(await readdir('supabase/migrations')).filter(n=>n.endsWith('.sql')).sort();
 const migration=migrations.find(n=>n.endsWith('_round_two_entries.sql'));
-for(const name of migrations.filter(n=>n!==migration)) {
+const neuronovaMigration=migrations.find(n=>n.endsWith('_neuronova_four_members.sql'));
+for(const name of migrations.filter(n=>n!==migration && n!==neuronovaMigration)) {
   let sql=await readFile('supabase/migrations/'+name,'utf8');
   sql=sql.replace('create extension if not exists "pgcrypto";',''); // UUIDs are built into PG.
   try { await db.exec(sql); }
@@ -45,6 +46,7 @@ for(const name of migrations.filter(n=>n!==migration)) {
   }
 }
 await db.exec(await readFile('supabase/migrations/'+migration,'utf8'));
+await db.exec(await readFile('supabase/migrations/'+neuronovaMigration,'utf8'));
 await db.exec('grant select on storage.buckets to authenticated;');
 async function as(uid,fn,role='authenticated') {
   await db.query("select set_config('request.jwt.claim.sub',$1,false)",[uid ?? '']);
@@ -68,7 +70,7 @@ async function submit(e) { const ap=await file(e,'abstract'); const pp=await fil
 let coral;
 
 test('all six fees, roster validation, original registration anchors and duplicate starts',async()=>{
-  for(const [event,n,fee] of [['s4-14',2,400],['s4-15',1,400],['s4-16',1,300],['s4-17',2,400],['s4-18',3,500],['s4-19',1,300]]) {
+  for(const [event,n,fee] of [['s4-14',2,400],['s4-15',1,400],['s4-16',1,300],['s4-17',2,400],['s4-18',4,500],['s4-19',1,300]]) {
     const e=await start(event,n); if(event==='s4-16') coral=e;
     assert.equal(e.fee,fee); assert.equal(e.payment_status,'draft');
     const r=(await db.query('select * from registrations where id=$1',[e.registration_id])).rows[0];
@@ -78,7 +80,7 @@ test('all six fees, roster validation, original registration anchors and duplica
   }
   await as(stranger,async()=>{
     await assert.rejects(()=>rpc('start_round_two',['s4-16',null,team(3)]),/between|Invalid|member/i);
-    await assert.rejects(()=>rpc('start_round_two',['s4-18',null,team(4)]),/between|Invalid|member/i);
+    await assert.rejects(()=>rpc('start_round_two',['s4-18',null,team(5)]),/between|Invalid|member/i);
     await assert.rejects(()=>rpc('start_round_two',['s4-19',null,team(2)]),/between|Invalid|member|participant/i);
     await assert.rejects(()=>rpc('start_round_two',['s4-14',null,team(1)]),/between|Invalid|member/i);
   });
