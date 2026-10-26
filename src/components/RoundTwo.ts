@@ -52,6 +52,7 @@ export function renderRoundTwoHub(): string {
           ${entry.submission_status==='approved'?'<p>Your approved Round 2 abstract is retained.</p>':`<label class="input-field-label" for="r2-abstract-${entry.id}">Round 2 abstract · PDF, Word or PowerPoint · up to 10 MB</label>
             <input class="text-input-field" id="r2-abstract-${entry.id}" name="abstract" type="file" accept=".pdf,.doc,.docx,.ppt,.pptx" ${roundTwo.stagedFiles(entry.id).abstract?'':'required'} />
             ${roundTwo.stagedFiles(entry.id).abstract?`<p>Selected: ${esc(roundTwo.stagedFiles(entry.id).abstract!.name)}</p>`:''}`}
+          <p class="r2-progress" role="status" aria-live="polite"></p>
           <p class="r2-error reg-error-line" role="alert"></p>
           <button class="btn-chamfer-primary" type="submit" ${busy.has(entry.id)?'disabled':''}>${busy.has(entry.id)?'SUBMITTING…':'SUBMIT ROUND 2 FOR REVIEW →'}</button>
         </form>`:'<p class="explore-subtitle">Track payment and abstract review here. Round 2 is confirmed when both are approved.</p>'}
@@ -106,11 +107,22 @@ export function attachRoundTwo(): void {
     event.preventDefault(); const id=form.dataset.r2Submit!;
     const entry=roundTwo.myRoundTwo().find(e=>e.id===id); if (!entry || busy.has(id)) return;
     busy.add(id); const button=form.querySelector<HTMLButtonElement>('button[type="submit"]')!; button.disabled=true;
+    const oldLabel=button.textContent ?? 'SUBMIT ROUND 2 FOR REVIEW';
+    const status=form.querySelector<HTMLElement>('.r2-progress')!;
     const abstract=roundTwo.stagedFiles(id).abstract;
     const proof=roundTwo.stagedFiles(id).payment;
-    try { await roundTwo.submitRoundTwo(entry,abstract,proof); busy.delete(id); appStore.showToast('Round 2 submitted for review.'); appStore.refresh(); }
+    const labels={abstract:'Uploading abstract…', payment:'Uploading payment proof…', saving:'Saving submission for review…'};
+    form.querySelector('.r2-error')!.textContent='';
+    button.textContent='UPLOADING…';
+    try {
+      await roundTwo.submitRoundTwo(entry,abstract,proof,stage=>{
+        status.textContent=labels[stage];
+        button.textContent=labels[stage].toUpperCase();
+      });
+      busy.delete(id); appStore.showToast('Round 2 submitted for review.'); appStore.refresh();
+    }
     catch(error) { form.querySelector('.r2-error')!.textContent=error instanceof Error?error.message:'Submission failed. Please retry.'; }
-    finally { busy.delete(id); button.disabled=false; }
+    finally { busy.delete(id); button.disabled=false; button.textContent=oldLabel; status.textContent=''; }
   }));
   document.querySelectorAll<HTMLFormElement>('[data-r2-review]').forEach(form=>form.addEventListener('submit',async event=>{
     event.preventDefault(); const id=form.dataset.r2Review!; const kind=form.dataset.r2Kind as 'payment'|'submission';
