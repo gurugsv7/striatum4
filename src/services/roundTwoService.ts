@@ -79,8 +79,10 @@ async function upload(entry: RoundTwoEntry, file: File, kind: 'abstract' | 'paym
   for (let attempt = 0; attempt < 2; attempt++) {
     let failure: unknown;
     try {
-      const {error} = await supabase.storage.from(bucket).upload(path,file,{contentType:file.type,upsert:true});
+      const {error} = await supabase.storage.from(bucket).upload(path,file,{contentType:file.type,upsert:false});
       if (!error) return path;
+      // A previous upload may have succeeded despite its response being lost.
+      if (attempt > 0 && /already exists|duplicate|resource already exists/i.test(error.message)) return path;
       failure = error;
     } catch (error) {
       failure = error;
