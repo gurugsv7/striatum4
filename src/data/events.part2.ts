@@ -391,7 +391,7 @@ export const EVENTS_PART_2: SymposiumEvent[] = [
     isoDate: '2026-10-18',
     startTime: '9:00 AM',
     participation: 'either',
-    teamSize: { min: 1, max: 3 },
+    teamSize: { min: 1, max: 4 },
     pricing: { team: 500, unit: 'per_team', note: 'Payable after abstract selection. Initial abstract submission is free.' },
     delegatePassRequirement: 'unspecified',
     eligibility: [
@@ -482,7 +482,7 @@ export const EVENTS_PART_2: SymposiumEvent[] = [
           { label: 'Date', value: '18 October 2026' },
           { label: 'Time', value: '9:00 AM' },
           { label: 'Registration fee', value: '₹500 per team (after abstract selection)' },
-          { label: 'Team size', value: '1–3' },
+          { label: 'Team size', value: '1–4' },
           { label: 'Prize pool', value: '₹10,000' },
           { label: 'Abstract deadline', value: '3 October 2026' }
         ]
