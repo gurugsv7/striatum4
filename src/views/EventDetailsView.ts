@@ -43,7 +43,6 @@ function teamLabelForChoice(event: SymposiumEvent): string {
 /** Key facts. Only cells with published values are emitted. */
 function renderKeyFacts(event: SymposiumEvent): string {
   const price = resolvePrice(event, participationFor(event));
-  const capacity = registration.getCapacity(event.id);
 
   const cells: { label: string; value: string; caption?: string }[] = [];
 
@@ -69,14 +68,6 @@ function renderKeyFacts(event: SymposiumEvent): string {
     value: event.format,
     caption: team ?? (event.participation === 'either' ? 'Individual or team' : undefined)
   });
-
-  if (capacity.slots !== null) {
-    cells.push({
-      label: 'SLOTS',
-      value: String(capacity.slots),
-      caption: capacity.available === 0 ? 'Full' : capacity.available + ' available'
-    });
-  }
 
   if (!price.unspecified) {
     const fee = feeSummary(event);
