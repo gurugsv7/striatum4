@@ -143,12 +143,12 @@ const EXPLICIT: Record<string, Partial<EventRegistrationSchema>> = {
   's4-18': {
     shape: 'individual_or_team',
     minMembers: 1,
-    maxMembers: 3,
+    maxMembers: 4,
     defaultMembers: 1,
     sameCollege: false,
     memberFields: CROSS_COLLEGE_MEMBER_FIELDS,
     notes: [
-      'Up to three participants per entry. Interdisciplinary teams are encouraged.'
+      'Up to four participants per entry. Interdisciplinary teams are encouraged.'
     ]
   },
 
