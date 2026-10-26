@@ -18,8 +18,15 @@ export interface RoundTwoEntry {
 }
 let entries: RoundTwoEntry[] = [];
 const staged = new Map<string, { abstract?: File; payment?: File }>();
+// Keep confirmed uploads in memory across form retries. A failed proof upload or
+// final RPC must not force participants to send the same abstract again.
+const uploaded = new Map<string, Partial<Record<'abstract' | 'payment', { file: File; path: string }>>>();
 export function stagedFiles(id: string): { abstract?: File; payment?: File } { return staged.get(id) ?? {}; }
 export function stageFile(id: string, kind: 'abstract' | 'payment', file?: File): void {
+  if (stagedFiles(id)[kind] !== file) {
+    const saved = uploaded.get(id);
+    if (saved) delete saved[kind];
+  }
   const files = {...stagedFiles(id), [kind]: file}; staged.set(id, files);
 }
 interface RosterPerson { entry_id: string; name: string; college: string; email: string; team_index: number }
@@ -27,7 +34,7 @@ let roster: RosterPerson[] = [];
 export function rosterFor(id: string): RosterPerson[] { return roster.filter(p=>p.entry_id===id); }
 let loadError = '';
 let generation = 0;
-export function clearRoundTwo(): void { generation++; entries = []; roster = []; loadError = ''; staged.clear(); }
+export function clearRoundTwo(): void { generation++; entries = []; roster = []; loadError = ''; staged.clear(); uploaded.clear(); }
 export function roundTwoError(): string { return loadError; }
 export function allRoundTwo(): RoundTwoEntry[] { return entries; }
 export function myRoundTwo(): RoundTwoEntry[] {
@@ -69,30 +76,65 @@ export function validateRoundTwoFile(file: File, kind: 'abstract' | 'payment'): 
   if (file.size < 1 || file.size > limit*1024*1024) throw new Error(`Choose a file between 1 byte and ${limit} MB.`);
 }
 async function upload(entry: RoundTwoEntry, file: File, kind: 'abstract' | 'payment'): Promise<string> {
-  validateRoundTwoFile(file,kind);
+  validateRoundTwoFile(file, kind);
   if (!supabase || entry.user_id !== getCurrentUser()?.id) throw new Error('Sign in to upload.');
-  const extension = file.name.split('.').pop()?.replace(/[^a-z0-9]/gi,'').slice(0,8) || 'file';
-  const path = `${entry.user_id}/${entry.id}/${crypto.randomUUID()}.${extension}`;
+  const previous = uploaded.get(entry.id)?.[kind];
+  if (previous?.file === file) return previous.path;
+
+  const extension = file.name.split('.').pop()?.replace(/[^a-z0-9]/gi, '').slice(0, 8) || 'file';
+  const folder = `${entry.user_id}/${entry.id}`;
+  const fileName = `${crypto.randomUUID()}.${extension}`;
+  const path = `${folder}/${fileName}`;
   const bucket = kind === 'abstract' ? 'round-two-abstracts' : 'round-two-payments';
-  // Some mobile connections fail before an upload receives a response. Retry the
-  // *same* object path only for network failures, without creating duplicate evidence.
-  for (let attempt = 0; attempt < 2; attempt++) {
-    let failure: unknown;
+  const storage = supabase.storage.from(bucket);
+  const remember = (): string => {
+    uploaded.set(entry.id, { ...uploaded.get(entry.id), [kind]: { file, path } });
+    return path;
+  };
+
+  // A mobile connection can drop *after* the server has stored the file.
+  // Check the unique object path before retrying; never overwrite evidence.
+  const alreadyStored = async (): Promise<boolean> => {
     try {
-      const {error} = await supabase.storage.from(bucket).upload(path,file,{contentType:file.type,upsert:false});
-      if (!error) return path;
-      // A previous upload may have succeeded despite its response being lost.
-      if (attempt > 0 && /already exists|duplicate|resource already exists/i.test(error.message)) return path;
-      failure = error;
-    } catch (error) {
-      failure = error;
+      const { data, error } = await storage.list(folder, { search: fileName, limit: 20 });
+      return !error && Boolean(data?.some(item => item.name === fileName));
+    } catch {
+      return false;
     }
-    const detail = failure instanceof Error ? failure.message : String(failure);
-    const networkFailure = /failed to fetch|networkerror|network request failed|load failed/i.test(detail);
-    if (!networkFailure) throw new Error(detail);
-    if (attempt === 1) throw new Error(`Upload interrupted by the network (${kind}). Check your connection and retry; your files are still selected. ${detail}`);
+  };
+
+  for (let attempt = 0; attempt < 3; attempt++) {
+    if (entry.user_id !== getCurrentUser()?.id) throw new Error('Session changed. Sign in again before uploading.');
+    try {
+      if (attempt === 2) {
+        // Alternate signed-upload route if ordinary multipart uploads cannot
+        // reach Storage. The token is scoped to this new object path.
+        const signed = await storage.createSignedUploadUrl(path);
+        if (signed.error) throw signed.error;
+        const result = await storage.uploadToSignedUrl(path, signed.data.token, file, {
+          contentType: file.type, upsert: false
+        });
+        if (result.error) throw result.error;
+      } else {
+        const { error } = await storage.upload(path, file, { contentType: file.type, upsert: false });
+        if (error) throw error;
+      }
+      return remember();
+    } catch (failure) {
+      const detail = failure instanceof Error ? failure.message : String(failure);
+      const networkFailure = /failed to fetch|networkerror|network request failed|load failed|fetch failed|timeout|connection/i.test(detail);
+      const duplicate = /already exists|duplicate|resource already exists/i.test(detail);
+      if ((networkFailure || duplicate) && await alreadyStored()) return remember();
+      // Permission, size and MIME errors are not connectivity failures.
+      if (!networkFailure && !duplicate) throw new Error(`File server rejected the ${kind} upload: ${detail}`);
+      if (duplicate) throw new Error(`File already exists but could not be verified (${kind}). Please retry.`);
+      if (attempt === 2) {
+        throw new Error(`Could not complete the ${kind} upload after trying both upload routes. This may be a browser or server connection issue, not necessarily your internet. Your files are still selected. Try another browser or contact the organisers with your Round 2 reference. ${detail}`);
+      }
+      await new Promise(resolve => setTimeout(resolve, 700 * (attempt + 1)));
+    }
   }
-  return path;
+  throw new Error(`Unable to upload the ${kind} file. Please retry.`);
 }
 export async function submitRoundTwo(entry: RoundTwoEntry, abstract?: File, proof?: File): Promise<void> {
   if (!supabase) throw new Error('Round 2 is unavailable.');
@@ -106,6 +148,7 @@ export async function submitRoundTwo(entry: RoundTwoEntry, abstract?: File, proo
   const {error} = await supabase.rpc('submit_round_two',{p_entry_id:entry.id,p_abstract_path:ap,p_abstract_name:abstract?.name ?? null,p_proof_path:pp});
   if (error) throw new Error(error.message);
   staged.delete(entry.id);
+  uploaded.delete(entry.id);
   await loadRoundTwo();
 }
 export async function reviewRoundTwo(id: string, kind: 'payment' | 'submission', approve: boolean, reason: string): Promise<void> {
