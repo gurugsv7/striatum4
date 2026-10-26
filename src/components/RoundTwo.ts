@@ -72,7 +72,7 @@ export function renderRoundTwoAdmin(kind: 'payment' | 'submission', eventId?: st
       return `<div class="admin-panel"><h3 class="myevents-row-title">${esc(getEvent(entry.event_id)?.name ?? entry.event_id)} · ${entry.id.slice(0,8).toUpperCase()}</h3>
         <p class="myevents-row-sub">Registration ${entry.registration_id} · ${label(entry[kind==='payment'?'payment_status':'submission_status'])}${kind==='payment'?` · ${formatINR(entry.fee)}`:''}</p>
         <p class="myevents-row-sub">${esc(roundTwo.rosterFor(entry.id).map(p=>`${p.name} (${p.college || 'college not recorded'})`).join(' · ') || 'Participant details not recorded')}</p>
-        ${a?`${evidence(a,kind==='payment'?'payment':'abstract')}
+        ${a?`<div class="r2-review-evidence" aria-label="Round 2 submitted documents">${evidence(a,'payment')}${evidence(a,'abstract')}</div>
           ${a[kind==='payment'?'payment_status':'submission_status']==='under_review'?`<form class="r2-review" data-r2-review="${a.id}" data-r2-kind="${kind}">
             <label class="input-field-label" for="r2-reason-${a.id}-${kind}">Reason if requesting correction</label><textarea class="text-input-field" id="r2-reason-${a.id}-${kind}" name="reason" maxlength="2000"></textarea>
             <p class="r2-error reg-error-line" role="alert"></p>

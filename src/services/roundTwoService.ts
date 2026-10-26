@@ -73,8 +73,25 @@ async function upload(entry: RoundTwoEntry, file: File, kind: 'abstract' | 'paym
   if (!supabase || entry.user_id !== getCurrentUser()?.id) throw new Error('Sign in to upload.');
   const extension = file.name.split('.').pop()?.replace(/[^a-z0-9]/gi,'').slice(0,8) || 'file';
   const path = `${entry.user_id}/${entry.id}/${crypto.randomUUID()}.${extension}`;
-  const {error} = await supabase.storage.from(kind === 'abstract' ? 'round-two-abstracts' : 'round-two-payments').upload(path,file,{contentType:file.type,upsert:false});
-  if (error) throw new Error(error.message);
+  const bucket = kind === 'abstract' ? 'round-two-abstracts' : 'round-two-payments';
+  // Some mobile connections fail before an upload receives a response. Retry the
+  // *same* object path only for network failures, without creating duplicate evidence.
+  for (let attempt = 0; attempt < 2; attempt++) {
+    let failure: unknown;
+    try {
+      const {error} = await supabase.storage.from(bucket).upload(path,file,{contentType:file.type,upsert:false});
+      if (!error) return path;
+      // A previous upload may have succeeded despite its response being lost.
+      if (attempt > 0 && /already exists|duplicate|resource already exists/i.test(error.message)) return path;
+      failure = error;
+    } catch (error) {
+      failure = error;
+    }
+    const detail = failure instanceof Error ? failure.message : String(failure);
+    const networkFailure = /failed to fetch|networkerror|network request failed|load failed/i.test(detail);
+    if (!networkFailure) throw new Error(detail);
+    if (attempt === 1) throw new Error(`Upload interrupted by the network (${kind}). Check your connection and retry; your files are still selected. ${detail}`);
+  }
   return path;
 }
 export async function submitRoundTwo(entry: RoundTwoEntry, abstract?: File, proof?: File): Promise<void> {
