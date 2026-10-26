@@ -136,15 +136,21 @@ async function upload(entry: RoundTwoEntry, file: File, kind: 'abstract' | 'paym
   }
   throw new Error(`Unable to upload the ${kind} file. Please retry.`);
 }
-export async function submitRoundTwo(entry: RoundTwoEntry, abstract?: File, proof?: File): Promise<void> {
+export async function submitRoundTwo(
+  entry: RoundTwoEntry, abstract?: File, proof?: File,
+  onProgress?: (stage: 'abstract' | 'payment' | 'saving') => void
+): Promise<void> {
   if (!supabase) throw new Error('Round 2 is unavailable.');
   // Validate both before uploading either. Approved components are retained by the server.
   if (entry.submission_status !== 'approved' && !abstract) throw new Error('Attach your Round 2 abstract.');
   if (entry.payment_status !== 'approved' && !proof) throw new Error('Attach your Round 2 payment proof.');
   if (abstract) validateRoundTwoFile(abstract,'abstract');
   if (proof) validateRoundTwoFile(proof,'payment');
+  if (abstract) onProgress?.('abstract');
   const ap = abstract ? await upload(entry,abstract,'abstract') : null;
+  if (proof) onProgress?.('payment');
   const pp = proof ? await upload(entry,proof,'payment') : null;
+  onProgress?.('saving');
   const {error} = await supabase.rpc('submit_round_two',{p_entry_id:entry.id,p_abstract_path:ap,p_abstract_name:abstract?.name ?? null,p_proof_path:pp});
   if (error) throw new Error(error.message);
   staged.delete(entry.id);
