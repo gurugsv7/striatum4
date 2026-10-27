@@ -9,6 +9,8 @@ export interface ExtraAbstract {
 let extras: ExtraAbstract[] = [];
 let loadError = '';
 const selected = new Map<string, File>();
+// Reuse the same immutable object path across retries in this tab.
+const pendingPaths = new Map<string,string>();
 const busy = new Set<string>();
 const errors = new Map<string,string>();
 const reviews = new Map<string,string>();
@@ -19,7 +21,7 @@ export const extraAbstractFile = (id:string) => selected.get(id);
 export const extraAbstractLoadError = () => loadError;
 export const extraReviewReason = (id:string) => reviews.get(id) ?? '';
 export const setExtraReviewReason = (id:string,value:string) => reviews.set(id,value);
-export function clearExtraAbstracts():void { extras=[];loadError='';selected.clear();busy.clear();errors.clear();reviews.clear(); }
+export function clearExtraAbstracts():void { extras=[];loadError='';selected.clear();pendingPaths.clear();busy.clear();errors.clear();reviews.clear(); }
 export async function loadExtraAbstracts():Promise<void> {
   if(!supabase || !getCurrentUser()) { clearExtraAbstracts();return; }
   const uid=getCurrentUser()!.id;
@@ -39,7 +41,7 @@ function fileMime(file:File):string {
   return mimeTypes[file.name.split('.').pop()?.toLowerCase()??'']??file.type;
 }
 export async function selectExtraAbstract(entryId:string,file?:File):Promise<void>{
-  errors.delete(entryId); selected.delete(entryId);
+  errors.delete(entryId); selected.delete(entryId); pendingPaths.delete(entryId);
   if(!file)return;
   const mime=fileMime(file);
   if(!Object.values(mimeTypes).includes(mime))throw new Error('Choose a PDF, Word or PowerPoint file.');
@@ -57,11 +59,15 @@ export async function submitExtraAbstract(entryId:string,userId:string):Promise<
   const file=selected.get(entryId);
   if(!file)throw new Error('Choose an additional abstract.');
   busy.add(entryId);errors.delete(entryId);
-  const path=`${userId}/${entryId}/${crypto.randomUUID()}.${file.name.split('.').pop()?.toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,8)||'pdf'}`;
+  const path=pendingPaths.get(entryId) ?? `${userId}/${entryId}/${crypto.randomUUID()}.${file.name.split('.').pop()?.toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,8)||'pdf'}`;
+  pendingPaths.set(entryId,path);
   try{
     const storage=supabase.storage.from('round-two-abstracts');
     const bytes=await file.arrayBuffer();
-    let {error}=await storage.upload(path,bytes,{contentType:file.type,upsert:false});
+    const folder=`${userId}/${entryId}`, fileName=path.split('/').pop()!;
+    const existing=await storage.list(folder,{search:fileName,limit:20});
+    const stored=!existing.error && Boolean(existing.data?.some(item=>item.name===fileName));
+    const error=stored?null:(await storage.upload(path,bytes,{contentType:file.type,upsert:false})).error;
     if(error){
       const detail=error.message;
       if(!/failed to fetch|network|load failed|abort|timeout/i.test(detail))throw error;
@@ -78,8 +84,12 @@ export async function submitExtraAbstract(entryId:string,userId:string):Promise<
     const result=await supabase.rpc('submit_extra_round_two_abstract',{
       p_entry_id:entryId,p_abstract_path:path,p_abstract_name:file.name
     }).retry(false);
-    if(result.error)throw result.error;
-    selected.delete(entryId);
+    if(result.error){
+      // The server may have committed even when the browser lost the reply.
+      await loadExtraAbstracts();
+      if(!extraAbstractsFor(entryId).some(a=>a.abstract_path===path))throw result.error;
+    }
+    selected.delete(entryId); pendingPaths.delete(entryId);
     await loadExtraAbstracts();
   }catch(e){const message=e instanceof Error?e.message:'Additional abstract upload failed. Please retry.';
     errors.set(entryId,message);throw new Error(message);
