@@ -4,6 +4,7 @@ import * as roundTwo from '../services/roundTwoService.ts';
 import { escapeHtml as esc } from '../services/text.ts';
 
 const label=(s:string)=>s.replace(/_/g,' ').toUpperCase();
+const openExtra = new Set<string>();
 export function renderAdditionalAbstracts(entry:roundTwo.RoundTwoEntry):string {
   // First abstract and payment must be submitted before another is accepted.
   if(!entry.round_two_attempts.length)return '';
@@ -17,7 +18,7 @@ export function renderAdditionalAbstracts(entry:roundTwo.RoundTwoEntry):string {
       <span class="r2-extra-status" data-status="${a.status}">${label(a.status)}</span>
       ${a.review_reason?`<p class="reg-error-line">${esc(a.review_reason)}</p>`:''}
     </div>`).join('')}</div>`:'<p class="r2-extra-hint">Your first abstract remains on record. You can add more ideas under the same registration.</p>'}
-    <details class="r2-extra-add"><summary>+ UPLOAD ANOTHER ABSTRACT</summary>
+    <details class="r2-extra-add" data-r2-extra-details="${entry.id}" ${openExtra.has(entry.id)?'open':''}><summary>+ UPLOAD ANOTHER ABSTRACT</summary>
       <form data-r2-extra-submit="${entry.id}" data-r2-extra-user="${entry.user_id}">
         <label class="input-field-label" for="r2-extra-${entry.id}">NEW ABSTRACT <span>PDF, Word or PowerPoint · 10 MB</span></label>
         <input id="r2-extra-${entry.id}" type="file" name="extra_abstract" accept=".pdf,.doc,.docx,.ppt,.pptx" ${extra.extraAbstractBusy(entry.id)?'disabled':''}/>
@@ -51,6 +52,10 @@ export function renderAdminAdditionalAbstracts(entry:roundTwo.RoundTwoEntry,kind
   </section>`;
 }
 export function attachAdditionalAbstracts():void{
+  document.querySelectorAll<HTMLDetailsElement>('[data-r2-extra-details]').forEach(details=>details.addEventListener('toggle',()=>{
+    const id=details.dataset.r2ExtraDetails!;
+    if(details.open)openExtra.add(id);else openExtra.delete(id);
+  }));
   document.querySelectorAll<HTMLInputElement>('[name="extra_abstract"]').forEach(input=>input.addEventListener('change',async()=>{
     const id=input.closest<HTMLFormElement>('form')?.dataset.r2ExtraSubmit;
     if(!id)return;
@@ -62,7 +67,7 @@ export function attachAdditionalAbstracts():void{
     e.preventDefault();
     const id=form.dataset.r2ExtraSubmit!,uid=form.dataset.r2ExtraUser!;
     if(extra.extraAbstractBusy(id))return;
-    try{await extra.submitExtraAbstract(id,uid);appStore.showToast('Additional abstract submitted for review.');}
+    try{await extra.submitExtraAbstract(id,uid);openExtra.delete(id);appStore.showToast('Additional abstract submitted for review.');}
     catch(e){appStore.showToast(e instanceof Error?e.message:'Upload failed.');}
     appStore.refresh();
   }));
