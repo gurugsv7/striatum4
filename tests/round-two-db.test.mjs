@@ -225,3 +225,25 @@ test('draft removal cannot delete another owner or paid/submitted data and prese
   assert.equal((await db.query('select * from registrations where id=$1',[original.id])).rows.length,1);
   await as(owner,()=>assert.rejects(()=>rpc('remove_draft_round_two',[coral.id]),/Submitted entries cannot be removed/i));
 });
+
+test('additional abstracts are independent, reviewable, and never charge another fee',async()=>{
+  const before=(await entry(coral.id)).fee;
+  const first=await file(coral,'abstract');
+  const one=await as(owner,()=>rpc('submit_extra_round_two_abstract',[coral.id,first,'Second idea.pdf']));
+  const again=await as(owner,()=>rpc('submit_extra_round_two_abstract',[coral.id,first,'Second idea.pdf']));
+  assert.deepEqual(one,again); // idempotent on the same object path
+  const second=await file(coral,'abstract');
+  await as(owner,()=>rpc('submit_extra_round_two_abstract',[coral.id,second,'Third idea.pdf']));
+  const {rows}=await db.query('select * from round_two_extra_abstracts where entry_id=$1 order by submitted_at',[coral.id]);
+  assert.equal(rows.length,2);
+  assert.equal(rows[0].status,'under_review');
+  await as(stranger,()=>assert.rejects(()=>rpc('submit_extra_round_two_abstract',[coral.id,second,'Other.pdf']),/not found/i));
+  await as(stranger,()=>assert.rejects(()=>rpc('review_extra_round_two_abstract',[rows[0].id,true,null]),/Not authorised/i));
+  await as(organiser,()=>rpc('review_extra_round_two_abstract',[rows[0].id,true,null]));
+  await as(organiser,()=>rpc('review_extra_round_two_abstract',[rows[1].id,false,'Needs clearer methods']));
+  const {rows:reviewed}=await db.query('select status,review_reason from round_two_extra_abstracts where entry_id=$1 order by submitted_at',[coral.id]);
+  assert.equal(reviewed[0].status,'approved');
+  assert.equal(reviewed[1].status,'rejected');
+  assert.equal(reviewed[1].review_reason,'Needs clearer methods');
+  assert.equal((await entry(coral.id)).fee,before);
+});
