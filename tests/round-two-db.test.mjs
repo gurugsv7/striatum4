@@ -212,8 +212,10 @@ test('draft removal cannot delete another owner or paid/submitted data and prese
   // cannot land against a draft that has been removed in another tab.
   await assert.rejects(()=>db.query('insert into storage.objects(bucket_id,name,metadata) values($1,$2,$3)',
     ['round-two-payments',`${uid}/${draft.id}/late-signed.pdf`,{size:10,mimetype:'application/pdf'}]),/no longer accepts uploads/);
-  await assert.rejects(()=>db.query('insert into storage.objects(bucket_id,name,metadata) values($1,$2,$3)',
-    ['round-two-payments',`${owner}/${coral.id}/late-approved.pdf`,{size:10,mimetype:'application/pdf'}]),/no longer accepts uploads/);
+  // Payment uploads for an existing submitted entry are allowed ONLY as new
+  // evidence for extra abstracts; the RPC still requires a distinct proof path.
+  await db.query('insert into storage.objects(bucket_id,name,metadata) values($1,$2,$3)',
+    ['round-two-payments',`${owner}/${coral.id}/extra-proof.pdf`,{size:10,mimetype:'application/pdf'}]);
   // A Round 1 registration may start and remove only its Round 2 draft.
   const original=(await db.query("select * from registrations where user_id=$1 and event_id='s4-16' and team_index=2",[stranger])).rows[0];
   const old=(await db.query('select * from round_two_entries where registration_id=$1',[original.id])).rows[0];
