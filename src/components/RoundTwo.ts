@@ -8,6 +8,7 @@ import { SYMPOSIUM_UPI_ID, SYMPOSIUM_UPI_QR } from '../data/payment.ts';
 
 const label = (status: string) => status.replace(/_/g,' ').toUpperCase();
 const busy = new Set<string>();
+let confirmingDraftId: string | null = null;
 
 function evidence(a: roundTwo.RoundTwoAttempt, kind: 'abstract' | 'payment'): string {
   return `<button type="button" class="action-link-cyan" data-r2-file="${esc(kind==='abstract'?a.abstract_path:a.proof_path)}" data-r2-kind="${kind}">${kind==='abstract'?esc(a.abstract_name):'VIEW PAYMENT PROOF'} ↗</button>`;
@@ -56,6 +57,10 @@ export function renderRoundTwoHub(): string {
           <p class="r2-error reg-error-line" role="alert"></p>
           <button class="btn-chamfer-primary" type="submit" ${busy.has(entry.id)?'disabled':''}>${busy.has(entry.id)?'SUBMITTING…':'SUBMIT ROUND 2 FOR REVIEW →'}</button>
         </form>`:'<p class="explore-subtitle">Track payment and abstract review here. Round 2 is confirmed when both are approved.</p>'}
+        ${entry.payment_status==='draft' && entry.submission_status==='draft' && !entry.round_two_attempts.length ? `<div class="myevents-remove-row">
+          <button type="button" class="myevents-remove-btn ${confirmingDraftId===entry.id?'is-armed':''}" data-r2-remove="${entry.id}" ${busy.has(entry.id)?'disabled':''}>${confirmingDraftId===entry.id?'TAP AGAIN TO REMOVE':'REMOVE'}</button>
+          ${confirmingDraftId===entry.id?'<button type="button" class="myevents-remove-cancel" data-r2-keep>KEEP IT</button>':''}
+        </div>${confirmingDraftId===entry.id?'<p class="myevents-remove-note">This removes only your unfinished Round 2 registration, so you can register again. It does not refund any payment already made. If you paid, contact the organisers before removing.</p>':''}` : ''}
         ${entry.round_two_attempts.length?`<details class="r2-history"><summary>Round 2 submission history (${entry.round_two_attempts.length})</summary>${[...entry.round_two_attempts].sort((a,b)=>b.attempt_number-a.attempt_number).map(at=>`<div class="r2-history-item"><p>${esc(new Date(at.submitted_at).toLocaleString('en-IN'))} · PAYMENT ${label(at.payment_status)} · ABSTRACT ${label(at.submission_status)}</p>${evidence(at,'abstract')}${evidence(at,'payment')}</div>`).join('')}</details>`:''}
       </div>`;
     }).join('')}
@@ -86,6 +91,24 @@ export function renderRoundTwoAdmin(kind: 'payment' | 'submission', eventId?: st
 }
 
 export function attachRoundTwo(): void {
+  document.querySelectorAll<HTMLButtonElement>('[data-r2-remove]').forEach(button=>button.addEventListener('click',async()=>{
+    const id=button.dataset.r2Remove!;
+    if (busy.has(id)) return;
+    if (confirmingDraftId!==id) { confirmingDraftId=id; appStore.refresh(); return; }
+    const entry=roundTwo.myRoundTwo().find(e=>e.id===id);
+    if (!entry) { confirmingDraftId=null; appStore.refresh(); return; }
+    busy.add(id); button.disabled=true;
+    try {
+      await roundTwo.removeDraftRoundTwo(entry);
+      await registration.hydrate();
+      appStore.showToast('Unsubmitted Round 2 entry removed.');
+    } catch(error) {
+      appStore.showToast(error instanceof Error?error.message:'Unable to remove entry.');
+    } finally { confirmingDraftId=null; busy.delete(id); appStore.refresh(); }
+  }));
+  document.querySelectorAll<HTMLButtonElement>('[data-r2-keep]').forEach(button=>button.addEventListener('click',()=>{
+    confirmingDraftId=null; appStore.refresh();
+  }));
   document.querySelectorAll<HTMLFormElement>('[data-r2-submit]').forEach(form=>{
     form.querySelectorAll<HTMLInputElement>('input[type="file"]').forEach(input=>input.addEventListener('change',()=>{
       roundTwo.stageFile(form.dataset.r2Submit!,input.name as 'abstract'|'payment',input.files?.[0]);
