@@ -1,4 +1,5 @@
 import { roundTwoDiagnosticReport } from '../services/roundTwoDiagnostics.ts';
+import { renderAdditionalAbstracts, renderAdminAdditionalAbstracts, attachAdditionalAbstracts } from './ExtraAbstracts.ts';
 import { appStore } from '../state/appStore.ts';
 import * as registration from '../services/registrationService.ts';
 import * as roundTwo from '../services/roundTwoService.ts';
@@ -62,6 +63,7 @@ export function renderRoundTwoHub(): string {
           <button type="button" class="r2-diagnostics action-link-cyan" data-r2-diagnostics>Copy upload diagnostics</button>
         </form>`:'<p class="r2-review-note">Both reviews must be approved to confirm your place.</p>'}
         ${removable ? `<div class="myevents-remove-row"><button type="button" class="myevents-remove-btn ${confirmingDraftId===entry.id?'is-armed':''}" data-r2-remove="${entry.id}" ${locked||proofSelected?'disabled':''}>${confirmingDraftId===entry.id?'TAP AGAIN TO REMOVE':'REMOVE'}</button>${confirmingDraftId===entry.id?'<button type="button" class="myevents-remove-cancel" data-r2-keep>KEEP IT</button>':''}</div>${proofSelected?'<p class="r2-payment-note">Proof attached — keep this entry if you have paid.</p>':confirmingDraftId===entry.id?'<p class="myevents-remove-note">Remove this unfinished Round 2 entry? If you already paid, keep it and contact the organisers. Earlier registrations stay on record.</p>':''}` : ''}
+        ${renderAdditionalAbstracts(entry)}
         <details class="r2-history"><summary>${entry.round_two_attempts.length ? `Submission history · ${entry.round_two_attempts.length}` : 'About this round'}</summary><p>Round 2 has a separate fee and abstract. Earlier payments and Round 1 files stay on record.</p>${[...entry.round_two_attempts].sort((a,b)=>b.attempt_number-a.attempt_number).map(at=>`<div class="r2-history-item"><p>${esc(new Date(at.submitted_at).toLocaleString('en-IN'))} · PAYMENT ${label(at.payment_status)} · ABSTRACT ${label(at.submission_status)}</p>${evidence(at,'abstract')}${evidence(at,'payment')}</div>`).join('')}</details>
       </article>`;
     }).join('')}
@@ -85,6 +87,7 @@ export function renderRoundTwoAdmin(kind: 'payment' | 'submission', eventId?: st
             <p class="r2-error reg-error-line" role="alert">${esc(roundTwo.roundTwoReviewDraft(a.id,kind).error)}</p>
             <div class="admin-action-row"><button type="submit" name="decision" value="approve" class="btn-chamfer-primary" ${roundTwo.roundTwoReviewDraft(a.id,kind).busy?'disabled':''}>APPROVE ${kind.toUpperCase()}</button><button type="submit" name="decision" value="reject" class="btn-chamfer-dark" ${roundTwo.roundTwoReviewDraft(a.id,kind).busy?'disabled':''}>REQUEST CORRECTION</button></div>
           </form>`:`<p>${esc(a[kind==='payment'?'payment_reason':'submission_reason'] ?? '')}</p>`}
+          ${renderAdminAdditionalAbstracts(entry,kind)}
           <details class="r2-history"><summary>Earlier attempts and review history</summary>${entry.round_two_attempts.map(at=>`<div class="r2-history-item"><p>${esc(new Date(at.submitted_at).toLocaleString('en-IN'))} · ${label(at[kind==='payment'?'payment_status':'submission_status'])}</p>${evidence(at,kind==='payment'?'payment':'abstract')}<p>${esc(at[kind==='payment'?'payment_reason':'submission_reason'] ?? '')}</p></div>`).join('')}</details>`:'<p>Awaiting payment and abstract upload.</p>'}
       </div>`;
     }).join('') || '<p class="explore-subtitle">No Round 2 entries yet.</p>'}
@@ -93,6 +96,7 @@ export function renderRoundTwoAdmin(kind: 'payment' | 'submission', eventId?: st
 
 export function attachRoundTwo(): void {
   syncRoundTwoForms();
+  attachAdditionalAbstracts();
   document.querySelectorAll<HTMLButtonElement>('[data-r2-diagnostics]').forEach(button=>button.addEventListener('click',async()=>{
     try { await navigator.clipboard.writeText(roundTwoDiagnosticReport()); appStore.showToast('Upload diagnostics copied. Share these with the organisers.'); }
     catch { appStore.showToast('Clipboard unavailable. Open this page in your browser to copy diagnostics.'); }
