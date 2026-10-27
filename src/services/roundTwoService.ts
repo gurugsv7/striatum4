@@ -157,6 +157,18 @@ export async function submitRoundTwo(
   uploaded.delete(entry.id);
   await loadRoundTwo();
 }
+export async function removeDraftRoundTwo(entry: RoundTwoEntry): Promise<void> {
+  if (!supabase || entry.user_id !== getCurrentUser()?.id) throw new Error('Sign in to remove your draft.');
+  if (entry.payment_status !== 'draft' || entry.submission_status !== 'draft' || entry.round_two_attempts.length) {
+    throw new Error('Submitted entries cannot be removed. Contact the organisers.');
+  }
+  const {error} = await supabase.rpc('remove_draft_round_two',{p_entry_id:entry.id});
+  if (error) throw new Error(error.message);
+  staged.delete(entry.id);
+  uploaded.delete(entry.id);
+  await loadRoundTwo();
+}
+
 export async function reviewRoundTwo(id: string, kind: 'payment' | 'submission', approve: boolean, reason: string): Promise<void> {
   if (!supabase) throw new Error('Round 2 is unavailable.');
   const {error} = await supabase.rpc('review_round_two',{p_attempt_id:id,p_kind:kind,p_approve:approve,p_reason:reason});
