@@ -4,11 +4,14 @@ import { getCurrentUser } from './authService.ts';
 export interface ExtraAbstract {
   id: string; entry_id: string; user_id: string; abstract_path: string; abstract_name: string;
   status: 'under_review'|'approved'|'rejected'; review_reason: string|null;
+  fee: number; payment_path: string; payment_status: 'under_review'|'approved'|'rejected'; payment_reason: string|null;
   submitted_at: string; reviewed_at: string|null;
 }
 let extras: ExtraAbstract[] = [];
 let loadError = '';
 const selected = new Map<string, File>();
+const selectedProofs = new Map<string, File>();
+const pendingProofPaths = new Map<string,string>();
 // Reuse the same immutable object path across retries in this tab.
 const pendingPaths = new Map<string,string>();
 const busy = new Set<string>();
@@ -18,10 +21,11 @@ export const extraAbstractsFor = (entryId:string) => extras.filter(x=>x.entry_id
 export const extraAbstractBusy = (id:string) => busy.has(id);
 export const extraAbstractError = (id:string) => errors.get(id) ?? '';
 export const extraAbstractFile = (id:string) => selected.get(id);
+export const extraPaymentFile = (id:string) => selectedProofs.get(id);
 export const extraAbstractLoadError = () => loadError;
 export const extraReviewReason = (id:string) => reviews.get(id) ?? '';
 export const setExtraReviewReason = (id:string,value:string) => reviews.set(id,value);
-export function clearExtraAbstracts():void { extras=[];loadError='';selected.clear();pendingPaths.clear();busy.clear();errors.clear();reviews.clear(); }
+export function clearExtraAbstracts():void { extras=[];loadError='';selected.clear();selectedProofs.clear();pendingPaths.clear();pendingProofPaths.clear();busy.clear();errors.clear();reviews.clear(); }
 export async function loadExtraAbstracts():Promise<void> {
   if(!supabase || !getCurrentUser()) { clearExtraAbstracts();return; }
   const uid=getCurrentUser()!.id;
@@ -53,43 +57,63 @@ export async function selectExtraAbstract(entryId:string,file?:File):Promise<voi
     selected.set(entryId,new File([bytes],file.name,{type:mime,lastModified:file.lastModified}));
   } catch {throw new Error('Unable to read this file. Save it to Downloads and select it again.');}
 }
+export async function selectExtraPayment(entryId:string,file?:File):Promise<void>{
+  errors.delete(entryId); selectedProofs.delete(entryId); pendingProofPaths.delete(entryId);
+  if(!file)return;
+  const ext=file.name.split('.').pop()?.toLowerCase()??'';
+  const type=file.type && file.type!=='application/octet-stream' ? file.type : ({jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',pdf:'application/pdf'} as Record<string,string>)[ext];
+  if(!['image/jpeg','image/png','application/pdf'].includes(type))throw new Error('Choose a JPEG, PNG or PDF payment proof.');
+  if(!file.size||file.size>5242880)throw new Error('Payment proof must be 5 MB or smaller.');
+  try {
+    const bytes=await file.arrayBuffer();
+    if(bytes.byteLength!==file.size)throw new Error('Incomplete proof');
+    selectedProofs.set(entryId,new File([bytes],file.name,{type,lastModified:file.lastModified}));
+  } catch {throw new Error('Cannot read the payment proof. Save it to Downloads and choose again.');}
+}
+async function putFile(bucket:'round-two-payments'|'round-two-abstracts',path:string,file:File):Promise<void>{
+  if(!supabase)throw new Error('Storage unavailable.');
+  const storage=supabase.storage.from(bucket);
+  const folder=path.split('/').slice(0,2).join('/'),name=path.split('/').pop()!;
+  const exists=async()=> {
+    const check=await storage.list(folder,{search:name,limit:20});
+    return !check.error && Boolean(check.data?.some(x=>x.name===name&&Number(x.metadata?.size)===file.size));
+  };
+  if(await exists())return;
+  const bytes=await file.arrayBuffer();
+  const uploaded=await storage.upload(path,bytes,{contentType:file.type,upsert:false});
+  if(!uploaded.error)return;
+  if(!/failed to fetch|network|load failed|abort|timeout|already exists|duplicate/i.test(uploaded.error.message))throw uploaded.error;
+  if(await exists())return;
+  const signed=await storage.createSignedUploadUrl(path);
+  if(signed.error)throw signed.error;
+  const alternate=await storage.uploadToSignedUrl(path,signed.data.token,bytes,{contentType:file.type,upsert:false});
+  if(alternate.error && !(await exists()))throw alternate.error;
+}
 export async function submitExtraAbstract(entryId:string,userId:string):Promise<void>{
   if(!supabase || getCurrentUser()?.id!==userId)throw new Error('Sign in to submit an abstract.');
   if(busy.has(entryId))return;
   const file=selected.get(entryId);
   if(!file)throw new Error('Choose an additional abstract.');
+  const proof=selectedProofs.get(entryId);
+  if(!proof)throw new Error('Attach a new payment proof for this abstract.');
   busy.add(entryId);errors.delete(entryId);
   const path=pendingPaths.get(entryId) ?? `${userId}/${entryId}/${crypto.randomUUID()}.${file.name.split('.').pop()?.toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,8)||'pdf'}`;
   pendingPaths.set(entryId,path);
+  const proofPath=pendingProofPaths.get(entryId) ?? `${userId}/${entryId}/${crypto.randomUUID()}.${proof.name.split('.').pop()?.toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,8)||'jpg'}`;
+  pendingProofPaths.set(entryId,proofPath);
   try{
-    const storage=supabase.storage.from('round-two-abstracts');
-    const bytes=await file.arrayBuffer();
-    const folder=`${userId}/${entryId}`, fileName=path.split('/').pop()!;
-    const existing=await storage.list(folder,{search:fileName,limit:20});
-    const stored=!existing.error && Boolean(existing.data?.some(item=>item.name===fileName));
-    const error=stored?null:(await storage.upload(path,bytes,{contentType:file.type,upsert:false})).error;
-    if(error){
-      const detail=error.message;
-      if(!/failed to fetch|network|load failed|abort|timeout/i.test(detail))throw error;
-      // The first response may have been lost; check before using signed upload.
-      const check=await storage.list(`${userId}/${entryId}`,{search:path.split('/').pop()!,limit:20});
-      if(!check.data?.some(f=>f.name===path.split('/').pop())){
-        const signed=await storage.createSignedUploadUrl(path);
-        if(signed.error)throw signed.error;
-        const retry=await storage.uploadToSignedUrl(path,signed.data.token,bytes,{contentType:file.type,upsert:false});
-        if(retry.error)throw retry.error;
-      }
-    }
+    await putFile('round-two-abstracts',path,file);
+    await putFile('round-two-payments',proofPath,proof);
     // The RPC is idempotent on this path; never create duplicate submissions.
     const result=await supabase.rpc('submit_extra_round_two_abstract',{
-      p_entry_id:entryId,p_abstract_path:path,p_abstract_name:file.name
+      p_entry_id:entryId,p_abstract_path:path,p_abstract_name:file.name,p_payment_path:proofPath
     }).retry(false);
     if(result.error){
       // The server may have committed even when the browser lost the reply.
       await loadExtraAbstracts();
       if(!extraAbstractsFor(entryId).some(a=>a.abstract_path===path))throw result.error;
     }
-    selected.delete(entryId); pendingPaths.delete(entryId);
+    selected.delete(entryId); selectedProofs.delete(entryId); pendingPaths.delete(entryId); pendingProofPaths.delete(entryId);
     await loadExtraAbstracts();
   }catch(e){const message=e instanceof Error?e.message:'Additional abstract upload failed. Please retry.';
     errors.set(entryId,message);throw new Error(message);
@@ -108,4 +132,19 @@ export async function reviewExtraAbstract(id:string,approve:boolean,reason:strin
     await loadExtraAbstracts();
   }catch(e){const message=e instanceof Error?e.message:'Review failed';errors.set(id,message);throw new Error(message);}
   finally{busy.delete(id);}
+}
+
+export async function reviewExtraPayment(id:string,approve:boolean,reason:string):Promise<void>{
+ if(!supabase)throw new Error('Sign in to review payment.');
+ if(busy.has(id))return;
+ busy.add(id);errors.delete(id);
+ try {
+  const {error}=await supabase.rpc('review_extra_round_two_payment',{
+   p_abstract_id:id,p_approve:approve,p_reason:reason
+  }).retry(false);
+  if(error)throw error;
+  reviews.delete(id+':payment');
+  await loadExtraAbstracts();
+ }catch(e){const message=e instanceof Error?e.message:'Payment review failed';errors.set(id,message);throw new Error(message);}
+ finally{busy.delete(id);}
 }
