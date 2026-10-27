@@ -1,4 +1,5 @@
 import { supabase } from './supabaseClient.ts';
+import { loadExtraAbstracts, clearExtraAbstracts } from './extraAbstractService.ts';
 import { getCurrentUser } from './authService.ts';
 import type { EventRegistrationIntent } from './registrationForm.ts';
 import { toServerTeams } from './registrationForm.ts';
@@ -94,7 +95,7 @@ let roster: RosterPerson[] = [];
 export function rosterFor(id: string): RosterPerson[] { return roster.filter(p=>p.entry_id===id); }
 let loadError = '';
 let generation = 0;
-export function clearRoundTwo(): void { generation++; entries = []; roster = []; loadError = ''; staged.clear(); uploaded.clear(); preparing.clear(); operations.clear(); reviewDrafts.clear(); clearUploadRecovery(); clearRoundTwoDiagnostics(); }
+export function clearRoundTwo(): void { generation++; entries = []; roster = []; loadError = ''; staged.clear(); uploaded.clear(); preparing.clear(); operations.clear(); reviewDrafts.clear(); clearExtraAbstracts(); clearUploadRecovery(); clearRoundTwoDiagnostics(); }
 export function roundTwoError(): string { return loadError; }
 export function allRoundTwo(): RoundTwoEntry[] { return entries; }
 export function myRoundTwo(): RoundTwoEntry[] {
@@ -115,6 +116,7 @@ export async function loadRoundTwo(): Promise<void> {
   loadError = error || people.error ? 'Round 2 could not be loaded. Please refresh and try again.' : '';
   entries = error ? [] : data as RoundTwoEntry[];
   roster = people.error ? [] : people.data as RosterPerson[];
+  await loadExtraAbstracts();
 }
 export async function startRoundTwo(eventId: string, registrationId?: string, intent?: EventRegistrationIntent): Promise<string> {
   if (!supabase || !getCurrentUser()) throw new Error('Sign in to continue Round 2.');
