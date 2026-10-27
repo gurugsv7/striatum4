@@ -52,7 +52,7 @@ export function renderAdminAdditionalAbstracts(entry:roundTwo.RoundTwoEntry,kind
     <div class="r2-extras-heading"><span>ADDITIONAL ABSTRACTS</span><span>${list.length}</span></div>
     ${list.map((a,i)=>`<div class="r2-extra-item">
       <div><span class="r2-extra-index">ADDITIONAL ABSTRACT ${i+1} · ${formatINR(a.fee)}</span>
-      <button type="button" class="action-link-cyan" data-r2-file="${esc(a.abstract_path)}" data-r2-kind="abstract">${esc(a.abstract_name)}</button>
+      ${kind==='payment' ? `<button type="button" class="action-link-cyan" data-r2-file="${esc(a.payment_path)}" data-r2-kind="payment">VIEW NEW PAYMENT PROOF</button>` : `<button type="button" class="action-link-cyan" data-r2-file="${esc(a.abstract_path)}" data-r2-kind="abstract">${esc(a.abstract_name)}</button>`}
       <small>${esc(new Date(a.submitted_at).toLocaleString('en-IN'))}</small></div>
       <span class="r2-extra-status" data-status="${kind==='payment'?a.payment_status:a.status}">${kind==='payment'?'PAYMENT: '+label(a.payment_status):'ABSTRACT: '+label(a.status)}</span>
       ${(kind==='payment'?a.payment_status:a.status)==='under_review'?`<form data-r2-extra-review="${a.id}" data-r2-extra-kind="${kind}">
