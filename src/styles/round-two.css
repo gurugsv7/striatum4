@@ -61,3 +61,26 @@
   .r2-hub .r2-payment, .r2-hub .r2-retained, .r2-hub .r2-progress, .r2-hub .r2-error, .r2-hub .r2-diagnostics, .r2-hub .r2-form > button[type=submit] { grid-column:1 / -1; }
   .r2-hub .r2-form > button[type=submit] { max-width:380px; }
 }
+
+
+/* Multiple independent Round 2 abstracts, matching the existing editorial UI. */
+.r2-extras { margin-top:20px; padding-top:18px; border-top:1px solid var(--r2-rule,rgba(255,255,255,.18)); }
+.r2-extras-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; font:10px/1.5 var(--font-mono-meta,monospace); letter-spacing:.12em; color:var(--text-cyan-bright); }
+.r2-extras-heading span:last-child { color:var(--text-muted); letter-spacing:.02em; }
+.r2-extra-list { margin-top:12px; }
+.r2-extra-item { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:8px 12px; padding:13px 0; border-bottom:1px solid var(--r2-rule,rgba(255,255,255,.12)); }
+.r2-extra-item > div:first-child { display:flex; flex-direction:column; align-items:flex-start; gap:5px; min-width:0; }
+.r2-extra-item .action-link-cyan { overflow-wrap:anywhere; text-align:left; font-size:12px; }
+.r2-extra-item small, .r2-extra-index { color:var(--text-muted); font-size:10px; }
+.r2-extra-index { letter-spacing:.1em; }
+.r2-extra-status { align-self:start; font:10px/1.5 var(--font-mono-meta,monospace); color:var(--text-muted); white-space:nowrap; }
+.r2-extra-status[data-status=approved] { color:var(--text-cyan-bright); }
+.r2-extra-status[data-status=rejected] { color:var(--text-coral, #e9a28c); }
+.r2-extra-item > form, .r2-extra-item > p { grid-column:1/-1; }
+.r2-extra-add { margin-top:14px; border:1px solid var(--r2-rule,rgba(255,255,255,.18)); padding:0 14px; }
+.r2-extra-add > summary { cursor:pointer; padding:15px 0; font:11px/1.4 var(--font-mono-meta,monospace); color:var(--text-cyan-bright); letter-spacing:.06em; }
+.r2-extra-add > form, .r2-extra-item > form { display:grid; gap:12px; padding-bottom:16px; }
+.r2-extra-add input, .r2-extra-item textarea { width:100%; min-width:0; color:var(--text-silver); background:var(--bg-input-glass); border:1px solid var(--r2-rule,rgba(255,255,255,.18)); padding:12px; }
+.r2-extra-hint { color:var(--text-muted); font-size:11px; line-height:1.6; }
+.r2-extras--admin { margin:16px 0; }
+.r2-extras--admin .admin-action-row { display:flex; flex-wrap:wrap; gap:8px; }
