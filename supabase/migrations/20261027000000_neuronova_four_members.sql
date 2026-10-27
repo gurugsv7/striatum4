@@ -18,7 +18,9 @@ BEGIN
   END IF;
   UPDATE public.event_registration_rules SET max_members = 4
   WHERE event_id = 's4-18' AND min_members = 1 AND max_members = 3;
-  IF NOT FOUND THEN
+  -- The programme migration already raised this rule to four on fresh
+  -- installs. The RPC may still have the old cap in that valid state.
+  IF NOT FOUND AND v_current_max IS DISTINCT FROM 4 THEN
     RAISE EXCEPTION 'Unexpected NEURONOVA registration rule; review before editing';
   END IF;
   EXECUTE replace(v_function, 'e.id=''s4-18'' and n>3', 'e.id=''s4-18'' and n>4');

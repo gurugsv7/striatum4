@@ -44,7 +44,7 @@ for (const n of ['14','15','16','17','18','19']) {
   assert.equal(byId.get('s4-'+n)?.abstractFirst,false,'Round 2 is paid s4-'+n);
 }
 for (const n of ['21','23','24']) assert.equal(byId.get('s4-'+n)?.submissionDeadline,'26 October 2026','Creative entry deadline s4-'+n);
-assert.equal(byId.get('s4-18')?.teamSize?.max,3,'Matches the live registration rule');
+assert.equal(byId.get('s4-18')?.teamSize?.max,4,'Matches the approved NEURONOVA registration rule');
 const combo = COMBO_OFFERS.find(x=>x.id==='combo-genesis-stitchreef-pleuralis');
 assert.ok(combo);
 assert.equal(combo.publishedComboTotal,2500);

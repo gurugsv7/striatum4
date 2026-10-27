@@ -2,6 +2,7 @@ name: Verify brochure reconciliation
 on:
   push:
     branches:
+      - main
       - audit/2026-10-18-final-brochure-alignment
   pull_request:
     branches: [main]
@@ -30,3 +31,7 @@ jobs:
         run: node scripts/verify-final-brochure.mjs
       - name: Check PostgreSQL permissions, Round 2 flow, and existing regressions
         run: npm test
+      - name: Install isolated browser
+        run: npx playwright install --with-deps chromium
+      - name: Check mobile and desktop Round 2 recovery
+        run: npm run test:e2e

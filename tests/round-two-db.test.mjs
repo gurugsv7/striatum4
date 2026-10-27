@@ -33,7 +33,7 @@ await db.exec(`
 const migrations=(await readdir('supabase/migrations')).filter(n=>n.endsWith('.sql')).sort();
 const migration=migrations.find(n=>n.endsWith('_round_two_entries.sql'));
 const neuronovaMigration=migrations.find(n=>n.endsWith('_neuronova_four_members.sql'));
-for(const name of migrations.filter(n=>n!==migration && n!==neuronovaMigration)) {
+for(const name of migrations) {
   let sql=await readFile('supabase/migrations/'+name,'utf8');
   sql=sql.replace('create extension if not exists "pgcrypto";',''); // UUIDs are built into PG.
   try { await db.exec(sql); }
@@ -45,8 +45,6 @@ for(const name of migrations.filter(n=>n!==migration && n!==neuronovaMigration))
     await db.exec(`insert into public.admins(user_id) values('${finance}'),('${organiser}')`);
   }
 }
-await db.exec(await readFile('supabase/migrations/'+migration,'utf8'));
-await db.exec(await readFile('supabase/migrations/'+neuronovaMigration,'utf8'));
 await db.exec('grant select on storage.buckets to authenticated;');
 async function as(uid,fn,role='authenticated') {
   await db.query("select set_config('request.jwt.claim.sub',$1,false)",[uid ?? '']);
@@ -70,6 +68,8 @@ async function submit(e) { const ap=await file(e,'abstract'); const pp=await fil
 let coral;
 
 test('all six fees, roster validation, original registration anchors and duplicate starts',async()=>{
+  const catalog=(await db.query("select team_max,price_team from events where id='s4-18'")).rows[0];
+  assert.equal(catalog.team_max,4); assert.equal(catalog.price_team,500);
   for(const [event,n,fee] of [['s4-14',2,400],['s4-15',1,400],['s4-16',1,300],['s4-17',2,400],['s4-18',4,500],['s4-19',1,300]]) {
     const e=await start(event,n); if(event==='s4-16') coral=e;
     assert.equal(e.fee,fee); assert.equal(e.payment_status,'draft');
@@ -84,7 +84,12 @@ test('all six fees, roster validation, original registration anchors and duplica
     await assert.rejects(()=>rpc('start_round_two',['s4-19',null,team(2)]),/between|Invalid|member|participant/i);
     await assert.rejects(()=>rpc('start_round_two',['s4-14',null,team(1)]),/between|Invalid|member/i);
   });
+  const before=JSON.stringify((await db.query('select * from round_two_entries order by id')).rows);
+  const protection=migrations.find(n=>n.endsWith('_protect_round_two_payment_uploads.sql'));
+  await db.exec(await readFile('supabase/migrations/'+protection,'utf8'));
+  assert.equal(JSON.stringify((await db.query('select * from round_two_entries order by id')).rows),before,'Safe migration replay preserves all entries');
 });
+
 
 test('original multi-entry registrations pay separately, preserving historical money/files',async()=>{
   const oid=crypto.randomUUID(); const lid=crypto.randomUUID(); const rid1=crypto.randomUUID(); const rid2=crypto.randomUUID();
@@ -126,7 +131,7 @@ test('uploads must exist with valid metadata, correct entry paths, and remain im
   await as(owner,async()=>{
     assert.equal((await db.query("update storage.objects set metadata='{}' where name=$1 returning id",[ap])).rows.length,0);
     assert.equal((await db.query('delete from storage.objects where name=$1 returning id',[ap])).rows.length,0);
-    await assert.rejects(()=>file(coral,'abstract'),/row-level security/i);
+    await assert.rejects(()=>file(coral,'abstract'),/row-level security|no longer accepts uploads/i);
     await assert.rejects(()=>rpc('review_round_two',[attempt.id,'payment',true,null]),/Not authorised/);
     await assert.rejects(()=>rpc('submit_round_two',[coral.id,ap,'Abs.pdf',pp]),/already submitted/);
   });
@@ -188,4 +193,35 @@ test('alternate roster fees, closed events, capacity and unmodified event checko
   assert.equal((await as(owner,()=>rpc('start_round_two',['s4-14',existing.registration_id,null]))).id,existing.id);
   const unchanged=await as(alternate,()=>rpc('create_order',[[{event_id:'s4-25',teams:[team(3)]}]]));
   assert(unchanged.total>0); assert.equal(unchanged.pricing_phase,'early');
+});
+
+test('draft removal cannot delete another owner or paid/submitted data and preserves historic anchors',async()=>{
+  const uid='10000000-0000-4000-8000-000000000009';
+  await db.query("insert into auth.users(id,email) values($1,'draft@example.test')",[uid]);
+  const draft=await as(uid,()=>rpc('start_round_two',['s4-19',null,team()]));
+  const anchor=(await db.query('select order_id from registrations where id=$1',[draft.registration_id])).rows[0].order_id;
+  await as(stranger,()=>assert.rejects(()=>rpc('remove_draft_round_two',[draft.id]),/not found/i));
+  await as(uid,()=>rpc('remove_draft_round_two',[draft.id]));
+  assert.equal((await db.query('select * from orders where id=$1',[anchor])).rows.length,0);
+  const protectedDraft=await as(uid,()=>rpc('start_round_two',['s4-19',null,team()]));
+  await file(protectedDraft,'payment');
+  await as(uid,()=>assert.rejects(()=>rpc('remove_draft_round_two',[protectedDraft.id]),/Payment proof is already uploaded/));
+  assert.equal((await db.query('select * from round_two_entries where id=$1',[protectedDraft.id])).rows.length,1);
+  assert.equal((await db.query("select has_function_privilege('authenticated','round_two_private.guard_file_insert()','execute') as allowed")).rows[0].allowed,false);
+  // Signed uploads may insert with elevated Storage privileges. Even those
+  // cannot land against a draft that has been removed in another tab.
+  await assert.rejects(()=>db.query('insert into storage.objects(bucket_id,name,metadata) values($1,$2,$3)',
+    ['round-two-payments',`${uid}/${draft.id}/late-signed.pdf`,{size:10,mimetype:'application/pdf'}]),/no longer accepts uploads/);
+  await assert.rejects(()=>db.query('insert into storage.objects(bucket_id,name,metadata) values($1,$2,$3)',
+    ['round-two-payments',`${owner}/${coral.id}/late-approved.pdf`,{size:10,mimetype:'application/pdf'}]),/no longer accepts uploads/);
+  // A Round 1 registration may start and remove only its Round 2 draft.
+  const original=(await db.query("select * from registrations where user_id=$1 and event_id='s4-16' and team_index=2",[stranger])).rows[0];
+  const old=(await db.query('select * from round_two_entries where registration_id=$1',[original.id])).rows[0];
+  if(old) await as(stranger,()=>rpc('remove_draft_round_two',[old.id]));
+  const before=JSON.stringify((await db.query('select * from orders where id=$1',[original.order_id])).rows);
+  const next=await as(stranger,()=>rpc('start_round_two',['s4-16',original.id,null]));
+  await as(stranger,()=>rpc('remove_draft_round_two',[next.id]));
+  assert.equal(JSON.stringify((await db.query('select * from orders where id=$1',[original.order_id])).rows),before);
+  assert.equal((await db.query('select * from registrations where id=$1',[original.id])).rows.length,1);
+  await as(owner,()=>assert.rejects(()=>rpc('remove_draft_round_two',[coral.id]),/Submitted entries cannot be removed/i));
 });

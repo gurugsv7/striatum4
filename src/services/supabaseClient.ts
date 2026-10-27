@@ -1,4 +1,5 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { roundTwoFetch } from './roundTwoDiagnostics.ts';
 
 /**
  * Supabase browser client.
@@ -23,6 +24,7 @@ export const arrivedWithRecoveryLink =
 export const supabase: SupabaseClient | null =
   url && publishableKey
     ? createClient(url, publishableKey, {
+        global: { fetch: roundTwoFetch },
         auth: {
           persistSession: true,
           autoRefreshToken: true,

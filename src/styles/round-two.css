@@ -12,3 +12,52 @@
 .r2-history-item .action-link-cyan { margin: 8px 0; }
 .d-page > .r2-section { margin: 28px clamp(24px, 4vw, 64px); }
 .r2-section .admin-action-row { flex-wrap: wrap; }
+
+/* Participant hub only. Admin review and the surrounding My Events stay intact. */
+.r2-hub { --r2-rule: rgba(42,241,250,.18); }
+.r2-heading, .r2-entry-heading, .r2-pay-line { display:flex; align-items:center; justify-content:space-between; gap:16px; }
+.r2-heading .section-index-label { margin:0; }
+.r2-heading > button { flex-shrink:0; font-size:10px; letter-spacing:.06em; }
+.r2-intro { color:var(--text-muted); font-size:13px; line-height:1.6; margin:10px 0 24px; }
+.r2-hub .r2-entry { border-top:1px solid var(--r2-rule); padding:22px 0; overflow-wrap:anywhere; }
+.r2-entry-heading { align-items:flex-start; }
+.r2-entry-heading > div:first-child { min-width:0; }
+.r2-hub .myevents-row-title { margin:0; line-height:1.35; font-size:18px; }
+.r2-reference { margin:7px 0 0; color:var(--text-muted); font:10px/1.6 var(--font-mono-meta); letter-spacing:.06em; }
+.r2-fee { flex-shrink:0; text-align:right; }
+.r2-fee span { display:block; color:var(--text-muted); font:9px/1.5 var(--font-mono-meta); letter-spacing:.05em; }
+.r2-fee strong { display:block; color:var(--text-cyan-bright); font:24px/1.4 var(--font-serif-title); }
+.r2-statuses { display:flex; flex-wrap:wrap; gap:8px 20px; padding:13px 0; margin-top:8px; border-bottom:1px solid var(--r2-rule); }
+.r2-statuses span { color:var(--text-muted); font:10px/1.6 var(--font-mono-meta); letter-spacing:.03em; }
+.r2-statuses [data-status=approved], .r2-confirmed { color:var(--text-cyan-bright); }
+.r2-statuses [data-status=rejected] { color:#ffb5a9; }
+.r2-hub .r2-form { gap:18px; margin-top:18px; }
+.r2-pay-line span { color:var(--text-silver); font-size:13px; }
+.r2-pay-line a { white-space:nowrap; font-size:12px; }
+.r2-payment-details { margin-top:12px; font-size:12px; color:var(--text-muted); }
+.r2-payment-details summary { cursor:pointer; color:var(--text-silver); }
+.r2-payment-details .r2-qr { margin-top:14px; }
+.r2-hub .r2-payment-note { color:var(--text-muted); font-size:11px; margin:9px 0 0; line-height:1.6; }
+.r2-file-field .input-field-label { display:flex; justify-content:space-between; flex-wrap:wrap; gap:5px 12px; margin-bottom:8px; font-size:10px; letter-spacing:.04em; }
+.r2-file-field .input-field-label span { font:10px/1.6 var(--font-sans-ui); letter-spacing:0; color:var(--text-muted); }
+.r2-hub .r2-file-field input { background:var(--bg-input-glass); border:1px solid var(--r2-rule); border-radius:0; font-size:12px; min-height:48px; }
+.r2-hub input::file-selector-button { background:transparent; color:var(--text-cyan-bright); border:0; border-right:1px solid var(--r2-rule); margin-right:10px; padding:4px 12px 4px 0; cursor:pointer; font:10px var(--font-mono-meta); }
+.r2-hub .r2-file-name { color:var(--text-muted); margin:7px 0 0; font-size:11px; }
+.r2-hub .r2-progress:empty, .r2-hub .r2-error:empty { display:none; }
+.r2-hub .r2-progress { margin:0; color:var(--text-cyan-bright); }
+.r2-hub .r2-error { margin:0; font-size:12px; }
+.r2-hub .r2-retained, .r2-review-note { color:var(--text-muted); font-size:12px; line-height:1.7; margin:0; }
+.r2-hub .r2-retained { border-left:2px solid var(--cyan-deep); padding-left:12px; }
+.r2-hub .r2-diagnostics { justify-self:start; font-size:10px; color:var(--text-muted); margin-top:-6px; text-transform:none; }
+.r2-hub .r2-history { font-size:11px; margin-top:18px; color:var(--text-muted); }
+.r2-hub .r2-history summary { color:var(--text-muted); }
+.r2-hub .myevents-remove-row { margin-top:16px; }
+.r2-hub .r2-entry--start > button { margin-top:16px; }
+.r2-hub button:disabled { opacity:.5; cursor:wait; }
+.r2-hub [data-r2-remove]:disabled { cursor:default; }
+@media(min-width:900px) {
+  .r2-hub .r2-entry { max-width:740px; }
+  .r2-hub .r2-form { grid-template-columns:1fr 1fr; gap:20px; }
+  .r2-hub .r2-payment, .r2-hub .r2-retained, .r2-hub .r2-progress, .r2-hub .r2-error, .r2-hub .r2-diagnostics, .r2-hub .r2-form > button[type=submit] { grid-column:1 / -1; }
+  .r2-hub .r2-form > button[type=submit] { max-width:380px; }
+}
