@@ -16,7 +16,7 @@ export function renderAdditionalAbstracts(entry:roundTwo.RoundTwoEntry):string {
   return `<section class="r2-extras" aria-label="Additional abstracts">
     <div class="r2-extras-heading"><span>ADDITIONAL ABSTRACTS</span><span>${list.length} SUBMITTED</span></div>
     ${list.length?`<div class="r2-extra-list">${list.map((a,i)=>`<div class="r2-extra-item">
-      <div><span class="r2-extra-index">ABSTRACT ${i+2}</span>${kind==='payment' ? `<button type="button" class="action-link-cyan" data-r2-file="${esc(a.payment_path)}" data-r2-kind="payment">VIEW NEW PAYMENT PROOF</button>` : `<button type="button" class="action-link-cyan" data-r2-file="${esc(a.abstract_path)}" data-r2-kind="abstract">${esc(a.abstract_name)}</button>`}
+      <div><span class="r2-extra-index">ABSTRACT ${i+2}</span><button type="button" class="action-link-cyan" data-r2-file="${esc(a.abstract_path)}" data-r2-kind="abstract">${esc(a.abstract_name)}</button>
       <small>${esc(new Date(a.submitted_at).toLocaleDateString('en-IN'))}</small></div>
       <span class="r2-extra-status" data-status="${a.status}">ABSTRACT: ${label(a.status)} · PAYMENT: ${label(a.payment_status)}</span>
       ${a.review_reason?`<p class="reg-error-line">${esc(a.review_reason)}</p>`:''}
