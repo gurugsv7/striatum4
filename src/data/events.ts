@@ -377,7 +377,7 @@ function applyLatestBrochureData(event: SymposiumEvent): SymposiumEvent {
  * says afternoon while its event page says 9 AM, so its start time stays unset.
  */
 const FINAL_BROCHURE_UPDATES: Record<string, Partial<SymposiumEvent>> = {
-  's4-02': { slots: 75 },
+  's4-02': { slots: 75, status: 'closed', registerable: false },
   's4-09': { slots: 30 },
   's4-13': { startTime: undefined, endTime: undefined }, // 6 PM is for the 18 Oct ONLINE prelim, not the 28 Oct onsite rounds
   's4-14': {
