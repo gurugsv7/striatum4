@@ -21,7 +21,8 @@ function fileField(entry: roundTwo.RoundTwoEntry, kind: 'abstract' | 'payment'):
   const saved = roundTwo.recoverableFile(entry.id, kind);
   const name = file?.name ?? saved?.name;
   const payment = kind === 'payment';
-  return `<div class="r2-file-field"><label class="input-field-label" for="r2-${kind}-${entry.id}">${payment ? '01 / PAYMENT PROOF' : '02 / ABSTRACT'}<span>${payment ? 'JPG, PNG, PDF · 5 MB' : 'PDF, Word, PowerPoint · 10 MB'}</span></label>
+  return `<div class="r2-file-field"><label class="input-field-label" for="r2-${kind}-${entry.id}">${payment ? '01 / PAYMENT PROOF' : '02 / FINAL ABSTRACT'}<span>${payment ? 'JPG, PNG, PDF · 5 MB' : 'PDF, Word, PowerPoint · 10 MB'}</span></label>
+    ${payment ? '' : '<p class="r2-file-name">Upload your FINAL abstract for Round 2, not the previous-round abstract.</p>'}
     <input class="text-input-field" id="r2-${kind}-${entry.id}" name="${kind}" type="file" accept="${payment ? '.jpg,.jpeg,.png,.pdf' : '.pdf,.doc,.docx,.ppt,.pptx'}" ${name ? '' : 'required'} ${roundTwo.roundTwoOperation(entry.id).busy ? 'disabled' : ''} />
     <p class="r2-file-name">${name ? `${file ? 'Selected' : saved?.confirmed ? 'Uploaded' : 'Resume upload'}: ${esc(name)}` : 'Choose a file from this device'}</p></div>`;
 }
@@ -51,20 +52,20 @@ export function renderRoundTwoHub(): string {
       const proofSelected = roundTwo.hasRoundTwoFile(entry.id,'payment');
       return `<article class="r2-entry" data-r2-entry="${entry.id}">
         <header class="r2-entry-heading"><div><h3 class="myevents-row-title">${esc(getEvent(entry.event_id)?.name ?? entry.event_id)}</h3><p class="r2-reference">ROUND 2 · ${entry.id.slice(0,8).toUpperCase()}${original ? ` · ENTRY ${original.teamIndex ?? 1}` : ''}</p></div><div class="r2-fee"><span>ROUND 2 FEE</span><strong>${formatINR(entry.fee)}</strong></div></header>
-        <div class="r2-statuses"><span data-status="${entry.payment_status}">PAYMENT: ${label(entry.payment_status)}</span><span data-status="${entry.submission_status}">ABSTRACT: ${label(entry.submission_status)}</span></div>
+        <div class="r2-statuses"><span data-status="${entry.payment_status}">PAYMENT: ${label(entry.payment_status)}</span><span data-status="${entry.submission_status}">FINAL ABSTRACT: ${label(entry.submission_status)}</span></div>
         ${complete?'<p class="r2-confirmed">ROUND 2 CONFIRMED</p>':''}
         ${a?.payment_reason?`<p class="reg-error-line">Payment: ${esc(a.payment_reason)}</p>`:''}
-        ${a?.submission_reason?`<p class="reg-error-line">Abstract: ${esc(a.submission_reason)}</p>`:''}
+        ${a?.submission_reason?`<p class="reg-error-line">Final abstract: ${esc(a.submission_reason)}</p>`:''}
         ${editable?`<form data-r2-submit="${entry.id}" class="r2-form" aria-busy="${op.busy}">
           ${entry.payment_status==='approved'?'<p class="r2-retained">Payment approved. No further payment is required.</p>':`<div class="r2-payment"><div class="r2-pay-line"><span>${esc(SYMPOSIUM_UPI_ID)}</span><a class="action-link-cyan" href="${symposiumUpiIntent(entry.fee,'STRIATUM R2 '+entry.id.slice(0,8))}">OPEN UPI APP ↗</a></div><details class="r2-payment-details" open><summary>QR & manual payment (if UPI link fails)</summary><img class="r2-qr" src="${SYMPOSIUM_UPI_QR}" alt="UPI payment QR for ${esc(SYMPOSIUM_UPI_ID)}" /><p>Use reference <strong>${entry.id.slice(0,8).toUpperCase()}</strong> in the payment note.</p></details><p class="r2-payment-note">GPay showing “recipient not accepting UPI”? Open GPay manually and pay to <strong>${esc(SYMPOSIUM_UPI_ID)}</strong>, or scan the QR from another device. Verify the payee name before confirming. If manual payment also fails, contact the organisers. Already paid? Upload the proof; do not pay again.</p></div>${fileField(entry,'payment')}`}
-          ${entry.submission_status==='approved'?'<p class="r2-retained">Your approved Round 2 abstract is retained.</p>':fileField(entry,'abstract')}
+          ${entry.submission_status==='approved'?'<p class="r2-retained">Your approved final abstract is retained.</p>':fileField(entry,'abstract')}
           <p class="r2-progress" role="status" aria-live="polite">${esc(op.progress)}</p><p class="r2-error reg-error-line" role="alert">${esc(op.error)}</p>
           <button class="btn-chamfer-primary" type="submit" ${locked?'disabled':''}>${op.busy?'SUBMITTING…':'SUBMIT ROUND 2 FOR REVIEW →'}</button>
           <button type="button" class="r2-diagnostics action-link-cyan" data-r2-diagnostics>Copy upload diagnostics</button>
         </form>`:'<p class="r2-review-note">Both reviews must be approved to confirm your place.</p>'}
         ${removable ? `<div class="myevents-remove-row"><button type="button" class="myevents-remove-btn ${confirmingDraftId===entry.id?'is-armed':''}" data-r2-remove="${entry.id}" ${locked||proofSelected?'disabled':''}>${confirmingDraftId===entry.id?'TAP AGAIN TO REMOVE':'REMOVE'}</button>${confirmingDraftId===entry.id?'<button type="button" class="myevents-remove-cancel" data-r2-keep>KEEP IT</button>':''}</div>${proofSelected?'<p class="r2-payment-note">Proof attached — keep this entry if you have paid.</p>':confirmingDraftId===entry.id?'<p class="myevents-remove-note">Remove this unfinished Round 2 entry? If you already paid, keep it and contact the organisers. Earlier registrations stay on record.</p>':''}` : ''}
         ${renderAdditionalAbstracts(entry)}
-        <details class="r2-history"><summary>${entry.round_two_attempts.length ? `Submission history · ${entry.round_two_attempts.length}` : 'About this round'}</summary><p>Round 2 has a separate fee and abstract. Earlier payments and Round 1 files stay on record.</p>${[...entry.round_two_attempts].sort((a,b)=>b.attempt_number-a.attempt_number).map(at=>`<div class="r2-history-item"><p>${esc(new Date(at.submitted_at).toLocaleString('en-IN'))} · PAYMENT ${label(at.payment_status)} · ABSTRACT ${label(at.submission_status)}</p>${evidence(at,'abstract')}${evidence(at,'payment')}</div>`).join('')}</details>
+        <details class="r2-history"><summary>${entry.round_two_attempts.length ? `Submission history · ${entry.round_two_attempts.length}` : 'About this round'}</summary><p>Round 2 requires your final abstract and a separate payment. Do not reupload the previous-round abstract. Earlier payments and Round 1 files remain on record.</p>${[...entry.round_two_attempts].sort((a,b)=>b.attempt_number-a.attempt_number).map(at=>`<div class="r2-history-item"><p>${esc(new Date(at.submitted_at).toLocaleString('en-IN'))} · PAYMENT ${label(at.payment_status)} · ABSTRACT ${label(at.submission_status)}</p>${evidence(at,'abstract')}${evidence(at,'payment')}</div>`).join('')}</details>
       </article>`;
     }).join('')}
   </section>`;
@@ -73,7 +74,7 @@ export function renderRoundTwoHub(): string {
 export function renderRoundTwoAdmin(kind: 'payment' | 'submission', eventId?: string): string {
   const entries = roundTwo.allRoundTwo().filter(e=>!eventId || e.event_id===eventId);
   if (roundTwo.roundTwoError()) return `<p role="alert">${esc(roundTwo.roundTwoError())}</p><button class="action-link-cyan" data-r2-refresh>RETRY ROUND 2</button>`;
-  return `<section class="r2-section" aria-label="Round 2 ${kind} review"><div class="section-index-label"><span class="cyan-num">R2</span><span class="slash">/</span><span class="section-name">ROUND 2 · ${kind==='payment'?'PAYMENT VERIFICATION':'ABSTRACT REVIEW'}</span></div>
+  return `<section class="r2-section" aria-label="Round 2 ${kind} review"><div class="section-index-label"><span class="cyan-num">R2</span><span class="slash">/</span><span class="section-name">ROUND 2 · ${kind==='payment'?'PAYMENT VERIFICATION':'FINAL ABSTRACT REVIEW'}</span></div>
     <button class="action-link-cyan" data-r2-refresh>REFRESH ROUND 2 STATUS ↻</button>
     ${kind==='payment'?`<p class="explore-subtitle">Verified Round 2 revenue: ${formatINR(entries.filter(e=>e.payment_status==='approved').reduce((sum,e)=>sum+e.fee,0))} · Pending: ${formatINR(entries.filter(e=>e.payment_status==='under_review').reduce((sum,e)=>sum+e.fee,0))}</p>`:''}
     ${entries.map(entry=>{
@@ -88,7 +89,7 @@ export function renderRoundTwoAdmin(kind: 'payment' | 'submission', eventId?: st
             <div class="admin-action-row"><button type="submit" name="decision" value="approve" class="btn-chamfer-primary" ${roundTwo.roundTwoReviewDraft(a.id,kind).busy?'disabled':''}>APPROVE ${kind.toUpperCase()}</button><button type="submit" name="decision" value="reject" class="btn-chamfer-dark" ${roundTwo.roundTwoReviewDraft(a.id,kind).busy?'disabled':''}>REQUEST CORRECTION</button></div>
           </form>`:`<p>${esc(a[kind==='payment'?'payment_reason':'submission_reason'] ?? '')}</p>`}
           ${renderAdminAdditionalAbstracts(entry,kind)}
-          <details class="r2-history"><summary>Earlier attempts and review history</summary>${entry.round_two_attempts.map(at=>`<div class="r2-history-item"><p>${esc(new Date(at.submitted_at).toLocaleString('en-IN'))} · ${label(at[kind==='payment'?'payment_status':'submission_status'])}</p>${evidence(at,kind==='payment'?'payment':'abstract')}<p>${esc(at[kind==='payment'?'payment_reason':'submission_reason'] ?? '')}</p></div>`).join('')}</details>`:'<p>Awaiting payment and abstract upload.</p>'}
+          <details class="r2-history"><summary>Earlier attempts and review history</summary>${entry.round_two_attempts.map(at=>`<div class="r2-history-item"><p>${esc(new Date(at.submitted_at).toLocaleString('en-IN'))} · ${label(at[kind==='payment'?'payment_status':'submission_status'])}</p>${evidence(at,kind==='payment'?'payment':'abstract')}<p>${esc(at[kind==='payment'?'payment_reason':'submission_reason'] ?? '')}</p></div>`).join('')}</details>`:'<p>Awaiting payment and final abstract upload.</p>'}
       </div>`;
     }).join('') || '<p class="explore-subtitle">No Round 2 entries yet.</p>'}
   </section>`;
@@ -145,7 +146,7 @@ export function attachRoundTwo(): void {
     const status=form.querySelector<HTMLElement>('.r2-progress')!;
     const abstract=roundTwo.stagedFiles(id).abstract;
     const proof=roundTwo.stagedFiles(id).payment;
-    const labels={abstract:'Uploading abstract…', payment:'Uploading payment proof…', saving:'Saving submission for review…'};
+    const labels={abstract:'Uploading final abstract…', payment:'Uploading payment proof…', saving:'Saving submission for review…'};
     form.querySelector('.r2-error')!.textContent='';
     button.textContent='UPLOADING…';
     try {
