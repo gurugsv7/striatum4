@@ -3,7 +3,7 @@ import * as extra from '../services/extraAbstractService.ts';
 import * as roundTwo from '../services/roundTwoService.ts';
 import { escapeHtml as esc } from '../services/text.ts';
 import { formatINR } from '../services/pricing.ts';
-import { SYMPOSIUM_UPI_ID, SYMPOSIUM_UPI_QR } from '../data/payment.ts';
+import { SYMPOSIUM_UPI_ID, SYMPOSIUM_UPI_QR, symposiumUpiIntent } from '../data/payment.ts';
 
 const label=(s:string)=>s.replace(/_/g,' ').toUpperCase();
 const openExtra = new Set<string>();
@@ -25,12 +25,12 @@ export function renderAdditionalAbstracts(entry:roundTwo.RoundTwoEntry):string {
       <form data-r2-extra-submit="${entry.id}" data-r2-extra-user="${entry.user_id}">
         <div class="r2-payment">
           <div class="r2-pay-line"><span>NEW ABSTRACT FEE · <strong>${formatINR(entry.fee)}</strong></span>
-          <a class="action-link-cyan" href="upi://pay?pa=${encodeURIComponent(SYMPOSIUM_UPI_ID)}&am=${entry.fee}&cu=INR&tn=${encodeURIComponent('STRIATUM EXTRA ABSTRACT '+entry.id.slice(0,8))}">PAY ${formatINR(entry.fee)} VIA UPI ↗</a></div>
-          <details class="r2-payment-details"><summary>Payment QR and reference</summary>
+          <a class="action-link-cyan" href="${symposiumUpiIntent(entry.fee,'STRIATUM EXTRA ABSTRACT '+entry.id.slice(0,8))}">PAY ${formatINR(entry.fee)} VIA UPI ↗</a></div>
+          <details class="r2-payment-details" open><summary>QR & manual payment if UPI app link fails</summary>
             <img class="r2-qr" src="${SYMPOSIUM_UPI_QR}" alt="STRIATUM payment QR" />
             <p>Include ${entry.id.slice(0,8).toUpperCase()} and "additional abstract" in the payment note.</p>
           </details>
-          <p class="r2-payment-note">Each additional abstract requires a NEW payment. Never reuse your previous payment proof.</p>
+          <p class="r2-payment-note">Each additional abstract requires a NEW payment. If the direct UPI link fails, pay manually in GPay to ${esc(SYMPOSIUM_UPI_ID)} or scan the QR with another device. Verify the recipient before paying. Do not reuse your previous proof.</p>
         </div>
         <label class="input-field-label" for="r2-extra-proof-${entry.id}">NEW PAYMENT PROOF <span>JPG, PNG or PDF · 5 MB</span></label>
         <input id="r2-extra-proof-${entry.id}" type="file" name="extra_payment" accept=".jpg,.jpeg,.png,.pdf" ${extra.extraAbstractBusy(entry.id)?'disabled':''}/>
