@@ -6,7 +6,7 @@ import * as roundTwo from '../services/roundTwoService.ts';
 import { getEvent } from '../data/events.ts';
 import { escapeHtml as esc } from '../services/text.ts';
 import { formatINR } from '../services/pricing.ts';
-import { SYMPOSIUM_UPI_ID, SYMPOSIUM_UPI_QR } from '../data/payment.ts';
+import { SYMPOSIUM_UPI_ID, SYMPOSIUM_UPI_QR, symposiumUpiIntent } from '../data/payment.ts';
 
 const label = (status: string) => status.replace(/_/g,' ').toUpperCase();
 const busy = new Set<string>();
@@ -56,7 +56,7 @@ export function renderRoundTwoHub(): string {
         ${a?.payment_reason?`<p class="reg-error-line">Payment: ${esc(a.payment_reason)}</p>`:''}
         ${a?.submission_reason?`<p class="reg-error-line">Abstract: ${esc(a.submission_reason)}</p>`:''}
         ${editable?`<form data-r2-submit="${entry.id}" class="r2-form" aria-busy="${op.busy}">
-          ${entry.payment_status==='approved'?'<p class="r2-retained">Payment approved. No further payment is required.</p>':`<div class="r2-payment"><div class="r2-pay-line"><span>${esc(SYMPOSIUM_UPI_ID)}</span><a class="action-link-cyan" href="upi://pay?pa=${encodeURIComponent(SYMPOSIUM_UPI_ID)}&am=${entry.fee}&cu=INR&tn=${encodeURIComponent('STRIATUM R2 '+entry.id.slice(0,8))}">PAY ${formatINR(entry.fee)} ↗</a></div><details class="r2-payment-details"><summary>QR & payment reference</summary><img class="r2-qr" src="${SYMPOSIUM_UPI_QR}" alt="UPI payment QR for ${esc(SYMPOSIUM_UPI_ID)}" /><p>Use reference <strong>${entry.id.slice(0,8).toUpperCase()}</strong> in the payment note.</p></details><p class="r2-payment-note">Already paid? Upload that proof. Do not pay again.</p></div>${fileField(entry,'payment')}`}
+          ${entry.payment_status==='approved'?'<p class="r2-retained">Payment approved. No further payment is required.</p>':`<div class="r2-payment"><div class="r2-pay-line"><span>${esc(SYMPOSIUM_UPI_ID)}</span><a class="action-link-cyan" href="${symposiumUpiIntent(entry.fee,'STRIATUM R2 '+entry.id.slice(0,8))}">OPEN UPI APP ↗</a></div><details class="r2-payment-details" open><summary>QR & manual payment (if UPI link fails)</summary><img class="r2-qr" src="${SYMPOSIUM_UPI_QR}" alt="UPI payment QR for ${esc(SYMPOSIUM_UPI_ID)}" /><p>Use reference <strong>${entry.id.slice(0,8).toUpperCase()}</strong> in the payment note.</p></details><p class="r2-payment-note">GPay showing “recipient not accepting UPI”? Open GPay manually and pay to <strong>${esc(SYMPOSIUM_UPI_ID)}</strong>, or scan the QR from another device. Verify the payee name before confirming. If manual payment also fails, contact the organisers. Already paid? Upload the proof; do not pay again.</p></div>${fileField(entry,'payment')}`}
           ${entry.submission_status==='approved'?'<p class="r2-retained">Your approved Round 2 abstract is retained.</p>':fileField(entry,'abstract')}
           <p class="r2-progress" role="status" aria-live="polite">${esc(op.progress)}</p><p class="r2-error reg-error-line" role="alert">${esc(op.error)}</p>
           <button class="btn-chamfer-primary" type="submit" ${locked?'disabled':''}>${op.busy?'SUBMITTING…':'SUBMIT ROUND 2 FOR REVIEW →'}</button>
