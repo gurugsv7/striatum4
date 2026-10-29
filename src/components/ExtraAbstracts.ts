@@ -13,15 +13,15 @@ export function renderAdditionalAbstracts(entry:roundTwo.RoundTwoEntry):string {
   const list=extra.extraAbstractsFor(entry.id);
   const file=extra.extraAbstractFile(entry.id);
   const proof=extra.extraPaymentFile(entry.id);
-  return `<section class="r2-extras" aria-label="Additional abstracts">
-    <div class="r2-extras-heading"><span>ADDITIONAL ABSTRACTS</span><span>${list.length} SUBMITTED</span></div>
+  return `<section class="r2-extras" aria-label="Additional final abstracts">
+    <div class="r2-extras-heading"><span>ADDITIONAL FINAL ABSTRACTS</span><span>${list.length} SUBMITTED</span></div>
     ${list.length?`<div class="r2-extra-list">${list.map((a,i)=>`<div class="r2-extra-item">
-      <div><span class="r2-extra-index">ABSTRACT ${i+2}</span><button type="button" class="action-link-cyan" data-r2-file="${esc(a.abstract_path)}" data-r2-kind="abstract">${esc(a.abstract_name)}</button>
+      <div><span class="r2-extra-index">FINAL ABSTRACT ${i+2}</span><button type="button" class="action-link-cyan" data-r2-file="${esc(a.abstract_path)}" data-r2-kind="abstract">${esc(a.abstract_name)}</button>
       <small>${esc(new Date(a.submitted_at).toLocaleDateString('en-IN'))}</small></div>
-      <span class="r2-extra-status" data-status="${a.status}">ABSTRACT: ${label(a.status)} · PAYMENT: ${label(a.payment_status)}</span>
+      <span class="r2-extra-status" data-status="${a.status}">FINAL ABSTRACT: ${label(a.status)} · PAYMENT: ${label(a.payment_status)}</span>
       ${a.review_reason?`<p class="reg-error-line">${esc(a.review_reason)}</p>`:''}
-    </div>`).join('')}</div>`:'<p class="r2-extra-hint">Your first abstract remains on record. You can add more ideas under the same registration.</p>'}
-    <details class="r2-extra-add" data-r2-extra-details="${entry.id}" ${openExtra.has(entry.id)?'open':''}><summary>+ UPLOAD ANOTHER ABSTRACT</summary>
+    </div>`).join('')}</div>`:'<p class="r2-extra-hint">Your submitted final abstract remains on record. Each additional final abstract needs a separate payment.</p>'}
+    <details class="r2-extra-add" data-r2-extra-details="${entry.id}" ${openExtra.has(entry.id)?'open':''}><summary>+ UPLOAD ANOTHER FINAL ABSTRACT</summary>
       <form data-r2-extra-submit="${entry.id}" data-r2-extra-user="${entry.user_id}">
         <div class="r2-payment">
           <div class="r2-pay-line"><span>NEW ABSTRACT FEE · <strong>${formatINR(entry.fee)}</strong></span>
@@ -35,9 +35,9 @@ export function renderAdditionalAbstracts(entry:roundTwo.RoundTwoEntry):string {
         <label class="input-field-label" for="r2-extra-proof-${entry.id}">NEW PAYMENT PROOF <span>JPG, PNG or PDF · 5 MB</span></label>
         <input id="r2-extra-proof-${entry.id}" type="file" name="extra_payment" accept=".jpg,.jpeg,.png,.pdf" ${extra.extraAbstractBusy(entry.id)?'disabled':''}/>
         <p class="r2-file-name">${proof?`Selected: ${esc(proof.name)}`:'Select the NEW payment screenshot'}</p>
-        <label class="input-field-label" for="r2-extra-${entry.id}">NEW ABSTRACT <span>PDF, Word or PowerPoint · 10 MB</span></label>
+        <label class="input-field-label" for="r2-extra-${entry.id}">NEW FINAL ABSTRACT <span>PDF, Word or PowerPoint · 10 MB</span></label>
         <input id="r2-extra-${entry.id}" type="file" name="extra_abstract" accept=".pdf,.doc,.docx,.ppt,.pptx" ${extra.extraAbstractBusy(entry.id)?'disabled':''}/>
-        <p class="r2-file-name">${file?`Selected: ${esc(file.name)}`:'Choose a separate abstract file'}</p>
+        <p class="r2-file-name">${file?`Selected: ${esc(file.name)}`:'Choose the final version of this additional abstract'}</p>
         <p class="reg-error-line" role="alert">${esc(extra.extraAbstractError(entry.id))}</p>
         <button class="btn-chamfer-primary" type="submit" ${!file||!proof||extra.extraAbstractBusy(entry.id)?'disabled':''}>${extra.extraAbstractBusy(entry.id)?'UPLOADING…':'SUBMIT ADDITIONAL ABSTRACT →'}</button>
         <p class="r2-extra-hint">A separate fee and payment proof are required for each additional abstract. Both payment and abstract will be reviewed.</p>
@@ -49,12 +49,12 @@ export function renderAdminAdditionalAbstracts(entry:roundTwo.RoundTwoEntry,kind
   const list=extra.extraAbstractsFor(entry.id);
   if(!list.length)return '';
   return `<section class="r2-extras r2-extras--admin" aria-label="Additional abstracts for review">
-    <div class="r2-extras-heading"><span>ADDITIONAL ABSTRACTS</span><span>${list.length}</span></div>
+    <div class="r2-extras-heading"><span>ADDITIONAL FINAL ABSTRACTS</span><span>${list.length}</span></div>
     ${list.map((a,i)=>`<div class="r2-extra-item">
-      <div><span class="r2-extra-index">ADDITIONAL ABSTRACT ${i+1} · ${formatINR(a.fee)}</span>
+      <div><span class="r2-extra-index">ADDITIONAL FINAL ABSTRACT ${i+1} · ${formatINR(a.fee)}</span>
       ${kind==='payment' ? `<button type="button" class="action-link-cyan" data-r2-file="${esc(a.payment_path)}" data-r2-kind="payment">VIEW NEW PAYMENT PROOF</button>` : `<button type="button" class="action-link-cyan" data-r2-file="${esc(a.abstract_path)}" data-r2-kind="abstract">${esc(a.abstract_name)}</button>`}
       <small>${esc(new Date(a.submitted_at).toLocaleString('en-IN'))}</small></div>
-      <span class="r2-extra-status" data-status="${kind==='payment'?a.payment_status:a.status}">${kind==='payment'?'PAYMENT: '+label(a.payment_status):'ABSTRACT: '+label(a.status)}</span>
+      <span class="r2-extra-status" data-status="${kind==='payment'?a.payment_status:a.status}">${kind==='payment'?'PAYMENT: '+label(a.payment_status):'FINAL ABSTRACT: '+label(a.status)}</span>
       ${(kind==='payment'?a.payment_status:a.status)==='under_review'?`<form data-r2-extra-review="${a.id}" data-r2-extra-kind="${kind}">
         <label class="input-field-label" for="extra-reason-${a.id}">Reason if requesting correction</label>
         <textarea id="extra-reason-${a.id}" name="reason" maxlength="2000">${esc(extra.extraReviewReason(a.id+':'+kind))}</textarea>
