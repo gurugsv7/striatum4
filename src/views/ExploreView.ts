@@ -41,16 +41,12 @@ function scheduleLine(event: SymposiumEvent): string {
   return event.startTime ? event.date + ' · ' + event.startTime : event.date;
 }
 
-/** Price · capacity line. Each half is omitted independently when unpublished. */
+/** Public price line. Each half is omitted independently when unpublished. */
 function commercialLine(event: SymposiumEvent): string {
   const parts: string[] = [];
   const price = priceLabel(event);
   if (price) parts.push(price);
 
-  const cap = registration.getCapacity(event.id);
-  if (cap.slots !== null) {
-    parts.push(cap.available === 0 ? 'FULL' : cap.available + ' of ' + cap.slots + ' slots');
-  }
   return parts.join(' · ');
 }
 

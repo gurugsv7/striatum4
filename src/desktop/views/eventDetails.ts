@@ -42,7 +42,6 @@ function teamSizeCaption(event: SymposiumEvent): string | null {
 
 function renderFacts(event: SymposiumEvent): string {
   const price = resolvePrice(event, participationFor(event));
-  const capacity = registration.getCapacity(event.id);
   const cells: { label: string; value: string; caption?: string }[] = [];
 
   if (event.date) {
@@ -66,14 +65,6 @@ function renderFacts(event: SymposiumEvent): string {
     value: event.format,
     caption: teamSizeCaption(event) ?? (event.participation === 'either' ? 'Individual or team' : undefined)
   });
-
-  if (capacity.slots !== null) {
-    cells.push({
-      label: 'SLOTS',
-      value: String(capacity.slots),
-      caption: capacity.available === 0 ? 'Full' : capacity.available + ' available'
-    });
-  }
 
   if (event.venue) cells.push({ label: 'VENUE', value: event.venue });
   if (event.prizes?.totalValue) cells.push({ label: 'PRIZE POOL', value: formatINR(event.prizes.totalValue) });
@@ -228,17 +219,11 @@ function noRegistrationNote(event: SymposiumEvent): string {
 
 function renderConsole(event: SymposiumEvent): string {
   const price = resolvePrice(event, participationFor(event));
-  const capacity = registration.getCapacity(event.id);
   const cta = registration.getCtaState(event.id);
   // "REGISTER" would be a small lie where nothing is bought.
   const label =
     isRoundTwo(event.id) && cta === 'add_to_cart' ? 'REGISTER FOR ROUND 2' : isRoundTwo(event.id) && cta === 'registered' ? 'CONTINUE ROUND 2' : event.abstractFirst && cta === 'add_to_cart' ? 'SUBMIT ABSTRACT' : registration.CTA_LABELS[cta];
   const disabled = cta === 'full' || cta === 'closed' || cta === 'not_registerable';
-
-  const filled =
-    capacity.slots !== null && capacity.available !== null
-      ? Math.max(0, Math.min(100, ((capacity.slots - capacity.available) / capacity.slots) * 100))
-      : null;
 
   const lateFee = event.pricing.lateBird ?? event.pricing.spot ?? null;
 
@@ -251,7 +236,6 @@ function renderConsole(event: SymposiumEvent): string {
   }
   if (event.reportingTime) facts.push({ label: 'REPORTING', value: event.reportingTime });
   if (event.venue) facts.push({ label: 'VENUE', value: event.venue });
-  if (capacity.slots !== null) facts.push({ label: 'CAPACITY', value: 'Limited to ' + capacity.slots });
 
   return `
     <aside class="d-console" aria-label="Registration">
@@ -277,20 +261,6 @@ function renderConsole(event: SymposiumEvent): string {
               : ''
           }
         </div>
-
-        ${
-          filled !== null
-            ? `<div class="d-meter">
-                <div class="d-meter-head">
-                  <span class="d-hud-label">CAPACITY</span>
-                  <span class="d-meta" style="color: ${capacity.available === 0 ? '#ff9a9a' : 'var(--cyan-glow)'};">
-                    ${capacity.available === 0 ? 'FULL' : capacity.available + ' OF ' + capacity.slots + ' LEFT'}
-                  </span>
-                </div>
-                <div class="d-meter-track"><div class="d-meter-fill" style="width: ${filled.toFixed(1)}%;"></div></div>
-              </div>`
-            : '<div style="height: 22px;"></div>'
-        }
 
         ${renderParticipationChoice(event)}
         ${slotButton('btn-event-primary-action', label, disabled)}

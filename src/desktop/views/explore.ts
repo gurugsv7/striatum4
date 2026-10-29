@@ -47,12 +47,6 @@ function scheduleLine(event: SymposiumEvent): string {
   return event.startTime ? event.date + ' · ' + event.startTime : event.date;
 }
 
-function capacityLine(event: SymposiumEvent): string {
-  const capacity = registration.getCapacity(event.id);
-  if (capacity.slots === null) return '';
-  return capacity.available === 0 ? 'FULL' : capacity.available + ' of ' + capacity.slots + ' slots';
-}
-
 function stateChip(eventId: string): string {
   switch (registration.getCtaState(eventId)) {
     case 'registered':
@@ -71,7 +65,6 @@ function stateChip(eventId: string): string {
 function renderCard(event: SymposiumEvent, index: number): string {
   const schedule = scheduleLine(event);
   const price = priceLabel(event);
-  const capacity = capacityLine(event);
   const chip = stateChip(event.id);
 
   return `
@@ -86,7 +79,6 @@ function renderCard(event: SymposiumEvent, index: number): string {
       <span class="d-card-body">
         <span class="d-card-top">
           ${chip || `<span class="d-pill">${event.format}</span>`}
-          ${capacity ? `<span class="d-meta">${capacity}</span>` : ''}
         </span>
 
         <span class="d-card-title">${event.name}</span>
